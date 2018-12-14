@@ -104,17 +104,15 @@ class tp_framework extends Module
     {
         $result = new stdClass();
         $result->table = 'hook';
-        $result->columns =
-        [
-            ['id_hook','id_hook'],
-            ['title','meta_title'],
-            ['description','meta_description']
-        ];
-        $result->drop =
-        [
+        $result->columns = array(
+            array('id_hook','id_hook'),
+            array('title','meta_title'),
+            array('description','meta_description')
+        );
+        $result->drop = array(
             'hook',
-            ['title','description']
-        ];
+            array('title','description')
+        );
 
         return $result;
     }
