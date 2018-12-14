@@ -4,13 +4,18 @@
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
  * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
  * @license    Single website per license
- * @version    1.0
- * @since      1.0
+ * @version    0.0.1
+ * @since      0.0.1
  */
 
-//We call the default Hook class
-//require_once _PS_CLASS_DIR_.'Hook.php';
+/**
+* This class is related to any content species on the website. E.g. product
+*/
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkEntity.php';
 
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkArray.php';
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTable.php';
 
@@ -75,6 +80,9 @@ class tp_framework extends Module
     {
         $result = new stdClass();
 
+        $result->array = new FrameworkArray();
+        $result->convert = new FrameworkConvert();
+        $result->database = new FrameworkDatabase();
         $result->tab = new FrameworkTab();
         $result->table = new FrameworkTable();
 
@@ -87,5 +95,27 @@ class tp_framework extends Module
     public function getLanguages($limit = false)
     {
         return Language::getLanguages($limit, $this->context->shop->id);
+    }
+
+    /**
+    *
+    */
+    public function toLang()
+    {
+        $result = new stdClass();
+        $result->table = 'hook';
+        $result->columns =
+        [
+            ['id_hook','id_hook'],
+            ['title','meta_title'],
+            ['description','meta_description']
+        ];
+        $result->drop =
+        [
+            'hook',
+            ['title','description']
+        ];
+
+        return $result;
     }
 }
