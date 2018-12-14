@@ -34,7 +34,7 @@ class tp_framework extends Module
 		$this->tab = 'front_office_features';
 		$this->version = '1.0.0';
 		$this->author = 'tapanda.gr';
-		$this->ps_versions_compliancy = ['min' => '1.7','max' => _PS_VERSION_];
+		$this->ps_versions_compliancy = array('min' => '1.7','max' => _PS_VERSION_);
 		$this->bootstrap = true;
 
         parent::__construct();
