@@ -8,18 +8,21 @@
  * @since      0.0.1
  */
 
-$tabs = [
-	[
-        'class_name' => 'AdminFrameworkFiles',
-        'name' => 'Αρχεία',
-    ],[
+$tabs = array(
+	array(
+		'class_name' => 'AdminFrameworkFiles',
+		'name' => 'Αρχεία',
+    ),
+	array(
         'class_name' => 'AdminFrameworkHooks',
         'name' => 'Άγκιστρα',
-    ],[
+    ),
+	array(
         'class_name' => 'AdminFrameworkEntities',
         'name' => 'Οντότητες',
-    ],[
+    ),
+	array(
         'class_name' => 'AdminFrameworkSettings',
         'name' => 'Ρυθμίσεις',
-    ]
-];
+    )
+);
