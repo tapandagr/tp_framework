@@ -19,7 +19,7 @@ class FrameworkArray
     */
     public static function getColumnFromArray($array,$index)
     {
-        $result = [];
+        $result = array();
 
         for ($x=0; $x < count($array); $x++)
         {
