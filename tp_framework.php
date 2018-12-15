@@ -4,9 +4,12 @@
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
  * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
  * @license    Single website per license
- * @version    0.0.1
+ * @version    0.0.2
  * @since      0.0.1
  */
+
+//We call the default Hook class
+require_once _PS_CLASS_DIR_.'Hook.php';
 
 /**
 * This class is related to any content species on the website. E.g. product
@@ -26,24 +29,24 @@ class tp_framework extends Module
     */
     public function __construct()
     {
-        $this->class = $this->getClasses();
+        //Get the shop languages
+        $this->languages = $this->getLanguages();
 
-        //$this->table = new FrameworkTable();
+        //Get the module classes
+        $this->class = $this->getClasses();
 
         $this->name = 'tp_framework';
 		$this->tab = 'front_office_features';
 		$this->version = '1.0.0';
 		$this->author = 'tapanda.gr';
-		$this->ps_versions_compliancy = array('min' => '1.7','max' => _PS_VERSION_);
+		$this->ps_versions_compliancy = ['min' => '1.7','max' => _PS_VERSION_];
+        $this->need_instance = 0;
 		$this->bootstrap = true;
 
         parent::__construct();
 
 		$this->displayName = $this->trans('Σκελετός', array(), 'Modules.tp_framework.Admin');
 		$this->description = $this->trans('Το απαιτούμενο πρόσθετο για να λειτουργούν τα υπόλοιπα πρόσθετα παραγωγής μας', array(), 'Modules.tp_framework.Admin');
-
-        //Get the shop languages
-        $this->languages = $this->getLanguages();
     }
 
     /**
@@ -56,7 +59,8 @@ class tp_framework extends Module
             parent::install() and
             $this->class->tab->installTabs($this) and
             $this->class->table->installTables($this) and
-            $this->registerHook('displayBackOfficeHeader')
+            $this->registerHook('displayBackOfficeHeader') and
+            $this->class->convert->convertColumnsToLang($this)
         );
     }
 
@@ -69,7 +73,8 @@ class tp_framework extends Module
         (
             parent::uninstall() and
             $this->class->tab->uninstallTabs($this) and
-            $this->class->table->uninstallTables($this)
+            $this->class->table->uninstallTables($this) and
+            $this->class->convert->convertColumnsFromLang($this)
         );
     }
 
@@ -92,27 +97,24 @@ class tp_framework extends Module
     /**
     * Get the installed languages (false: all, true: active)
     */
-    public function getLanguages($limit = false)
+    public static function getLanguages($limit = false)
     {
-        return Language::getLanguages($limit, $this->context->shop->id);
+        return Language::getLanguages($limit, Context::getContext()->shop->id);
     }
 
     /**
     *
     */
-    public function toLang()
+    public function toLanguage()
     {
-        $result = new stdClass();
-        $result->table = 'hook';
-        $result->columns = array(
-            array('id_hook','id_hook'),
-            array('title','meta_title'),
-            array('description','meta_description')
-        );
-        $result->drop = array(
-            'hook',
-            array('title','description')
-        );
+        $result = array();
+        $result[0]['table'] = 'hook';
+        $result[0]['columns'] =
+        [
+            ['id_hook','id_hook'],
+            ['title','meta_title'],
+            ['description','meta_description']
+        ];
 
         return $result;
     }
