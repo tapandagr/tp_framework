@@ -4,7 +4,7 @@
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
  * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
  * @license    Single website per license
- * @version    0.0.1
+ * @version    0.0.3
  * @since      0.0.1
  *
  * This class has been built to let us automate any procedure is related to database tables
@@ -15,32 +15,85 @@ require_once _PS_MODULE_DIR_.'tp_framework/tp_framework.php';
 class FrameworkConvert
 {
     /**
-    * This function is not finished yet
+    *
     */
-    public function convertColumnsToLang($object)
+    public function convertColumnsToLanguage($object)
     {
-        //We get the old column names
-        $old_columns = $object->class->array->getColumnFromArray($object->toLang()->columns,0);
+        $this->convertColumnsInit($object);
 
-        //We convert them to csv
-        $columns_csv = $this->listToCSV($old_columns,false);
+        return true;
+    }
 
-        //We get the respective data
-        $sql = $object->class->database->select($columns_csv,$object->toLang()->table);
+    /**
+    *
+    */
+    public function convertColumnsFromLanguage($object)
+    {
+        $this->convertColumnsInit($object,1);
 
-        //We get the new column names
-        $new_columns = $object->class->array->getColumnFromArray($object->toLang()->columns,1);
+        return true;
+    }
 
-        //We convert them to csv
-        $columns_csv = $this->listToCSV($new_columns,true,true);
+    /**
+    *
+    */
+    public function convertColumnsInit($object, $from = 0)
+    {
+        $index = new stdClass();
+        $columns = new stdClass();
+        $table = new stdClass();
 
-        //We convert the data we got into csv
-        $data_csv = $this->tableToCSV($sql, $old_columns,$object->languages);
+        //We put != 1 instead of == 0 to protect our code against abusive behavior
+        if($from != 1)
+        {
+            //Non language -> language
+            $old = 0;
+            $origin = '';
+            $destination = '_lang';
+        }else
+        {
+            //Language -> non language
+            $old = 1;
+            $origin = '_lang';
+            $destination = '';
+        }
 
-        //Ready to upload
-        $object->class->database->insert($object->toLang()->table.'_lang',$columns_csv,$data_csv);
+        $new = 1 - $old;
 
-        $object->class->database->drop($object->toLang()->drop);
+        //We use "foreach" loop for future proof
+        foreach($object->toLanguage() as $t)
+        {
+            //Variables set
+            $table->old = $t['table'].$origin;
+            $table->new = $t['table'].$destination;
+
+            //We get the old column names
+            $columns->old = $object->class->array->getColumnFromArray($t['columns'], $old);
+
+            //We convert them to csv
+            $columns->csv = $this->listToCSV($columns->old, false);
+
+            //We get the respective data
+            $columns->sql = $object->class->database->select($columns->csv, $table->old);
+
+            //We get the new column names
+            $columns->new = $object->class->array->getColumnFromArray($t['columns'], $new);
+
+            //We convert them to csv
+            $columns->csv = $this->listToCSV($columns->new,true,true);
+
+            //We convert the data we got into csv
+            $data = $this->tableToCSV($columns->sql, $columns->old, $object->languages);
+
+            //Ready to upload
+            $object->class->database->insert($table->new, $columns->csv, $data);
+
+            //We delete the respective columns from old table
+            //$object->class->database->drop($table->old, $columns->old);
+
+        }
+
+        return true;
     }
 
     /**

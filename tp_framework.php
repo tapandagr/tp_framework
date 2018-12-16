@@ -4,7 +4,7 @@
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
  * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
  * @license    Single website per license
- * @version    0.0.2
+ * @version    0.0.3
  * @since      0.0.1
  */
 
@@ -60,21 +60,21 @@ class tp_framework extends Module
             $this->class->tab->installTabs($this) and
             $this->class->table->installTables($this) and
             $this->registerHook('displayBackOfficeHeader') and
-            $this->class->convert->convertColumnsToLang($this)
+            $this->class->convert->convertColumnsToLanguage($this)
         );
     }
 
     /**
-    *
+    * We first convert the fields back to non language because otherwise we will get error that the requested table does not exist
     */
     public function uninstall()
     {
         return
         (
             parent::uninstall() and
+            //$this->class->convert->convertColumnsFromLanguage($this) and
             $this->class->tab->uninstallTabs($this) and
-            $this->class->table->uninstallTables($this) and
-            $this->class->convert->convertColumnsFromLang($this)
+            $this->class->table->uninstallTables($this)
         );
     }
 
@@ -108,13 +108,13 @@ class tp_framework extends Module
     public function toLanguage()
     {
         $result = array();
+
         $result[0]['table'] = 'hook';
-        $result[0]['columns'] =
-        [
-            ['id_hook','id_hook'],
-            ['title','meta_title'],
-            ['description','meta_description']
-        ];
+        $result[0]['columns'] = array(
+            array('id_hook', 'id_hook'),
+            array('title', 'meta_title'),
+            array('description', 'meta_description')
+        );
 
         return $result;
     }
