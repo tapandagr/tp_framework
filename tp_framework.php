@@ -18,6 +18,10 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkEntity.php';
 
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkArray.php';
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
+
+/**
+* This class is related to database manipulation
+*/
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTable.php';
