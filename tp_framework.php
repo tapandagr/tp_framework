@@ -29,7 +29,14 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 */
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkHook.php';
 
+/**
+* Tabs
+*/
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
+
+/**
+* Tables
+*/
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTable.php';
 
 class tp_framework extends Module
