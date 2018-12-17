@@ -16,11 +16,18 @@ require_once _PS_CLASS_DIR_.'Hook.php';
 */
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkEntity.php';
 
+/**
+* Array
+*/
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkArray.php';
+
+/**
+* Convert
+*/
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
 
 /**
-* This class is related to database manipulation
+* If there are functions related to data manipulation and do not fit to any other class, this is the place to be
 */
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 
@@ -77,7 +84,6 @@ class tp_framework extends Module
             $this->class->tab->installTabs($this) and
             $this->class->table->installTables($this) and
             $this->class->hook->installHooks($this) and
-            $this->registerHook('displayBackOfficeHeader') and
             $this->class->convert->convertColumnsToLanguage($this)
         );
     }
@@ -114,6 +120,7 @@ class tp_framework extends Module
         $result->array = new FrameworkArray();
         $result->convert = new FrameworkConvert();
         $result->database = new FrameworkDatabase();
+        $result->hook = new FrameworkHook();
         $result->tab = new FrameworkTab();
         $result->table = new FrameworkTable();
 
