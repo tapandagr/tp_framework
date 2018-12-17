@@ -23,6 +23,12 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
 * This class is related to database manipulation
 */
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
+
+/**
+* Hooks
+*/
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkHook.php';
+
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTable.php';
 
@@ -63,6 +69,7 @@ class tp_framework extends Module
             parent::install() and
             $this->class->tab->installTabs($this) and
             $this->class->table->installTables($this) and
+            $this->class->hook->installHooks($this) and
             $this->registerHook('displayBackOfficeHeader') and
             $this->class->convert->convertColumnsToLanguage($this)
         );
@@ -80,6 +87,14 @@ class tp_framework extends Module
             $this->class->tab->uninstallTabs($this) and
             $this->class->table->uninstallTables($this)
         );
+    }
+
+    /**
+    *
+    */
+    public function hookAdminHeaderTabs($params)
+    {
+        return $this->fetch('module:'.$this->name.'/views/templates/admin/settings/header_tabs.tpl');
     }
 
     /**
@@ -118,6 +133,19 @@ class tp_framework extends Module
             array('id_hook', 'id_hook'),
             array('title', 'meta_title'),
             array('description', 'meta_description')
+        );
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getHooks()
+    {
+        $result = array(
+            'hookDisplayAdminHeaderTabs',
+            'hookDisplayBackOfficeHeader'
         );
 
         return $result;
