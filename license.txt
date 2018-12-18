@@ -2,13 +2,15 @@ General tapandagr license
 Version 1, Milopotamos, Drama, Greece
 
 1. General data
-"tapanda.gr" is the url of our software house. From now on, if we refer to "the company", "our team", "we", "our house" it means the exact same thing, tapanda.gr.
+"tapanda.gr" is the url of our software house. From now on, if we refer to
+"the company", "our team", "we", "our house" it means the exact same thing, tapanda.gr.
 On the same context if we refer to our "email" this is info@tapanda.gr
                        
 2. Guarantee
 The software is being distributed "as is". Even though we try to fix any
 issue as soon as possible, we do not guarantee about its functionality
-nor we are responsible of loss of any kind (such as data, money, reputation or anything else).
+nor we are responsible of loss of any kind (such as data, money,
+reputation or anything else).
 
 3. Distribution for free
 You are welcome to distribute it. If you do it though, you have to refer to
@@ -26,7 +28,8 @@ publish premium version on respective marketplaces for a fee. The free version
 is packaged with additional code in the last option. Sometimes we use a legal license
 from other software houses for some operations.
 
-For our own part of the code, you have to send as an email and describe precisely key factors such as:
+For our own part of the code, you have to send as an email and describe
+precisely key factors such as:
   - What problem your own application will solve
   - Existing market share (if any)
   - Target audience
@@ -34,9 +37,10 @@ For our own part of the code, you have to send as an email and describe precisel
 
 After that, We will investigate your case and will contact you in a few days.
 
-For the part of the code we do not own (the code we use from other houses), it is up to their disposal.
-You have to contact theme directly and follow their own instuctions.
+For the part of the code we do not own (the code we use from other houses),
+it is up to their disposal. You have to contact theme directly and follow
+their own instuctions.
 
 6. Support
-Support in free versions is up to our own disposal. We do love supporting the whole of our clientele,
-but the premium clients will have priority.
+Support in free versions is up to our own disposal. We do love supporting
+the whole of our clientele, but the premium clients will have priority.
