@@ -24,8 +24,24 @@ class AdminFrameworkSettingsController extends ModuleAdminController
     {
         parent::initContent();
         $content = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'tp_framework/views/templates/admin/settings/header_tabs.tpl');
+        $header_tabs = $this->getHeaderTabs();
         $this->context->smarty->assign(array(
-             'content' => $this->content . $content,
+            'current_tab_level' => 3,
+            'header_tabs' => $header_tabs,
+            'content' => $this->content . $content
         ));
+    }
+
+    /**
+    *
+    */
+    public function getHeaderTabs()
+    {
+        $result = array();
+
+        $result[0]['meta_title'] = $this->trans('Γενικές', array(), 'Modules.tp_framework.Admin');
+        $result[0]['active'] = 1;
+
+        return $result;
     }
 }
