@@ -28,17 +28,17 @@ publish premium version on respective marketplaces for a fee. The free version
 is packaged with additional code in the last option. Sometimes we use a legal license
 from other software houses for some operations.
 
-For our own part of the code, you have to send as an email and describe
+For our own part of the code, you have to send us an email and describe
 precisely key factors such as:
   - What problem your own application will solve
   - Existing market share (if any)
   - Target audience
   - Expected financial data (sales, profit, turnover etc)
 
-After that, We will investigate your case and will contact you in a few days.
+After that, we will investigate your case and will contact you in a few days.
 
 For the part of the code we do not own (the code we use from other houses),
-it is up to their disposal. You have to contact theme directly and follow
+it is up to their disposal. You have to contact them directly and follow
 their own instuctions.
 
 6. Support
