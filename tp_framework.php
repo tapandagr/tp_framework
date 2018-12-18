@@ -105,9 +105,9 @@ class tp_framework extends Module
     /**
     *
     */
-    public function hookDisplayAdminHeaderTabs($params)
+    public function hookDisplayBackOfficeHeader()
     {
-        return $this->fetch('module:'.$this->name.'/views/templates/admin/settings/header.tpl');
+        $this->context->controller->addCSS(($this->_path).'views/libraries/font-awesome/css/all.css', 'all');
     }
 
     public function hookDisplayDashboardTop($params)
@@ -163,7 +163,7 @@ class tp_framework extends Module
     public function getHooks()
     {
         $result = array(
-            'displayBackOfficeHeader'
+            'hookDisplayBackOfficeHeader'
         );
 
         return $result;
