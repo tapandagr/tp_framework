@@ -36,6 +36,9 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 */
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkHook.php';
 
+//Links
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkLink.php';
+
 /**
 * Tabs
 */
@@ -66,6 +69,7 @@ class tp_framework extends Module
 		$this->ps_versions_compliancy = ['min' => '1.7','max' => _PS_VERSION_];
         $this->need_instance = 0;
 		$this->bootstrap = true;
+        $this->links = $this->class->link->getAdminLinks($this);
 
         parent::__construct();
 
@@ -127,6 +131,7 @@ class tp_framework extends Module
         $result->convert = new FrameworkConvert();
         $result->database = new FrameworkDatabase();
         $result->hook = new FrameworkHook();
+        $result->link = new FrameworkLink();
         $result->tab = new FrameworkTab();
         $result->table = new FrameworkTable();
 
@@ -165,6 +170,39 @@ class tp_framework extends Module
     {
         $result = array(
             'hookDisplayBackOfficeHeader'
+        );
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getAdminControllers()
+    {
+        $result = array(
+            array(
+                'admin',
+                'categories',
+                array(
+                    'Add',
+                    'Delete',
+                    'GetTree',
+                    'GetUpdateForm',
+                    'Update',
+                    'View'
+                )
+            ),
+            array(
+                'admin',
+                'files',
+                array(
+                    'Add',
+                    'View',
+                    'Update',
+                    'Delete'
+                )
+            )
         );
 
         return $result;

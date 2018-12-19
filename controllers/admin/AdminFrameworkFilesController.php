@@ -45,11 +45,11 @@ class AdminFrameworkFilesController extends ModuleAdminController
     */
     public function initContent()
     {
-        $content = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'tp_framework/views/templates/admin/files/content.tpl');
-
         $this->context->smarty->assign(array(
-            'content' => $this->content.$content
+            'links' => $this->fw->links,
         ));
+
+        $this->setTemplate('modules/tp_framework/files/content.tpl');
 
         $action = Tools::getValue('action');
 
@@ -60,6 +60,8 @@ class AdminFrameworkFilesController extends ModuleAdminController
             if($action == 'ajaxProcessFilesView')
                 $this->ajaxProcessFilesView();
         }
+
+        parent::initContent();
     }
 
     /**
