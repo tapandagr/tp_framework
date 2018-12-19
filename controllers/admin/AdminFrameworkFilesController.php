@@ -67,14 +67,14 @@ class AdminFrameworkFilesController extends ModuleAdminController
                 'desc' => $this->l('Add category'),
                 'class' => 'display_category_add_ajax_form',
                 'icon' => 'fas fa-stream',
-                'size' => 4
+                'size' => 3
             );
 
             $this->page_header_toolbar_btn['add_media'] = array(
                 'desc' => $this->l('Media upload'),
                 'class' => 'display_files_upload_ajax_form',
                 'icon' => 'fas fa-cloud-upload-alt',
-                'size' => 4 // If set from 2 to 10, it will adapt the size based on Font Awesome 5 directive
+                'size' => 3 // If set from 2 to 10, it will adapt the size based on Font Awesome 5 directive
             );
         }
 
