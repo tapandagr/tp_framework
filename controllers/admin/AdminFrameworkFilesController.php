@@ -45,6 +45,12 @@ class AdminFrameworkFilesController extends ModuleAdminController
     */
     public function initContent()
     {
+        $content = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'tp_framework/views/templates/admin/files/content.tpl');
+
+        $this->context->smarty->assign(array(
+            'content' => $this->content.$content
+        ));
+
         $action = Tools::getValue('action');
 
         if(isset($action) && $action != '')
@@ -64,15 +70,15 @@ class AdminFrameworkFilesController extends ModuleAdminController
         if (!isset($this->display))
         {
             $this->page_header_toolbar_btn['add_category'] = array(
-                'desc' => $this->l('Add category'),
-                'class' => 'display_category_add_ajax_form',
+                'desc' => $this->trans('Προσθήκη κατηγορίας', array(), 'Modules.tp_framework.Admin'),
+                'class' => 'new-framework-category-ajax',
                 'icon' => 'fas fa-stream',
                 'size' => 3
             );
 
-            $this->page_header_toolbar_btn['add_media'] = array(
-                'desc' => $this->l('Media upload'),
-                'class' => 'display_files_upload_ajax_form',
+            $this->page_header_toolbar_btn['add_file'] = array(
+                'desc' => $this->trans('Προσθήκη αρχείου', array(), 'Modules.tp_framework.Admin'),
+                'class' => 'new-framework-file-ajax',
                 'icon' => 'fas fa-cloud-upload-alt',
                 'size' => 3 // If set from 2 to 10, it will adapt the size based on Font Awesome 5 directive
             );

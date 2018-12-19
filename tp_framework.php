@@ -107,7 +107,8 @@ class tp_framework extends Module
     */
     public function hookDisplayBackOfficeHeader()
     {
-        $this->context->controller->addCSS(($this->_path).'views/libraries/font-awesome/css/all.css', 'all');
+        $this->context->controller->addCSS($this->_path.'views/libraries/font-awesome/css/all.css', 'all');
+        $this->context->controller->addJs($this->_path.'views/js/admin.js');
     }
 
     public function hookDisplayDashboardTop($params)
