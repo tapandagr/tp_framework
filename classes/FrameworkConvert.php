@@ -205,4 +205,41 @@ class FrameworkConvert
     {
         return substr($string,$delimiter);
     }
+
+    /**
+    *
+    */
+    public function makeArrayBySerializedData($input)
+    {
+        $result = [];
+
+        $separate_inputs = explode('&',$input);
+
+        for ($x=0; $x < count($separate_inputs); $x++)
+        {
+            //Second level explode to separate name and value
+            $separate_name_value = explode('=',$separate_inputs[$x]);
+
+            $brackets_explode = explode('[',$separate_name_value[0]);
+
+            if(count($brackets_explode) == 1)
+            {
+                $result[$separate_name_value[0]] = $separate_name_value[1];
+            }elseif(count($brackets_explode) == 2)
+            {
+                $actual_name = $brackets_explode[0];
+                $result[$actual_name][$x] = $separate_name_value[1];
+            }elseif(count($brackets_explode) == 3)
+            {
+                $actual_name = $brackets_explode[0];
+                $result[$actual_name][rtrim($brackets_explode[1],']')][rtrim($brackets_explode[2],']')] = $separate_name_value[1];
+            }elseif(count($brackets_explode) == 4)
+            {
+                $actual_name = $brackets_explode[0];
+                $result[$actual_name][rtrim($brackets_explode[1],']')][rtrim($brackets_explode[2],']')][rtrim($brackets_explode[3],']')] = $separate_name_value[1];
+            }
+        }
+
+        return $result;
+    }
 }

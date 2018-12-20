@@ -82,7 +82,7 @@ class FrameworkCategory extends ObjectModel
                 $result[$x] = $sql[$x];
 
                 //Get the parents of the specific category
-                $parents = $this->getParents($result[$x], $table, $max_level);
+                $parents = $object->class->category->getParents($result[$x], $table, $max_level);
 
                 //Put them in the table
                 for ($p=0; $p < count($parents); $p++)
@@ -114,6 +114,118 @@ class FrameworkCategory extends ObjectModel
                 'meta_title' => $this->trans('Χωρίς γονέα',array(),'Modules.tp_framework.Admin')
             )
         );
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getRelativePath()
+    {
+        $object = new $this->class($this->id);
+
+        //We keep the link_rewrite because the object will be recycled
+        $link_rewrite = $object->link_rewrite;
+
+        //Path initialization
+        $path = '';
+
+        while($object->parent != 0)
+        {
+            $object = new $this->class($object->parent);
+            $path = '/'.$object->link_rewrite.$path;
+        }
+
+        $path = $path.'/'.$link_rewrite;
+
+        return $path;
+    }
+
+    /**
+    *
+    */
+    public function getLastPosition($fw, $table, $object, $increase = null)
+    {
+        if($table != 'tp_framework_gallery_content')
+        {
+            //Get the last position for the children of the parent
+            $result = $fw->class->database->getValue($table,'position','`position` DESC','id_'.$table.' != '.(int)$object->id.' AND `parent` = "'.$object->parent.'"');
+        }else
+        {
+            //Get the last position for files assigned to the library
+            $result = $fw->class->database->getValue($table,'position','`position` DESC','`gallery_id` != '.(int)$object->id);
+        }
+
+        if($increase != null)
+            $result += 1;
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getParents($child, $table, $max_level)
+    {
+        $result = [];
+
+        $result[0] = $child['parent'];
+
+        for ($x=1; $x < $max_level - 1; $x++)
+        {
+            if($result[$x-1] == 0)
+                $result[$x] = 0;
+            else
+                $result[$x] = $this->getParent($table, $result[$x-1]);
+        }
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getParent($table, $row)
+    {
+        return $this->getValue($table,'parent','`id_'.$table.'` = '.$row);
+    }
+
+    /**
+    *
+    */
+    public function getDescendants($table, $categories, $row)
+    {
+        $counter = new stdClass();
+        $counter->categories = 0;
+        $counter->children = 0;
+        $result = [];
+
+        while($counter->categories < count($categories))
+        {
+            //Match needle
+            $found = false;
+
+            //Parents needle
+            $parent = 0;
+
+            while(isset($categories[$counter->categories]['parent_'.$parent]) and $found === false)
+            {
+                //If found, we update the needle to force the loop stop
+                if($categories[$row]['id_'.$table] == $categories[$counter->categories]['parent_'.$parent])
+                    $found = true;
+
+                $parent++;
+            }
+
+            if($found === true)
+            {
+                $result[$counter->children] = $categories[$counter->categories];
+                $counter->children++;
+            }
+
+            $counter->categories++;
+        }
 
         return $result;
     }
