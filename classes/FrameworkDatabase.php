@@ -118,7 +118,26 @@ class FrameworkDatabase
     /**
     *
     */
-    //Update query
+    public function getValue($table, $column, $order_by = null, $where = null)
+    {
+        if($where === null)
+            $where = '';
+        else
+            $where = ' WHERE '.$where;
+
+        if($order_by === null)
+            $order_by = '';
+        else
+            $order_by = ' ORDER BY '.$order_by;
+
+        $sql = 'SELECT DISTINCT `'.$column.'` FROM `'._DB_PREFIX_.$table.'`'.$where.$order_by;
+
+        return (db::getInstance())->getValue($sql);
+    }
+
+    /**
+    * Update query
+    */
     public static function update($table,$fields,$csv,$column)
     {
         $sql = 'INSERT INTO `'._DB_PREFIX_.$table.'` '.$fields.' VALUES '.$csv.' ON DUPLICATE KEY UPDATE '.$column.' = VALUES('.$column.')';

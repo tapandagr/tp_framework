@@ -45,10 +45,15 @@ class AdminFrameworkFilesController extends ModuleAdminController
     */
     public function initContent()
     {
+        $fields = $this->getFields();
+
         $this->context->smarty->assign(array(
+            'languages' => $this->fw->languages,
+            'current_language' => $this->fw->language,
             'links' => $this->fw->links,
-            'fields' => $this->getFields(),
+            'fields' => $fields,
             'tree' => $this->fw->class->category->getCategoriesTree($this->fw),
+            'column_remainder' => $this->fw->class->form->getColumnRemainder($fields->category)
         ));
 
         $this->setTemplate('modules/tp_framework/files/content.tpl');

@@ -11,45 +11,34 @@
 //We call the default Hook class
 require_once _PS_CLASS_DIR_.'Hook.php';
 
-/**
-* This class is related to any content species on the website. E.g. product
-*/
+// This class is related to any content species on the website. E.g. product
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkEntity.php';
 
-/**
-* Array
-*/
+//Array
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkArray.php';
-
-/**
-* Convert
-*/
-require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
 
 //Category
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkCategory.php';
 
-/**
-* If there are functions related to data manipulation and do not fit to any other class, this is the place to be
-*/
+//Convert
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
+
+//Database
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 
-/**
-* Hooks
-*/
+//Form
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkForm.php';
+
+//Hooks
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkHook.php';
 
 //Links
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkLink.php';
 
-/**
-* Tabs
-*/
+//Tabs
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
 
-/**
-* Tables
-*/
+//Tables
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTable.php';
 
 class tp_framework extends Module
@@ -142,6 +131,7 @@ class tp_framework extends Module
         $result->category = new FrameworkCategory();
         $result->convert = new FrameworkConvert();
         $result->database = new FrameworkDatabase();
+        $result->form = new FrameworkForm();
         $result->hook = new FrameworkHook();
         $result->link = new FrameworkLink();
         $result->tab = new FrameworkTab();

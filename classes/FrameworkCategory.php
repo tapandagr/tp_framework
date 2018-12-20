@@ -111,7 +111,7 @@ class FrameworkCategory extends ObjectModel
                 'id_'.$table => 0,
                 'level' => 0,
                 'parent' => 0,
-                'meta_title' => $this->trans('Χωρίς γονέα',array(),'Modules.'.$module.'.Admin')
+                'meta_title' => $this->trans('Χωρίς γονέα',array(),'Modules.tp_framework.Admin')
             )
         );
 
