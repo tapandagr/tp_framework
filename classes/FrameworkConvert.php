@@ -181,4 +181,28 @@ class FrameworkConvert
 
         return $result;
     }
+
+    /**
+    *
+    */
+    public function capital($string)
+    {
+        return ucfirst(strtolower($string));
+    }
+
+    /**
+    *
+    */
+    public function lowercase($string)
+    {
+        return strtolower($string);
+    }
+
+    /**
+    *
+    */
+    public function getPartOfString($string,$delimiter)
+    {
+        return substr($string,$delimiter);
+    }
 }

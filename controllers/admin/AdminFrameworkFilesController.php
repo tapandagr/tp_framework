@@ -45,6 +45,19 @@ class AdminFrameworkFilesController extends ModuleAdminController
     */
     public function initContent()
     {
+        $fields = $this->getFields();
+
+        $this->context->smarty->assign(array(
+            'languages' => $this->fw->languages,
+            'current_language' => $this->fw->language,
+            'links' => $this->fw->links,
+            'fields' => $fields,
+            'tree' => $this->fw->class->category->getCategoriesTree($this->fw),
+            'column_remainder' => $this->fw->class->form->getColumnRemainder($fields->category)
+        ));
+
+        $this->setTemplate('modules/tp_framework/files/content.tpl');
+
         $action = Tools::getValue('action');
 
         if(isset($action) && $action != '')
@@ -54,6 +67,8 @@ class AdminFrameworkFilesController extends ModuleAdminController
             if($action == 'ajaxProcessFilesView')
                 $this->ajaxProcessFilesView();
         }
+
+        parent::initContent();
     }
 
     /**
@@ -64,20 +79,56 @@ class AdminFrameworkFilesController extends ModuleAdminController
         if (!isset($this->display))
         {
             $this->page_header_toolbar_btn['add_category'] = array(
-                'desc' => $this->l('Add category'),
-                'class' => 'display_category_add_ajax_form',
+                'desc' => $this->trans('Προσθήκη κατηγορίας', array(), 'Modules.tp_framework.Admin'),
+                'class' => 'new-framework-category-ajax',
                 'icon' => 'fas fa-stream',
                 'size' => 3
             );
 
-            $this->page_header_toolbar_btn['add_media'] = array(
-                'desc' => $this->l('Media upload'),
-                'class' => 'display_files_upload_ajax_form',
+            $this->page_header_toolbar_btn['add_file'] = array(
+                'desc' => $this->trans('Προσθήκη αρχείου', array(), 'Modules.tp_framework.Admin'),
+                'class' => 'new-framework-file-ajax',
                 'icon' => 'fas fa-cloud-upload-alt',
                 'size' => 3 // If set from 2 to 10, it will adapt the size based on Font Awesome 5 directive
             );
         }
 
         parent::initPageHeaderToolbar();
+    }
+
+    /**
+    *
+    */
+    public function getFields()
+    {
+        $fields = new stdClass();
+
+    	//Get category form fields
+    	$fields->category = $this->getCategoryFormFields();
+
+        return $fields;
+    }
+
+    /**
+    *
+    */
+    public function getCategoryFormFields()
+    {
+        $result = [];
+
+        $result[0]['name']  = 'categories';
+        $result[0]['type']  = 'select';
+        $result[0]['lang']  = 0;
+        $result[0]['width'] = 6;
+        $result[1]['name']  = 'meta_title';
+        $result[1]['type']  = 'text';
+        $result[1]['lang']  = 1;
+        $result[1]['width'] = 6;
+        $result[2]['name']  = 'link_rewrite';
+        $result[2]['type']  = 'text';
+        $result[2]['lang']  = 0;
+        $result[2]['width'] = 6;
+
+        return $result;
     }
 }

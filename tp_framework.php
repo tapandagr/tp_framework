@@ -11,39 +11,34 @@
 //We call the default Hook class
 require_once _PS_CLASS_DIR_.'Hook.php';
 
-/**
-* This class is related to any content species on the website. E.g. product
-*/
+// This class is related to any content species on the website. E.g. product
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkEntity.php';
 
-/**
-* Array
-*/
+//Array
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkArray.php';
 
-/**
-* Convert
-*/
+//Category
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkCategory.php';
+
+//Convert
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
 
-/**
-* If there are functions related to data manipulation and do not fit to any other class, this is the place to be
-*/
+//Database
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 
-/**
-* Hooks
-*/
+//Form
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkForm.php';
+
+//Hooks
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkHook.php';
 
-/**
-* Tabs
-*/
+//Links
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkLink.php';
+
+//Tabs
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
 
-/**
-* Tables
-*/
+//Tables
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTable.php';
 
 class tp_framework extends Module
@@ -56,14 +51,22 @@ class tp_framework extends Module
         //Get the shop languages
         $this->languages = $this->getLanguages();
 
+        //Get the current language
+        $this->language = Context::getContext()->language;
+
         //Get the module classes
         $this->class = $this->getClasses();
+
+        $this->links = $this->class->link->getAdminLinks($this);
 
         $this->name = 'tp_framework';
 		$this->tab = 'front_office_features';
 		$this->version = '1.0.0';
 		$this->author = 'tapanda.gr';
-		$this->ps_versions_compliancy = ['min' => '1.7','max' => _PS_VERSION_];
+		$this->ps_versions_compliancy = array(
+            'min' => '1.7',
+            'max' => _PS_VERSION_
+        );
         $this->need_instance = 0;
 		$this->bootstrap = true;
 
@@ -107,7 +110,9 @@ class tp_framework extends Module
     */
     public function hookDisplayBackOfficeHeader()
     {
-        $this->context->controller->addCSS(($this->_path).'views/libraries/font-awesome/css/all.css', 'all');
+        $this->context->controller->addCSS($this->_path.'views/css/admin.css', 'all');
+        $this->context->controller->addCSS($this->_path.'views/libraries/font-awesome/css/all.css', 'all');
+        $this->context->controller->addJs($this->_path.'views/js/admin.js');
     }
 
     public function hookDisplayDashboardTop($params)
@@ -123,9 +128,12 @@ class tp_framework extends Module
         $result = new stdClass();
 
         $result->array = new FrameworkArray();
+        $result->category = new FrameworkCategory();
         $result->convert = new FrameworkConvert();
         $result->database = new FrameworkDatabase();
+        $result->form = new FrameworkForm();
         $result->hook = new FrameworkHook();
+        $result->link = new FrameworkLink();
         $result->tab = new FrameworkTab();
         $result->table = new FrameworkTable();
 
@@ -164,6 +172,39 @@ class tp_framework extends Module
     {
         $result = array(
             'hookDisplayBackOfficeHeader'
+        );
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getAdminControllers()
+    {
+        $result = array(
+            array(
+                'admin',
+                'categories',
+                array(
+                    'Add',
+                    'Delete',
+                    'GetTree',
+                    'GetUpdateForm',
+                    'Update',
+                    'View'
+                )
+            ),
+            array(
+                'admin',
+                'files',
+                array(
+                    'Add',
+                    'View',
+                    'Update',
+                    'Delete'
+                )
+            )
         );
 
         return $result;
