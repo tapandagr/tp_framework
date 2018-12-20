@@ -26,6 +26,9 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkArray.php';
 */
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
 
+//Category
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkCategory.php';
+
 /**
 * If there are functions related to data manipulation and do not fit to any other class, this is the place to be
 */
@@ -59,17 +62,24 @@ class tp_framework extends Module
         //Get the shop languages
         $this->languages = $this->getLanguages();
 
+        //Get the current language
+        $this->language = Context::getContext()->language;
+
         //Get the module classes
         $this->class = $this->getClasses();
+
+        $this->links = $this->class->link->getAdminLinks($this);
 
         $this->name = 'tp_framework';
 		$this->tab = 'front_office_features';
 		$this->version = '1.0.0';
 		$this->author = 'tapanda.gr';
-		$this->ps_versions_compliancy = ['min' => '1.7','max' => _PS_VERSION_];
+		$this->ps_versions_compliancy = array(
+            'min' => '1.7',
+            'max' => _PS_VERSION_
+        );
         $this->need_instance = 0;
 		$this->bootstrap = true;
-        $this->links = $this->class->link->getAdminLinks($this);
 
         parent::__construct();
 
@@ -111,6 +121,7 @@ class tp_framework extends Module
     */
     public function hookDisplayBackOfficeHeader()
     {
+        $this->context->controller->addCSS($this->_path.'views/css/admin.css', 'all');
         $this->context->controller->addCSS($this->_path.'views/libraries/font-awesome/css/all.css', 'all');
         $this->context->controller->addJs($this->_path.'views/js/admin.js');
     }
@@ -128,6 +139,7 @@ class tp_framework extends Module
         $result = new stdClass();
 
         $result->array = new FrameworkArray();
+        $result->category = new FrameworkCategory();
         $result->convert = new FrameworkConvert();
         $result->database = new FrameworkDatabase();
         $result->hook = new FrameworkHook();

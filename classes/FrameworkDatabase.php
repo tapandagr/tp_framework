@@ -72,11 +72,47 @@ class FrameworkDatabase
         else
             $offset = ' OFFSET '.$offset;
 
-        $sql = 'SELECT '.$select.' FROM `'._DB_PREFIX_.$from.$join.$where.$order_by.$limit.$offset;
+        $sql = 'SELECT '.$select.' FROM `'._DB_PREFIX_.$from.'`';
+        $sql .= $join;
+        $sql .= $where;
+        $sql .= $order_by;
+        $sql .= $limit;
+        $sql .= $offset;
 
         $result = (db::getInstance())->executeS($sql);
 
         return $result;
+    }
+
+    /**
+    * It returns lang included queries
+    *
+    * @param
+    */
+    public function selectLang($select, $table, $language, $restriction = null, $order_by = null)
+    {
+        if($restriction === null)
+        {
+            $restriction = '';
+        }
+
+        if($order_by === null)
+        {
+            $order_by = '';
+        }
+
+        //Debug
+        $sql = $this->select(
+            $select,
+            $table,
+            ' t LEFT JOIN `'._DB_PREFIX_.$table.'_lang` tl ON tl.`id_'.$table.'` = t.`id_'.$table.'`',
+            '`id_lang` = '.$language.$restriction,
+            $order_by
+        );
+
+        //$sql = $this->selectQuery($select,$table.'` t LEFT JOIN `'._DB_PREFIX_.$table.'_lang` tl ON tl.`id_'.$table.'` = t.`id_'.$table.'`','`status` = 1 AND `id_lang` = '.$lid.$restriction,$order_by);
+
+        return $sql;
     }
 
     /**

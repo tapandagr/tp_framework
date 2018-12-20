@@ -47,6 +47,8 @@ class AdminFrameworkFilesController extends ModuleAdminController
     {
         $this->context->smarty->assign(array(
             'links' => $this->fw->links,
+            'fields' => $this->getFields(),
+            'tree' => $this->fw->class->category->getCategoriesTree($this->fw),
         ));
 
         $this->setTemplate('modules/tp_framework/files/content.tpl');
@@ -87,5 +89,41 @@ class AdminFrameworkFilesController extends ModuleAdminController
         }
 
         parent::initPageHeaderToolbar();
+    }
+
+    /**
+    *
+    */
+    public function getFields()
+    {
+        $fields = new stdClass();
+
+    	//Get category form fields
+    	$fields->category = $this->getCategoryFormFields();
+
+        return $fields;
+    }
+
+    /**
+    *
+    */
+    public function getCategoryFormFields()
+    {
+        $result = [];
+
+        $result[0]['name']  = 'categories';
+        $result[0]['type']  = 'select';
+        $result[0]['lang']  = 0;
+        $result[0]['width'] = 6;
+        $result[1]['name']  = 'meta_title';
+        $result[1]['type']  = 'text';
+        $result[1]['lang']  = 1;
+        $result[1]['width'] = 6;
+        $result[2]['name']  = 'link_rewrite';
+        $result[2]['type']  = 'text';
+        $result[2]['lang']  = 0;
+        $result[2]['width'] = 6;
+
+        return $result;
     }
 }
