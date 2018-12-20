@@ -26,6 +26,9 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
 //Database
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 
+//File
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkFile.php';
+
 //Form
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkForm.php';
 
@@ -34,6 +37,9 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkHook.php';
 
 //Links
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkLink.php';
+
+//Object
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkObject.php';
 
 //Tabs
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
@@ -48,17 +54,6 @@ class tp_framework extends Module
     */
     public function __construct()
     {
-        //Get the shop languages
-        $this->languages = $this->getLanguages();
-
-        //Get the current language
-        $this->language = Context::getContext()->language;
-
-        //Get the module classes
-        $this->class = $this->getClasses();
-
-        $this->links = $this->class->link->getAdminLinks($this);
-
         $this->name = 'tp_framework';
 		$this->tab = 'front_office_features';
 		$this->version = '1.0.0';
@@ -74,6 +69,19 @@ class tp_framework extends Module
 
 		$this->displayName = $this->trans('Σκελετός', array(), 'Modules.tp_framework.Admin');
 		$this->description = $this->trans('Το απαιτούμενο πρόσθετο για να λειτουργούν τα υπόλοιπα πρόσθετα παραγωγής μας', array(), 'Modules.tp_framework.Admin');
+
+        //Get the shop languages
+        $this->languages = $this->getLanguages();
+
+        //Get the current language
+        $this->language = Context::getContext()->language;
+
+        //Get the module classes
+        $this->class = $this->getClasses();
+
+        $this->links = $this->class->link->getAdminLinks($this);
+
+        $this->directory = $this->getDirectories();
     }
 
     /**
@@ -131,9 +139,11 @@ class tp_framework extends Module
         $result->category = new FrameworkCategory();
         $result->convert = new FrameworkConvert();
         $result->database = new FrameworkDatabase();
+        $result->file = new FrameworkFile();
         $result->form = new FrameworkForm();
         $result->hook = new FrameworkHook();
         $result->link = new FrameworkLink();
+        $result->object = new FrameworkObject();
         $result->tab = new FrameworkTab();
         $result->table = new FrameworkTable();
 
@@ -208,5 +218,41 @@ class tp_framework extends Module
         );
 
         return $result;
+    }
+
+    /**
+    *
+    */
+    public function getDirectories()
+    {
+        $result = new stdClass();
+        $result->module = _PS_MODULE_DIR_.$this->name;
+        $result->uploads = $result->module.'/uploads';
+        $result->images = $result->uploads.'/img';
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getSettings()
+    {
+        $fw = new stdClass();
+
+        $fw->name = 'tp_framework';
+
+        //Get the shop languages
+        $fw->languages = self::getLanguages();
+
+        //Get the current language
+        $fw->language = Context::getContext()->language;
+
+        //Get the module classes
+        $fw->class = self::getClasses();
+
+        $fw->directory = $this->getDirectories();
+
+        return $fw;
     }
 }

@@ -48,7 +48,6 @@ class FrameworkLink
         if($action == null)
         {
             $action = '';
-            $prefix = '';
         }else
             $action = '&action=ajaxProcess'.$action;
 
