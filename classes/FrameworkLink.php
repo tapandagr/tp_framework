@@ -12,25 +12,25 @@ class FrameworkLink
     /**
     *
     */
-    public function getAdminLinks($object)
+    public function getAdminLinks($admin_controllers)
     {
         //Initialize result
         $result = new stdClass();
         $result->admin = new stdClass();
 
-        foreach($object->getAdminControllers() as $c)
+        foreach($admin_controllers as $c)
         {
-            $controller = $object->class->convert->lowercase($c[1]);
+            $controller = FrameworkConvert::lowercase($c[1]);
             $result->admin->$controller = new stdClass();
-            $slug = $object->class->convert->capital($c[1]);
+            $slug = FrameworkConvert::capital($c[1]);
 
-            $result->admin->$controller->url = $this->getAdminLink($object,$slug);
-            $result->admin->$controller->token = $this->getAdminToken($object,$controller);
+            $result->admin->$controller->url = self::getAdminLink($slug);
+            $result->admin->$controller->token = self::getAdminToken($controller);
 
             foreach($c[2] as $t)
             {
-                $type = $object->class->convert->lowercase($t);
-                $result->admin->$controller->$type = $this->getAdminLink($object,$slug,$t);
+                $type = FrameworkConvert::lowercase($t);
+                $result->admin->$controller->$type = self::getAdminLink($slug, $t);
             }
         }
 
@@ -40,11 +40,8 @@ class FrameworkLink
     /**
     *
     */
-    public function getAdminLink($object, $controller, $action = null, $module_prefix = 3)
+    public function getAdminLink($controller, $action = null, $prefix = 'Framework')
     {
-        $prefix = $object->class->convert->getPartOfString($object->name, $module_prefix);
-        $prefix = $object->class->convert->capital($prefix);
-
         if($action == null)
         {
             $action = '';
@@ -57,11 +54,9 @@ class FrameworkLink
     /**
     *
     */
-    public function getAdminToken($object, $controller, $module_prefix = 3)
+    public function getAdminToken($controller, $prefix = 'Framework')
     {
-        $prefix = $object->class->convert->getPartOfString($object->name, $module_prefix);
-        $prefix = $object->class->convert->capital($prefix);
-        $controller = $object->class->convert->capital($controller);
+        $controller = FrameworkConvert::capital($controller);
         $controller = 'Admin'.$prefix.$controller;
 
         return Tools::getAdminToken(

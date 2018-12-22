@@ -45,6 +45,66 @@ class AdminFrameworkFilesController extends ModuleAdminController
     */
     public function initContent()
     {
+        //Media category ID
+        $mcid = Tools::getValue('mcid');
+
+        if(isset($category_id) and Validate::isInt($category_id) and $category_id > 0)
+        {
+        	$category = new FrameworkCategory($category_id, $this->fw->language->id);
+        	$category->path = $category->getRelativePath();
+        }else
+        {
+            $category = FrameworkObject::makeObjectByID('FrameworkCategory');
+        }
+
+        if($category->parent != 0)
+        {
+            $parent = new FrameworkCategory($category->parent, $this->fw->language->id);
+        }else
+        {
+        	$parent = FrameworkObject::makeObjectByID();
+        	$parent->meta_title = $this->l('Αρχική κατηγορία');
+        }
+
+        //We add ajax link to the parent entity
+        $parent = FrameworkObject::getObjectWithExtraLink('FrameworkCategories', $parent, 'CategoryView');
+
+        //$category->children = $this->fw->getDirectoryContent($category->path);
+
+        if(Validate::isInt($category->id) and $category->id > 0)
+        {
+            $category->files = $category->getFiles();
+        }else
+        {
+            $category->files = array();
+        }
+
+        //Get media categories and add ajax link for file browsing
+        $children = FrameworkDatabase::selectLang('*', $this->fw->name.'_category', $this->fw->language->id,' AND `parent` = '.$category->id);
+        $category->children = FrameworkArray::getArrayWithExtraLink('FrameworkCategories',$this->fw->name.'_category',$children,'CategoryView');
+
+        $this->errors = [];
+
+    	if (!isset($this->display))
+    	{
+    		$categories = FrameworkDatabase::selectLang('*', 'tp_framework_category', $this->fw->language->id);
+    		$files = FrameworkDatabase::select('*', 'tp_framework_file');
+
+    		if(empty($categories))
+            {
+                $this->errors[] = $this->l('Δεν έχετε κατηγορίες', null, null, false);
+            }
+
+    		if(empty($files))
+            {
+                $this->errors[] = $this->l('Δεν έχετε αρχεία', null, null, false);
+            }
+    	}else
+    	{
+    		$categories = null;
+    		$files = null;
+    	}
+
         $fields = $this->getFields();
 
         $this->context->smarty->assign(array(
@@ -52,8 +112,10 @@ class AdminFrameworkFilesController extends ModuleAdminController
             'current_language' => $this->fw->language,
             'links' => $this->fw->links,
             'fields' => $fields,
-            'tree' => $this->fw->class->category->getCategoriesTree($this->fw),
-            'column_remainder' => $this->fw->class->form->getColumnRemainder($fields->category)
+            'tree' => FrameworkCategory::getCategoriesTree($this->fw),
+            'column_remainder' => FrameworkForm::getColumnRemainder($fields->category),
+            'categories' => $categories,
+    		'category' => $category,
         ));
 
         $this->setTemplate('modules/tp_framework/files/content.tpl');

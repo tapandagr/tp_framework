@@ -67,10 +67,10 @@ class FrameworkCategory extends ObjectModel
         //$restriction = $this->getRestriction('`parent`','=',0);
 
         //Get the categories
-        $sql = $object->class->database->selectLang('*', $table, $object->language->id, null, '`level` ASC,`parent` ASC,t.`id_'.$table.'` ASC');
+        $sql = FrameworkDatabase::selectLang('*', $table, $object->language->id, null, '`level` ASC,`parent` ASC,t.`id_'.$table.'` ASC');
 
         //Get the max level of categories depth
-        $max_level = $object->class->database->getValue($table, 'level', '`level` desc');
+        $max_level = FrameworkDatabase::getValue($table, 'level', '`level` desc');
 
         //Final result initialization
         $result = array();
@@ -82,7 +82,7 @@ class FrameworkCategory extends ObjectModel
                 $result[$x] = $sql[$x];
 
                 //Get the parents of the specific category
-                $parents = $object->class->category->getParents($result[$x], $table, $max_level);
+                $parents = FrameworkCategory::getParents($result[$x], $table, $max_level);
 
                 //Put them in the table
                 for ($p=0; $p < count($parents); $p++)
@@ -94,14 +94,14 @@ class FrameworkCategory extends ObjectModel
             //We put it into separate for, because we need the outcome of the previous one
             for ($x=0; $x < count($sql); $x++)
             {
-                $result[$x]['descendants'] = $this->getDescendants($table, $result, $x);
+                $result[$x]['descendants'] = self::getDescendants($table, $result, $x);
             }
 
             //Update the actual positions with the absolute ones
-            $result = $object->class->array->updatePositions($table,$result);
+            $result = FrameworkArray::updatePositions($table, $result);
 
             //We sort the results based on the `pos` field
-            $result = $object->class->array->bubbleSort($result);
+            $result = FrameworkArray::bubbleSort($result);
         }
 
         //Add images home directory
@@ -111,7 +111,7 @@ class FrameworkCategory extends ObjectModel
                 'id_'.$table => 0,
                 'level' => 0,
                 'parent' => 0,
-                'meta_title' => $this->trans('Χωρίς γονέα',array(),'Modules.tp_framework.Admin')
+                'meta_title' => Context::getContext()->getTranslator()->trans('Χωρίς γονέα',array(),'Modules.tp_framework.Admin')
             )
         );
 
