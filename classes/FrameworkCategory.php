@@ -3,6 +3,7 @@
 /**
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
  * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
+ * @license    Free for personal use. No warranty. Contact us at info@tapanda.gr for details
  */
 
 require_once _PS_MODULE_DIR_ . 'tp_framework/tp_framework.php';

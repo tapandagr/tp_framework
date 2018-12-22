@@ -39,7 +39,6 @@ class FrameworkConvert
     */
     public function convertColumnsInit($object, $from = 0)
     {
-        $index = new stdClass();
         $columns = new stdClass();
         $table = new stdClass();
 
@@ -101,7 +100,6 @@ class FrameworkConvert
     */
     public static function tableToCSV($sql, $fields, $languages = null)
     {
-        $i = 0;
         $result = '';
 
         if($languages !== null && is_array($languages))

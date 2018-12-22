@@ -3,7 +3,7 @@
 /**
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
  * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
- * @license    Single website per license
+ * @license    Free for personal use. No warranty. Contact us at info@tapanda.gr for details
  * @version    0.0.1
  * @since      0.0.1
  *
@@ -142,9 +142,9 @@ class FrameworkDatabase
     /**
     * Delete query
     */
-    public static function delete($table,$column,$operator,$value)
+    public static function delete($table, $column, $operator, $value)
     {
-        $sql = 'DELETE FROM `'._DB_PREFIX_.$table.'` WHERE '.$column.' '.$operator.' '.$where;
+        $sql = 'DELETE FROM `'._DB_PREFIX_.$table.'` WHERE '.$column.' '.$operator.' '.$value;
         db::getInstance()->execute($sql);
     }
 
