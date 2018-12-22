@@ -35,4 +35,17 @@ class FrameworkObject
 
         return $object;
     }
+
+    /**
+    * It returns a category given an extra admin link
+    */
+    public function getObjectWithExtraLink($controller, $object, $action = null)
+    {
+        //Put controller url in
+        $controller = tp_framework::getClasses()->link->getAdminLink($controller, $action);
+
+        $object->extra_link = $controller.'&cid='.$object->id;
+
+        return $object;
+    }
 }

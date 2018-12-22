@@ -48,7 +48,7 @@ class FrameworkDatabase
     public static function select($select, $from, $join = null, $where = null, $order_by = null, $limit = null, $offset = null)
     {
         if($join === null)
-            $join = '`';
+            $join = '';
         else
             $join = ' '.$join;
 
@@ -96,13 +96,8 @@ class FrameworkDatabase
             $restriction = '';
         }
 
-        if($order_by === null)
-        {
-            $order_by = '';
-        }
-
         //Debug
-        $sql = $this->select(
+        $sql = self::select(
             $select,
             $table,
             ' t LEFT JOIN `'._DB_PREFIX_.$table.'_lang` tl ON tl.`id_'.$table.'` = t.`id_'.$table.'`',

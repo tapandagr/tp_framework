@@ -79,7 +79,7 @@ class tp_framework extends Module
         //Get the module classes
         $this->class = $this->getClasses();
 
-        $this->links = $this->class->link->getAdminLinks($this);
+        $this->links = $this->class->link->getAdminLinks($this->getAdminControllers());
 
         $this->directory = $this->getDirectories();
     }
@@ -131,22 +131,39 @@ class tp_framework extends Module
     /**
     *
     */
-    public function getClasses($module = null)
+    public function getClasses()
     {
         $result = new stdClass();
-
-        $result->array = new FrameworkArray();
-        $result->category = new FrameworkCategory();
-        $result->convert = new FrameworkConvert();
-        $result->database = new FrameworkDatabase();
-        $result->file = new FrameworkFile();
-        $result->form = new FrameworkForm();
-        $result->hook = new FrameworkHook();
         $result->link = new FrameworkLink();
-        $result->object = new FrameworkObject();
-        $result->tab = new FrameworkTab();
-        $result->table = new FrameworkTable();
+/*
+        $classes = array(
+            'Array',
+            'Category',
+            'Convert',
+            'Database',
+            'File',
+            'Form',
+            'Hook',
+            'Link',
+            'Object',
+            'Tab',
+            'Table'
+        );
 
+        if (($key = array_search($class, $classes)) !== false)
+        {
+            unset($classes[$key]);
+        }
+
+        $result = new stdClass();
+
+        foreach($classes as $class)
+        {
+            $lower = strtolower($class);
+            $class = 'Framework'.$class;
+            $result->{$lower} = new $class();
+        }
+*/
         return $result;
     }
 
@@ -226,7 +243,7 @@ class tp_framework extends Module
     public function getDirectories()
     {
         $result = new stdClass();
-        $result->module = _PS_MODULE_DIR_.$this->name;
+        $result->module = _PS_MODULE_DIR_.'tp_framework';
         $result->uploads = $result->module.'/uploads';
         $result->images = $result->uploads.'/img';
 
@@ -236,7 +253,7 @@ class tp_framework extends Module
     /**
     *
     */
-    public function getSettings()
+    public function getSettings($class = null)
     {
         $fw = new stdClass();
 
@@ -249,9 +266,9 @@ class tp_framework extends Module
         $fw->language = Context::getContext()->language;
 
         //Get the module classes
-        $fw->class = self::getClasses();
+        $fw->class = self::getClasses($class);
 
-        $fw->directory = $this->getDirectories();
+        $fw->directory = self::getDirectories();
 
         return $fw;
     }
