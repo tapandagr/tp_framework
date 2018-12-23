@@ -17,7 +17,7 @@ class FrameworkTab
     /**
     * It installs a single tab
     */
-    public function installTab($object,$class_name,$parent_class)
+    public function installTab($object, $class_name, $parent_class)
     {
         $tab = new $this();
         $tab->class_name = $class_name;

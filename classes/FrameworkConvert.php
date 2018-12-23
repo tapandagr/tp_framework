@@ -183,7 +183,7 @@ class FrameworkConvert
     /**
     *
     */
-    public function capital($string)
+    public static function capital($string)
     {
         return ucfirst(strtolower($string));
     }
@@ -191,7 +191,7 @@ class FrameworkConvert
     /**
     *
     */
-    public function lowercase($string)
+    public static function lowercase($string)
     {
         return strtolower($string);
     }

@@ -54,7 +54,7 @@ class FrameworkFile extends ObjectModel
     {
         $directory = self::getDirectories();
 
-        $result = $this->calculateDirectoryLocation($object);
+        $result = self::calculateDirectoryLocation($object);
 
         //$result = $object->location.'/'.$object->link;
 
