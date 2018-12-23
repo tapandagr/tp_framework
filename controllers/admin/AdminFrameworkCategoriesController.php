@@ -30,9 +30,11 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
 
         if(isset($action))
         {
-            if($action == 'ajaxProcessAdd')
+            if ($action == 'ajaxProcessAdd')
             {
                 $this->ajaxProcessAdd();
+            }elseif ($action == 'ajaxProcessGetCategoriesTree') {
+                $this->ajaxProcessGetCategoriesTree();
             }
         }
     }
@@ -45,7 +47,7 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
         if(isset($_POST['data']))
         {
             //Convert serialized data into table
-            $data = $this->fw->class->convert->makeArrayBySerializedData(urldecode($_POST['data']));
+            $data = FrameworkConvert::makeArrayBySerializedData(urldecode($_POST['data']));
 
             $object = new $this->className();
 
@@ -53,7 +55,7 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             $object->parent = $data['parent'];
 
             //Get parent object
-            $parent = $this->fw->class->object->makeObjectById($this->className, $object->parent, $this->fw->language->id);
+            $parent = FrameworkObject::makeObjectById($this->className, $object->parent, $this->fw->language->id);
 
             //Get respective level
             $object->level = $parent->level + 1;
@@ -71,14 +73,38 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             $object->status = 1;
 
             //Directory add
-            $this->fw->class->file->makeDir($object);
+            FrameworkFile::makeDir($object);
 
             //Get last position
-            $object->position = $this->fw->class->category->getLastPosition($this->fw, $this->table, $object, 1);
+            $object->position = FrameworkCategory::getLastPosition($this->fw, $this->table, $object, 1);
 
             $object->update();
+
+            $this->context->smarty->assign(array(
+                'category' => $object,
+                'language' => $this->fw->language
+            ));
         }
 
-        die($this->context->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/add.tpl'));
+        die(Context::getContext()->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/add.tpl'));
+    }
+
+    /**
+    *
+    */
+    public function ajaxProcessGetCategoriesTree()
+    {
+        //Get media categories
+        $categories = FrameworkCategory::getCategoriesTree($this->fw);
+/*
+        print('<pre>');
+        print_r($categories);
+        print('</pre>');
+*/
+        $this->context->smarty->assign(array(
+            'allowed_categories' => $categories,
+        ));
+
+        die($this->context->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/allowed_categories.tpl'));
     }
 }

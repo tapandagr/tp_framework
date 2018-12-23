@@ -112,7 +112,7 @@ class FrameworkCategory extends ObjectModel
                 'id_'.$table => 0,
                 'level' => 0,
                 'parent' => 0,
-                'meta_title' => Context::getContext()->getTranslator()->trans('Χωρίς γονέα',array(),'Modules.tp_framework.Admin')
+                'meta_title' => Context::getContext()->getTranslator()->trans('Αρχική κατηγορία',array(),'Modules.tp_framework.Admin')
             )
         );
 
@@ -124,7 +124,7 @@ class FrameworkCategory extends ObjectModel
     */
     public function getRelativePath()
     {
-        $object = new $this->class($this->id);
+        $object = new FrameworkCategory($this->id);
 
         //We keep the link_rewrite because the object will be recycled
         $link_rewrite = $object->link_rewrite;
@@ -134,7 +134,7 @@ class FrameworkCategory extends ObjectModel
 
         while($object->parent != 0)
         {
-            $object = new $this->class($object->parent);
+            $object = new FrameworkCategory($object->parent);
             $path = '/'.$object->link_rewrite.$path;
         }
 
@@ -151,11 +151,11 @@ class FrameworkCategory extends ObjectModel
         if($table != 'tp_framework_gallery_content')
         {
             //Get the last position for the children of the parent
-            $result = $fw->class->database->getValue($table,'position','`position` DESC','id_'.$table.' != '.(int)$object->id.' AND `parent` = "'.$object->parent.'"');
+            $result = FrameworkDatabase::getValue($table, 'position', '`position` DESC', 'id_'.$table.' != '.(int)$object->id.' AND `parent` = "'.$object->parent.'"');
         }else
         {
             //Get the last position for files assigned to the library
-            $result = $fw->class->database->getValue($table,'position','`position` DESC','`gallery_id` != '.(int)$object->id);
+            $result = FrameworkDatabase::getValue($table, 'position', '`position` DESC', '`gallery_id` != '.(int)$object->id);
         }
 
         if($increase != null)
@@ -178,7 +178,7 @@ class FrameworkCategory extends ObjectModel
             if($result[$x-1] == 0)
                 $result[$x] = 0;
             else
-                $result[$x] = $this->getParent($table, $result[$x-1]);
+                $result[$x] = self::getParent($table, $result[$x-1]);
         }
 
         return $result;
@@ -189,7 +189,7 @@ class FrameworkCategory extends ObjectModel
     */
     public function getParent($table, $row)
     {
-        return $this->getValue($table,'parent','`id_'.$table.'` = '.$row);
+        return FrameworkDatabase::getValue($table,'parent','`id_'.$table.'` = '.$row);
     }
 
     /**
