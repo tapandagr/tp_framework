@@ -122,11 +122,10 @@ class tp_framework extends Module
     /**
     *
     */
-    public function getClasses()
+    public function getClasses($class = null)
     {
         $result = new stdClass();
-        $result->link = new FrameworkLink();
-/*
+
         $classes = array(
             'Array',
             'Category',
@@ -134,11 +133,8 @@ class tp_framework extends Module
             'Database',
             'File',
             'Form',
-            'Hook',
             'Link',
-            'Object',
-            'Tab',
-            'Table'
+            'Object'
         );
 
         if (($key = array_search($class, $classes)) !== false)
@@ -154,7 +150,7 @@ class tp_framework extends Module
             $class = 'Framework'.$class;
             $result->{$lower} = new $class();
         }
-*/
+
         return $result;
     }
 

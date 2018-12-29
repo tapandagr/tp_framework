@@ -193,9 +193,9 @@ class FrameworkDatabase
     /**
     * It installs a bunch of tabs (using a separate file)
     */
-    public function installTabs($initial_object,$fake_tab = null)
+    public function installTabs($module, $fake_tab = null)
     {
-        if($initial_object->name == 'tp_framework')
+        if($module->name == 'tp_framework')
         {
             $object = new stdClass();
             $object->class_name = 'AdminFrameworkDashboard';
@@ -223,18 +223,18 @@ class FrameworkDatabase
 
         //Parent tab creation
         $tab = new Tab();
-        $tab->class_name = $object->class_name;
-        $tab->module = $object->name;
+        $tab->class_name = $module->class_name;
+        $tab->module = $module->name;
         $tab->id_parent = 0;
-        foreach($initial_object->languages as $l)
+        foreach($module->languages as $l)
         {
-            $tab->name[$l['id_lang']] = $object->display_name;
+            $tab->name[$l['id_lang']] = $module->displayName;
         }
         $tab->save();
 
         //Sub-tabs creation
         $parent = new Tab($tab->id);
-        $this->installSubTabs($initial_object,$parent);
+        self::installSubTabs($module, $parent);
 
         return true;
     }
@@ -242,7 +242,7 @@ class FrameworkDatabase
     /**
     * It installs the children of a tab (operating with "installTabs")
     */
-    public function installSubTabs($initial_object,$parent)
+    public function installSubTabs($object, $parent)
     {
         require_once _PS_MODULE_DIR_.$parent->module.'/sql/install_tabs.php';
         foreach ($tabs as $tab)
@@ -252,9 +252,9 @@ class FrameworkDatabase
             $newtab->id_parent = $parent->id;
             $newtab->module = $parent->module;
 
-            foreach ($initial_object->languages as $l)
+            foreach ($object->languages as $l)
             {
-                $newtab->name[$l['id_lang']] = $initial_object->l($tab['name']);
+                $newtab->name[$l['id_lang']] = $object->l($tab['name']);
             }
 
             $newtab->save();
