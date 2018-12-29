@@ -32,20 +32,11 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkFile.php';
 //Form
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkForm.php';
 
-//Hooks
-require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkHook.php';
-
 //Links
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkLink.php';
 
 //Object
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkObject.php';
-
-//Tabs
-require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTab.php';
-
-//Tables
-require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkTable.php';
 
 class tp_framework extends Module
 {
