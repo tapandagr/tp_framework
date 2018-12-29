@@ -83,9 +83,9 @@ class tp_framework extends Module
         return
         (
             parent::install() and
-            $this->class->tab->installTabs($this) and
-            $this->class->table->installTables($this) and
-            $this->class->hook->installHooks($this) and
+            $this->class->database->installTabs($this) and
+            $this->class->database->installTables($this) and
+            $this->class->database->installHooks($this) and
             $this->class->convert->convertColumnsToLanguage($this)
         );
     }
@@ -99,8 +99,8 @@ class tp_framework extends Module
         (
             parent::uninstall() and
             //$this->class->convert->convertColumnsFromLanguage($this) and
-            $this->class->tab->uninstallTabs($this) and
-            $this->class->table->uninstallTables($this)
+            $this->class->database->uninstallTabs($this) and
+            $this->class->database->uninstallTables($this)
         );
     }
 
