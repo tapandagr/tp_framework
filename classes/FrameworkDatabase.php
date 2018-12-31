@@ -113,7 +113,7 @@ class FrameworkDatabase
     /**
     *
     */
-    public function getValue($table, $column, $order_by = null, $where = null)
+    public function getValue($column, $table, $order_by = null, $where = null)
     {
         if($where === null)
             $where = '';
