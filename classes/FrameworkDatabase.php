@@ -240,11 +240,12 @@ class FrameworkDatabase
     }
 
     /**
-    * It installs the children of a tab (operating with "installTabs")
+    * It installs the children of a tab
     */
     public function installSubTabs($object, $parent)
     {
-        require_once _PS_MODULE_DIR_.$parent->module.'/sql/install_tabs.php';
+        require_once _PS_MODULE_DIR_.$object->name.'/sql/install_tabs.php';
+
         foreach ($tabs as $tab)
         {
             $newtab = new Tab();
