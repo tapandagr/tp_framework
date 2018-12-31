@@ -69,7 +69,7 @@ class FrameworkLink
     /**
     *
     */
-    public function getLink($module, $controller, $data)
+    public static function getLink($module, $controller, $data = array())
     {
         return Context::getContext()->link->getModuleLink($module, $controller, $data);
     }
