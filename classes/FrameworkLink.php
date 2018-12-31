@@ -65,4 +65,12 @@ class FrameworkLink
             (int)Context::getContext()->employee->id
         );
     }
+
+    /**
+    *
+    */
+    public function getLink($module, $controller, $data)
+    {
+        return Context::getContext()->link->getModuleLink($module, $controller, $data);
+    }
 }
