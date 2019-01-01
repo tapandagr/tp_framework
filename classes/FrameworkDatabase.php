@@ -244,9 +244,10 @@ class FrameworkDatabase
     */
     public function installSubTabs($object, $parent)
     {
+        $sql = array();
         require_once _PS_MODULE_DIR_.$object->name.'/sql/install_tabs.php';
 
-        foreach ($tabs as $tab)
+        foreach ($sql as $tab)
         {
             $newtab = new Tab();
             $newtab->class_name = $tab['class_name'];
@@ -260,6 +261,8 @@ class FrameworkDatabase
 
             $newtab->save();
         }
+
+        return true;
     }
 
     /**
