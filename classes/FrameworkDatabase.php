@@ -94,6 +94,8 @@ class FrameworkDatabase
         if($restriction === null)
         {
             $restriction = '';
+        }else {
+            $restriction = ' AND '.$restriction;
         }
 
         //Debug

@@ -59,19 +59,16 @@ class FrameworkCategory extends ObjectModel
     *
     * @return Returns a sorted array based on the position among the siblings and the parental hierarchy
     */
-    public function getCategoriesTree($object, $level = null)
+    public function getCategoriesTree($object, $level = null, $restriction = null)
     {
         //Get the module categories table
         $table = $object->name.'_category';
 
-        //Get the restriction text
-        //$restriction = $this->getRestriction('`parent`','=',0);
-
         //Get the categories
-        $sql = FrameworkDatabase::selectLang('*', $table, $object->language->id, null, '`level` ASC,`parent` ASC,t.`id_'.$table.'` ASC');
+        $sql = FrameworkDatabase::selectLang('*', $table, $object->language->id, $restriction, '`level` ASC,`parent` ASC,t.`id_'.$table.'` ASC');
 
         //Get the max level of categories depth
-        $max_level = FrameworkDatabase::getValue($table, 'level', '`level` desc');
+        $max_level = FrameworkDatabase::getValue('level', $table, '`level` desc');
 
         //Final result initialization
         $result = array();
