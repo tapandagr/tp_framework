@@ -23,6 +23,9 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkCategory.php';
 //Convert
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkConvert.php';
 
+//Directory
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDirectory.php';
+
 //Database
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkDatabase.php';
 
@@ -230,9 +233,9 @@ class tp_framework extends Module
     public function getDirectories()
     {
         $result = new stdClass();
-        $result->module = _PS_MODULE_DIR_.'tp_framework';
+        $result->module = _MODULE_DIR_.'tp_framework';
         $result->uploads = $result->module.'/uploads';
-        $result->images = $result->uploads.'/img';
+        $result->images = $result->uploads.'/images';
 
         return $result;
     }

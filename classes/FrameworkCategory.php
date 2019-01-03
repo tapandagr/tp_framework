@@ -11,7 +11,7 @@ require_once _PS_MODULE_DIR_ . 'tp_framework/tp_framework.php';
 class FrameworkCategory extends ObjectModel
 {
     public $id_tp_framework_category;
-    public $parent;
+    public $parent_id;
     public $link_rewrite;
     public $level;
     public $position;
@@ -22,7 +22,7 @@ class FrameworkCategory extends ObjectModel
         'primary'	=> 'id_tp_framework_category',
         'multilang'	=> true,
         'fields'	=> array(
-            'parent' => array(
+            'parent_id' => array(
                 'type' => self::TYPE_INT,
                 'validate' => 'isUnsignedInt'
             ),
@@ -223,6 +223,25 @@ class FrameworkCategory extends ObjectModel
             }
 
             $counter->categories++;
+        }
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getPath()
+    {
+        $result = '/'.$this->link_rewrite;
+
+        $object = new $this($this->id);
+
+        while ($object->parent_id != 0) {
+            //We get the parent object
+            $object = new FrameworkCategory($object->parent_id);
+
+            $result = '/'.$object->link_rewrite.$result;
         }
 
         return $result;

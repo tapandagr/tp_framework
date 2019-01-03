@@ -46,4 +46,38 @@ class FrameworkDirectory extends ObjectModel
             )
         ),
     );
+
+    /**
+    *
+    */
+    public function getPath()
+    {
+        $result = '/'.$this->position;
+
+        //var_dump($this);
+
+        //echo 'Initial: '.$result.'<br>';
+
+        //We initialize the variable $object in order to use it in the loop
+        $object = new $this($this->id);
+
+        /**
+        * While parent directory is defined (not 0), we add its "position"
+        * in the beginning of the path. When the loop stops working, we
+        * execute the same scenario for categories this time.
+        */
+        while ($object->parent_id != 0) {
+            //We get the parent object
+            $object = new $this($object->parent_id);
+
+            //We add the parent in the path before checking again
+            $result = '/'.$object->position.$result;
+        }
+
+        $category = new FrameworkCategory($object->category_id);
+
+        $result = $category->getPath().$result;
+
+        return $result;
+    }
 }

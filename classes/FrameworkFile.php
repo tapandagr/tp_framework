@@ -11,6 +11,7 @@ class FrameworkFile extends ObjectModel
 {
     public $id_tp_framework_file;
     public $category;
+    public $directory_id;
     public $link_rewrite;
     public $extension;
     public $video;
@@ -24,6 +25,10 @@ class FrameworkFile extends ObjectModel
                 'type' => self::TYPE_INT,
                 'validate' => 'isUnsignedInt',
                 'required' => true
+            ),
+            'directory_id' => array(
+                'type' => self::TYPE_INT,
+                'validate' => 'isUnsignedInt',
             ),
             'link_rewrite' => array(
                 'type' => self::TYPE_STRING,
@@ -108,5 +113,30 @@ class FrameworkFile extends ObjectModel
         $result->images = $result->uploads.'/images';
 
         return $result;
+    }
+
+    /**
+    *
+    */
+    public function getPath()
+    {
+        //We get the directory object
+        $directory = new FrameworkDirectory($this->directory_id);
+
+        //We get the directory path
+        $directory->path = $directory->getPath();
+
+        $result = $directory->path.'/'.$this->link_rewrite.'.'.$this->extension;
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getAbsolutePath()
+    {
+        $path = $this->getPath();
+        return tp_framework::getDirectories()->images.$path;
     }
 }
