@@ -89,7 +89,7 @@ class FrameworkDatabase
     *
     * @param
     */
-    public function selectLang($select, $table, $language, $restriction = null, $order_by = null, $limit = null)
+    public static function selectLang($select, $table, $language, $restriction = null, $order_by = null, $limit = null, $offset = null)
     {
         if($restriction === null)
         {
@@ -105,7 +105,8 @@ class FrameworkDatabase
             ' t LEFT JOIN `'._DB_PREFIX_.$table.'_lang` tl ON tl.`id_'.$table.'` = t.`id_'.$table.'`',
             '`id_lang` = '.$language.$restriction,
             $order_by,
-            $limit
+            $limit,
+            $offset
         );
 
         //$sql = $this->selectQuery($select,$table.'` t LEFT JOIN `'._DB_PREFIX_.$table.'_lang` tl ON tl.`id_'.$table.'` = t.`id_'.$table.'`','`status` = 1 AND `id_lang` = '.$lid.$restriction,$order_by);
@@ -116,7 +117,7 @@ class FrameworkDatabase
     /**
     *
     */
-    public function getValue($column, $table, $order_by = null, $where = null)
+    public static function getValue($column, $table, $order_by = null, $where = null)
     {
         if($where === null)
             $where = '';

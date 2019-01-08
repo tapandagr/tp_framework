@@ -65,7 +65,7 @@ class FrameworkCategory extends ObjectModel
         $table = $object->name.'_category';
 
         //Get the categories
-        $sql = FrameworkDatabase::selectLang('*', $table, $object->language->id, $restriction, '`level` ASC,`parent` ASC,t.`id_'.$table.'` ASC');
+        $sql = FrameworkDatabase::selectLang('*', $table, $object->language->id, $restriction, '`level` ASC,`parent_id` ASC,t.`id_'.$table.'` ASC');
 
         //Get the max level of categories depth
         $max_level = FrameworkDatabase::getValue('level', $table, '`level` desc');
@@ -168,7 +168,7 @@ class FrameworkCategory extends ObjectModel
     {
         $result = [];
 
-        $result[0] = $child['parent'];
+        $result[0] = $child['parent_id'];
 
         for ($x=1; $x < $max_level - 1; $x++)
         {
@@ -186,7 +186,7 @@ class FrameworkCategory extends ObjectModel
     */
     public function getParent($table, $row)
     {
-        return FrameworkDatabase::getValue($table,'parent','`id_'.$table.'` = '.$row);
+        return FrameworkDatabase::getValue($table,'parent_id','`id_'.$table.'` = '.$row);
     }
 
     /**
