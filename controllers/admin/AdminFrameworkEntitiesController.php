@@ -54,7 +54,19 @@ class AdminFrameworkEntitiesController extends ModuleAdminController
     {
         $this->fields_form = array(
             'input' => array(
-            	array(
+                array(
+                    'type' => 'text',
+                    'label' => $this->l('Όνομα'),
+                    'name' => 'meta_title',
+                    'required' => true,
+                    'lang' => true,
+                ),
+                array(
+                    'type' => 'text',
+                    'label' => $this->l('Κλάσση'),
+                    'name' => 'class',
+                ),
+				array(
                     'type' => 'switch',
                     'label' => $this->l('Γλώσσα'),
                     'name' => 'language',
@@ -72,18 +84,6 @@ class AdminFrameworkEntitiesController extends ModuleAdminController
                             'label' => $this->l('Όχι')
                         )
                     )
-                ),
-                array(
-                    'type' => 'text',
-                    'label' => $this->l('Όνομα'),
-                    'name' => 'meta_title',
-                    'required' => true,
-                    'lang' => true,
-                ),
-                array(
-                    'type' => 'text',
-                    'label' => $this->l('Κλάσση'),
-                    'name' => 'class',
                 )
             ),
             'submit' => array(
