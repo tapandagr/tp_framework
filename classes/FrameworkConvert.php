@@ -10,6 +10,8 @@
  * This class has been built to let us automate any procedure is related to database tables
  */
 
+use PrestaShop\PrestaShop\Adapter\ServiceLocator;
+
 require_once _PS_MODULE_DIR_.'tp_framework/tp_framework.php';
 
 class FrameworkConvert
@@ -239,5 +241,15 @@ class FrameworkConvert
         }
 
         return $result;
+    }
+
+    /**
+    *
+    */
+    public function hash($plain_text)
+    {
+        $crypto = ServiceLocator::get('\\PrestaShop\\PrestaShop\\Core\\Crypto\\Hashing');
+
+        return $crypto->hash($plain_text);
     }
 }

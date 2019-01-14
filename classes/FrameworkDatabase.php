@@ -345,4 +345,14 @@ class FrameworkDatabase
 
         return true;
     }
+
+    /**
+    * It returns the current date & time based on the selected timezone
+    */
+    public function getDateTime($zone = 'Europe/Athens')
+    {
+        $timezone = new DateTimeZone($zone);
+        $result = new DateTime(null, $timezone);
+        return $result->format('Y-m-d H:i:s');
+    }
 }
