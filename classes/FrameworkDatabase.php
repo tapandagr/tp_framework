@@ -203,12 +203,12 @@ class FrameworkDatabase
         {
             $object = new stdClass();
             $object->class_name = 'AdminFrameworkDashboard';
-            $object->name = $initial_object->name;
-            $object->display_name = $initial_object->displayName;
+            $object->name = $module->name;
+            $object->display_name = $module->displayName;
 
             $fake_tab = new stdClass();
             $fake_tab->class_name = "AdminFrameworkCategories";
-            $fake_tab->display_name = $initial_object->l('Κατηγορίες');
+            $fake_tab->display_name = $module->l('Κατηγορίες');
         }
 
         if(is_object($fake_tab) === true)
