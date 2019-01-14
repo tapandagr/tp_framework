@@ -227,12 +227,12 @@ class FrameworkDatabase
 
         //Parent tab creation
         $tab = new Tab();
-        $tab->class_name = $module->class_name;
-        $tab->module = $module->name;
+        $tab->class_name = $object->class_name;
+        $tab->module = $object->name;
         $tab->id_parent = 0;
         foreach($module->languages as $l)
         {
-            $tab->name[$l['id_lang']] = $module->displayName;
+            $tab->name[$l['id_lang']] = $object->display_name;
         }
         $tab->save();
 
