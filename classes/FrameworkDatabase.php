@@ -218,7 +218,7 @@ class FrameworkDatabase
             $tab->module = $object->name;
             $tab->id_parent = -1;
 
-            foreach($initial_object->languages as $l)
+            foreach($module->languages as $l)
             {
                 $tab->name[$l['id_lang']] = $fake_tab->display_name;
             }
@@ -285,10 +285,10 @@ class FrameworkDatabase
     * It uninstalls a bunch of tabs (using a separate file)
     * @var $object Object It is the main class object (to retrieve the module directory name)
     */
-    public function uninstallTabs($initial_object)
+    public function uninstallTabs($module)
     {
         $sql = array();
-        require_once _PS_MODULE_DIR_.$initial_object->name.'/sql/uninstall_tabs.php';
+        require_once _PS_MODULE_DIR_.$module->name.'/sql/uninstall_tabs.php';
         foreach ($sql as $s)
         {
             if($s)
@@ -304,10 +304,10 @@ class FrameworkDatabase
     /**
     *
     */
-    public function installTables($initial_object)
+    public function installTables($module)
     {
         $sql = array();
-        require_once _PS_MODULE_DIR_.$initial_object->name.'/sql/install.php';
+        require_once _PS_MODULE_DIR_.$module->name.'/sql/install.php';
         foreach ($sql as $s)
         {
             if (!Db::getInstance()->Execute($s))
@@ -320,10 +320,10 @@ class FrameworkDatabase
     /**
     *
     */
-    public function uninstallTables($initial_object)
+    public function uninstallTables($module)
     {
         $sql = array();
-        require_once _PS_MODULE_DIR_.$initial_object->name.'/sql/uninstall.php';
+        require_once _PS_MODULE_DIR_.$module->name.'/sql/uninstall.php';
         foreach ($sql as $s)
         {
             if (!Db::getInstance()->Execute($s))
