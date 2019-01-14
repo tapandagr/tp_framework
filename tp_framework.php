@@ -160,7 +160,7 @@ class tp_framework extends Module
     /**
     * Get the installed languages (false: all, true: active)
     */
-    public static function getLanguages($limit = false)
+    public function getLanguages($limit = false)
     {
         return Language::getLanguages($limit, Context::getContext()->shop->id);
     }
