@@ -139,4 +139,46 @@ class FrameworkFile extends ObjectModel
         $path = $this->getPath();
         return tp_framework::getDirectories()->images.$path;
     }
+
+    /**
+    *
+    */
+    public function copyFiles($files, $destination)
+    {
+        foreach ($files as $f) {
+            $this->copyFile($f, $destination);
+        }
+
+        return true;
+    }
+
+    /**
+    *
+    */
+    public function copyFile($file, $destination)
+    {
+        $target = $destination;
+        foreach ($file['directories'] as $d) {
+            $target = $target.'/'.$d;
+            self::makeDirectory($target);
+        }
+
+        copy($file['absolute'], $target.'/'.$file['name']);
+        chmod($target.'/'.$file['name'], 0755);
+
+        return true;
+    }
+
+    /**
+    *
+    */
+    public function makeDirectory($absolute)
+    {
+        if (!file_exists($absolute)) {
+            mkdir($absolute, 0644, true);
+            copy(_PS_MODULE_DIR_.'tp_framework/index.php', $absolute.'/index.php');
+        }
+
+        return true;
+    }
 }

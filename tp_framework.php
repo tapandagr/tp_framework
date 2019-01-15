@@ -83,11 +83,14 @@ class tp_framework extends Module
     */
     public function install()
     {
+        $files = $this->getFilesToImport();
+
         return
         (
             parent::install() and
-            $this->class->database->installTabs($this)// and
-            //$this->class->database->installTables($this) and
+            $this->class->database->installTabs($this) and
+            $this->class->database->installTables($this) and
+            $this->class->file->copyfiles($files, _PS_ADMIN_DIR_.'/themes/default/template')
             //$this->class->database->installHooks($this) and
             //$this->class->convert->convertColumnsToLanguage($this)
         );
@@ -102,8 +105,8 @@ class tp_framework extends Module
         (
             parent::uninstall() and
             //$this->class->convert->convertColumnsFromLanguage($this) and
-            $this->class->database->uninstallTabs($this)// and
-            //$this->class->database->uninstallTables($this)
+            $this->class->database->uninstallTabs($this) and
+            $this->class->database->uninstallTables($this)
         );
     }
 
@@ -233,9 +236,12 @@ class tp_framework extends Module
     public function getDirectories()
     {
         $result = new stdClass();
-        $result->module = _MODULE_DIR_.'tp_framework';
+        $result->module = _PS_MODULE_DIR_.'tp_framework';
         $result->uploads = $result->module.'/uploads';
         $result->images = $result->uploads.'/images';
+        $result->templates = new stdClass();
+        $result->templates->plain = $result->module.'/views/templates';
+        $result->templates->import = $result->templates->plain.'/import';
 
         return $result;
     }
@@ -261,5 +267,22 @@ class tp_framework extends Module
         $fw->directory = self::getDirectories();
 
         return $fw;
+    }
+
+    /**
+    *
+    */
+    public function getFilesToImport()
+    {
+        $result = array();
+
+        $base = $this->directory->templates->import.'/';
+
+        $result[0]['name'] = 'content.tpl';
+        $result[0]['relative'] = 'files/content.tpl';
+        $result[0]['absolute'] = $base.$result[0]['relative'];
+        $result[0]['directories'] = array('modules', 'tp_framework', 'files');
+
+        return $result;
     }
 }
