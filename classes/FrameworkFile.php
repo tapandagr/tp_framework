@@ -164,7 +164,7 @@ class FrameworkFile extends ObjectModel
         }
 
         copy($file['absolute'], $target.'/'.$file['name']);
-        chmod($target.'/'.$file['name'], 0755);
+        chmod($target.'/'.$file['name'], 0644);
 
         return true;
     }
@@ -175,7 +175,7 @@ class FrameworkFile extends ObjectModel
     public function makeDirectory($absolute)
     {
         if (!file_exists($absolute)) {
-            mkdir($absolute, 0644, true);
+            mkdir($absolute, 0755, true);
             copy(_PS_MODULE_DIR_.'tp_framework/index.php', $absolute.'/index.php');
         }
 
