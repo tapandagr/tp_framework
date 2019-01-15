@@ -237,8 +237,7 @@ class FrameworkDatabase
         $tab->save();
 
         //Sub-tabs creation
-        $parent = new Tab($tab->id);
-        self::installSubTabs($module, $parent);
+        $this->installSubTabs($module, $tab);
 
         return true;
     }

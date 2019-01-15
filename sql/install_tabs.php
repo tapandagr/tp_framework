@@ -8,7 +8,7 @@
  * @since      0.0.1
  */
 
-$tabs = array(
+$sql = array(
 	array(
 		'class_name' => 'AdminFrameworkFiles',
 		'name' => 'Αρχεία',

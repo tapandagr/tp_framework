@@ -86,10 +86,10 @@ class tp_framework extends Module
         return
         (
             parent::install() and
-            $this->class->database->installTabs($this) and
-            $this->class->database->installTables($this) and
-            $this->class->database->installHooks($this) and
-            $this->class->convert->convertColumnsToLanguage($this)
+            $this->class->database->installTabs($this)// and
+            //$this->class->database->installTables($this) and
+            //$this->class->database->installHooks($this) and
+            //$this->class->convert->convertColumnsToLanguage($this)
         );
     }
 
@@ -102,8 +102,8 @@ class tp_framework extends Module
         (
             parent::uninstall() and
             //$this->class->convert->convertColumnsFromLanguage($this) and
-            $this->class->database->uninstallTabs($this) and
-            $this->class->database->uninstallTables($this)
+            $this->class->database->uninstallTabs($this)// and
+            //$this->class->database->uninstallTables($this)
         );
     }
 
@@ -160,7 +160,7 @@ class tp_framework extends Module
     /**
     * Get the installed languages (false: all, true: active)
     */
-    public function getLanguages($limit = false)
+    public static function getLanguages($limit = false)
     {
         return Language::getLanguages($limit, Context::getContext()->shop->id);
     }
