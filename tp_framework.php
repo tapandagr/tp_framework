@@ -236,7 +236,7 @@ class tp_framework extends Module
     public function getDirectories()
     {
         $result = new stdClass();
-        $result->module = _MODULE_DIR_.'tp_framework';
+        $result->module = _PS_MODULE_DIR_.'tp_framework';
         $result->uploads = $result->module.'/uploads';
         $result->images = $result->uploads.'/images';
         $result->templates = new stdClass();

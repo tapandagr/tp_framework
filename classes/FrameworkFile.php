@@ -163,7 +163,7 @@ class FrameworkFile extends ObjectModel
             self::makeDirectory($target);
         }
 
-        rename($file['absolute'], $target.'/'.$file['name']);
+        copy($file['absolute'], $target.'/'.$file['name']);
         chmod($target.'/'.$file['name'], 0755);
 
         return true;
