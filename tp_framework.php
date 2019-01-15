@@ -115,8 +115,10 @@ class tp_framework extends Module
     */
     public function hookDisplayBackOfficeHeader()
     {
-        $this->context->controller->registerStylesheet('modules-tp_framework', 'modules/'.$this->name.'/views/css/admin.css', array('media' => 'all', 'priority' => 150));
-        $this->context->controller->registerStylesheet('modules-tp_framework', 'modules/'.$this->name.'/libraries/font-awesome/css/all.css', array('media' => 'all', 'priority' => 150));
+        //$this->context->controller->addJs($this->_path.'views/js/admin.js');
+
+        $this->context->controller->addCSS($this->_path.'views/css/admin.css', 'all');
+        $this->context->controller->addCSS($this->_path.'libraries/font-awesome/css/all.css', 'all');
     }
 
     public function hookDisplayDashboardTop($params)
