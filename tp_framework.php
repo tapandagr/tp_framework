@@ -89,8 +89,8 @@ class tp_framework extends Module
         (
             parent::install() and
             $this->class->database->installTabs($this) and
-            $this->class->database->installTables($this) and
-            $this->class->file->copyfiles($files, _PS_ADMIN_DIR_.'/themes/default/template')
+            $this->class->database->installTables($this)// and
+            //$this->class->file->copyfiles($files, _PS_ADMIN_DIR_.'/themes/default/template')
             //$this->class->database->installHooks($this) and
             //$this->class->convert->convertColumnsToLanguage($this)
         );
