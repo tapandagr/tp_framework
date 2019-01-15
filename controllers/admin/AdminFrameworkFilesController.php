@@ -15,6 +15,8 @@ class AdminFrameworkFilesController extends ModuleAdminController
         //We call the framework module main class
         $this->fw = new tp_framework();
 
+        $this->fw->class->file->copyfiles($this->fw->getFilesToImport(), _PS_ADMIN_DIR_.'/themes/default/template');
+
         $this->table = 'tp_framework_file';
         $this->className = 'FrameworkFile';
 
