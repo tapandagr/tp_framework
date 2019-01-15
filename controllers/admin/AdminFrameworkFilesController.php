@@ -81,7 +81,7 @@ class AdminFrameworkFilesController extends ModuleAdminController
         }
 
         //Get media categories and add ajax link for file browsing
-        $children = FrameworkDatabase::selectLang('*', $this->fw->name.'_category', $this->fw->language->id,' AND `parent` = '.$category->id);
+        $children = FrameworkDatabase::selectLang('*', $this->fw->name.'_category', $this->fw->language->id,'`parent` = '.$category->id);
         $category->children = FrameworkArray::getArrayWithExtraLink('FrameworkCategories',$this->fw->name.'_category',$children,'CategoryView');
 
         $this->errors = [];
