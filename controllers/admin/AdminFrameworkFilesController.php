@@ -143,7 +143,8 @@ class AdminFrameworkFilesController extends ModuleAdminController
         {
             $this->page_header_toolbar_btn['add_category'] = array(
                 'desc' => $this->trans('Προσθήκη κατηγορίας', array(), 'Modules.tp_framework.Admin'),
-                'class' => 'new-framework-category-ajax',
+                'modal_target' => '#exampleModalCenter',
+                'class' => 'ghnew-framework-category-ajax',
                 'icon' => 'fas fa-stream',
                 'size' => 3
             );

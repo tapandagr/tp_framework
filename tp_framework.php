@@ -58,6 +58,7 @@ class tp_framework extends Module
         );
         $this->need_instance = 0;
 		$this->bootstrap = true;
+        $this->controllers = array('convert');
 
         parent::__construct();
 
@@ -115,10 +116,9 @@ class tp_framework extends Module
     */
     public function hookDisplayBackOfficeHeader()
     {
-        //$this->context->controller->addJs($this->_path.'views/js/admin.js');
-
         $this->context->controller->addCSS($this->_path.'views/css/admin.css', 'all');
         $this->context->controller->addCSS($this->_path.'libraries/font-awesome/css/all.css', 'all');
+        $this->context->controller->addJs($this->_path.'views/js/admin.js');
     }
 
     public function hookDisplayDashboardTop($params)
