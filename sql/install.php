@@ -26,11 +26,14 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'hook_lang`(
 */
 $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'tp_framework_category`(
 	`id_tp_framework_category` int(11) UNSIGNED NOT NULL auto_increment,
-	`parent_id` int(11) UNSIGNED DEFAULT 0,
-	`link_rewrite` varchar(150) NOT NULL,
 	`level` int(11) UNSIGNED DEFAULT 0,
+	`parent_id` int(11) UNSIGNED DEFAULT 0,
 	`position` int(11) UNSIGNED DEFAULT 0,
-	PRIMARY KEY (`id_tp_framework_category`)
+	`nleft` int(11) UNSIGNED DEFAULT 0,
+	`nright` int(11) UNSIGNED DEFAULT 0,
+	`link_rewrite` varchar(150) NOT NULL,
+	PRIMARY KEY (`id_tp_framework_category`),
+	UNIQUE KEY `category` (`id_tp_framework_category`,`nleft`,`nright`)
 ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8';
 
 /**
