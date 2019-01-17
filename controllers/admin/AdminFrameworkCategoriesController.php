@@ -36,8 +36,11 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             if ($action == 'ajaxProcessAdd')
             {
                 $this->ajaxProcessAdd();
-            }elseif ($action == 'ajaxProcessGetCategoriesTree') {
+            } elseif ($action == 'ajaxProcessGetCategoriesTree')
+            {
                 $this->ajaxProcessGetCategoriesTree();
+            } elseif($action == 'ajaxProcessView') {
+                $this->ajaxProcessView();
             }
         }
     }
@@ -55,10 +58,10 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             $object = new $this->className();
 
             //Get parent ID
-            $object->parent = $data['parent'];
+            $object->parent_id = $data['parent_id'];
 
             //Get parent object
-            $parent = FrameworkObject::makeObjectById($this->className, $object->parent, $this->fw->language->id);
+            $parent = FrameworkObject::makeObjectById($this->className, $object->parent_id, $this->fw->language->id);
 
             //Get respective level
             $object->level = $parent->level + 1;
@@ -76,7 +79,7 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             $object->status = 1;
 
             //Directory add
-            FrameworkFile::makeDir($object);
+            FrameworkDirectory::makeDirectory($object);
 
             //Get last position
             $object->position = FrameworkCategory::getLastPosition($this->fw, $this->table, $object, 1);
@@ -89,7 +92,7 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             ));
         }
 
-        die(Context::getContext()->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/add.tpl'));
+        die($this->context->smarty->fetch('module:'.$this->fw->name.'/views/templates/admin/ajax/categories/add.tpl'));
     }
 
     /**
@@ -99,15 +102,88 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
     {
         //Get media categories
         $categories = FrameworkCategory::getCategoriesTree($this->fw);
-/*
-        print('<pre>');
-        print_r($categories);
-        print('</pre>');
-*/
+
         $this->context->smarty->assign(array(
             'allowed_categories' => $categories,
         ));
 
-        die($this->context->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/allowed_categories.tpl'));
+        die($this->context->smarty->fetch('module:'.$this->fw->name.'/views/templates/admin/ajax/categories/allowed_categories.tpl'));
+    }
+
+    /**
+    * We use this function to get a category data
+    */
+    public function ajaxProcessView()
+    {
+        //Medium ID
+        $file_id = Tools::getValue('mid');
+
+        //Get the category ID
+        $category_id = Tools::getValue('cid');
+
+        //Sanitization
+        if(isset($mid) and Validate::isInt($mid) == 1)
+            $medium = new $this->className($mid,$this->lid);
+        else
+        {
+            //Bug-proof for unique smarty declaration
+            $medium = '';
+        }
+
+        //In case `cid` has not been set, we render the images home directory
+        if(!isset($cid) or $cid == 0)
+        {
+            $category = new $this->className();
+            $category->id = 0;
+            $category->path = '';
+        }else
+        {
+            //Sanitization check
+            if(Validate::isInt($cid) and $cid >= 0)
+            {
+                //Category object retrieval
+                $category = new $this->className($cid,$this->lid);
+                //Path creation
+                $category->path = $this->fw->calculateDirectoryLocation($category);
+            }else
+            {
+                //Whitelisting: In any other condition we kill the function
+                //die;
+            }
+        }
+
+        if($category->parent_id != 0)
+        {
+            $parent = new FrameworkCategory($category->parent, $this->lid);
+        }else
+        {
+            $parent = new stdClass();
+            $parent->id = 0;
+            $parent->location = '';
+            $parent->meta_title = $this->l('Home directory');
+        }
+
+        //Get media categories and add ajax link for file browsing
+        $children = $this->fw->database->selectLang('*', $this->fw->name.'_category', $this->fw->language->id, '`parent_id` = '.$category->id);
+        $children = $this->fw->array->getArrayWithExtraLink('FrameworkCategories', $this->fw->name.'_category', $children, 'ajaxprocesscategoryview');
+
+        //We add the parent link (3 is to get parent contents)
+        $parent = $this->fw->object->getObjectWithExtraLink('FrameworkCategories', $parent, 'ajaxprocesscategoryview');
+
+        //Get categories regular link. In order not to burden our server too much, we make the rest of the link with jQuery
+        $move_categories_link = $this->fw->link->getAdminLink('FrameworkCategories');
+
+        $this->context->smarty->assign(array(
+            'move_categories_link' => $move_categories_link,
+            'parent' => $parent,
+            'category' => $category,
+            'children' => $children,
+            //We fill it only if we are not browsing the home directory
+            'files' => ($category->id > 0)?FrameworkMedium::getMedia($category):'',
+            'medium' => $medium,
+            'tree' => $this->fw->category->getCategoriesTree(),
+        ));
+
+        die($this->context->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/category_view.tpl'));
     }
 }

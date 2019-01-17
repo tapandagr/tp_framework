@@ -2,8 +2,8 @@
 
 /**
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
- * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
- * @license    Single website per license
+ * @copyright  2018 - 2019 © tapanda.gr <https://tapanda.gr/el/>
+ * @license    Free tapanda license <https://tapanda.gr/en/blog/licenses/free-license>
  * @version    0.0.1
  * @since      0.0.1
  *
@@ -14,6 +14,14 @@ require_once _PS_MODULE_DIR_.'tp_framework/tp_framework.php';
 
 class FrameworkObject
 {
+    /**
+    *
+    */
+    public function __construct()
+    {
+        $this->fw = new tp_framework('Object');
+    }
+
     /**
     *
     */
@@ -42,7 +50,7 @@ class FrameworkObject
     public function getObjectWithExtraLink($controller, $object, $action = null)
     {
         //Put controller url in
-        $controller = tp_framework::getClasses()->link->getAdminLink($controller, $action);
+        $controller = $this->fw->link->getAdminLink($controller, $action);
 
         $object->extra_link = $controller.'&cid='.$object->id;
 

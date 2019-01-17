@@ -2,8 +2,10 @@
 
 /**
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
- * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
- * @license    Free for personal use. No warranty. Contact us at info@tapanda.gr for details
+ * @copyright  2018 - 2019 © tapanda.gr <https://tapanda.gr/el/>
+ * @license    Free tapanda license <https://tapanda.gr/en/blog/licenses/free-license>
+ * @version    0.0.1
+ * @since      0.0.1
  */
 
 require_once _PS_MODULE_DIR_.'tp_framework/tp_framework.php';
@@ -36,12 +38,12 @@ class FrameworkArray
         {
             $y = $x - 1;
 
-            while ($result[$x]['parent'] != $result[$y]['id_'.$table] and $result[$x]['parent'] != $result[$y]['parent'])
+            while ($result[$x]['parent_id'] != $result[$y]['id_'.$table] and $result[$x]['parent_id'] != $result[$y]['parent_id'])
             {
                 $y--;
             }
 
-            if ($result[$x]['parent'] == $result[$y]['id_'.$table])
+            if ($result[$x]['parent_id'] == $result[$y]['id_'.$table])
                 $result[$x]['absolute_position'] = $result[$y]['absolute_position'] + 1;
             else
                 $result[$x]['absolute_position'] = $result[$y]['absolute_position'] + count($result[$y]['descendants']) + 1;

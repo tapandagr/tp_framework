@@ -60,15 +60,15 @@ class AdminFrameworkFilesController extends ModuleAdminController
 
         if($category->parent != 0)
         {
-            $parent = new FrameworkCategory($category->parent, $this->fw->language->id);
+            $parent = new $this->fw->category($category->parent, $this->fw->language->id);
         }else
         {
-        	$parent = FrameworkObject::makeObjectByID();
+        	$parent = $this->fw->object->makeObjectByID();
         	$parent->meta_title = $this->l('Αρχική κατηγορία');
         }
 
         //We add ajax link to the parent entity
-        $parent = FrameworkObject::getObjectWithExtraLink('FrameworkCategories', $parent, 'CategoryView');
+        $parent = $this->fw->object->getObjectWithExtraLink('FrameworkCategories', $parent, 'CategoryView');
 
         //$category->children = $this->fw->getDirectoryContent($category->path);
 
@@ -113,7 +113,7 @@ class AdminFrameworkFilesController extends ModuleAdminController
             'current_language' => $this->fw->language,
             'links' => $this->fw->links,
             'fields' => $fields,
-            'tree' => FrameworkCategory::getCategoriesTree($this->fw),
+            'tree' => $this->fw->database->getCategoriesTree(),
             'column_remainder' => FrameworkForm::getColumnRemainder($fields->category),
             'categories' => $categories,
     		'category' => $category,

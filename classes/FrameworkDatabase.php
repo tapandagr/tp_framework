@@ -2,8 +2,8 @@
 
 /**
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
- * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
- * @license    Free for personal use. No warranty. Contact us at info@tapanda.gr for details
+ * @copyright  2018 - 2019 © tapanda.gr <https://tapanda.gr/el/>
+ * @license    Free tapanda license <https://tapanda.gr/en/blog/licenses/free-license>
  * @version    0.0.1
  * @since      0.0.1
  *
@@ -14,6 +14,15 @@ require_once _PS_MODULE_DIR_.'tp_framework/tp_framework.php';
 
 class FrameworkDatabase
 {
+    /**
+    *
+    */
+    public function __construct()
+    {
+        $this->fw = new tp_framework('Database');
+        //$this->fw->setClassRestriction('Database');
+    }
+
     /**
     * CSV insert into table
     */
@@ -353,5 +362,74 @@ class FrameworkDatabase
         $timezone = new DateTimeZone($zone);
         $result = new DateTime(null, $timezone);
         return $result->format('Y-m-d H:i:s');
+    }
+
+    /**
+    * Returns a categories tree from a module we specify
+    *
+    * @param $module varchar We have categories in many modules. This parameter helps us retrieve the desired ones
+    *
+    * @param $language int Language ID
+    *
+    * @param $level int Margin level / If set, the function will not return deeper children
+    *
+    * @return Returns a sorted array based on the position among the siblings and the parental hierarchy
+    */
+    public function getCategoriesTree($level = null, $restriction = null)
+    {
+        //Get the module categories table
+        $table = $this->name.'_category';
+
+        //Get the categories
+        $sql = $this->fw->database->selectLang('*', $table, $this->language->id, $restriction, '`level` ASC,`parent_id` ASC,t.`id_'.$table.'` ASC');
+
+        //Get the max level of categories depth
+        $max_level = $this->fw->database->getValue('level', $table, '`level` desc');
+
+        //Final result initialization
+        $result = array();
+
+        if(count($sql) > 0)
+        {
+            for ($x=0; $x < count($sql); $x++)
+            {
+                $result[$x] = $sql[$x];
+
+                //Get the parents of the specific category
+                $parents = FrameworkCategory::getParents($result[$x], $table, $max_level);
+
+                //Put them in the table
+                for ($p=0; $p < count($parents); $p++)
+                {
+                    $result[$x]['parent_'.$p] = $parents[$p];
+                }
+            }
+
+            //We put it into separate for, because we need the outcome of the previous one
+            for ($x=0; $x < count($sql); $x++)
+            {
+                $result[$x]['descendants'] = self::getDescendants($table, $result, $x);
+            }
+
+            //Update the actual positions with the absolute ones
+            $result = FrameworkArray::updatePositions($table, $result);
+
+            //We sort the results based on the `pos` field
+            $result = FrameworkArray::bubbleSort($result);
+        }
+
+        //Add images home directory
+        array_unshift(
+            $result,
+            array(
+                'id_'.$table => 0,
+                'level' => 0,
+                'parent_id' => 0,
+                'meta_title' => Context::getContext()->getTranslator()->trans('Αρχική κατηγορία',array(),'Modules.tp_framework.Admin'),
+                'descendants' => array()
+            )
+        );
+
+        return $result;
     }
 }

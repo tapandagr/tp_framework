@@ -80,4 +80,85 @@ class FrameworkDirectory extends ObjectModel
 
         return $result;
     }
+
+    /**
+    * It creates a directory in the specified location.
+    *
+    * @param $object object Object instance, usually a category from a module
+    *
+    * @param $datetime varchar If set, it creates a folder in the home images directory
+    * that is given the name after the current datetime converted in md5 (for duplication elimination).
+    */
+    public function makeDirectory($object)
+    {
+        $directory = self::getDirectories();
+
+        $result = self::calculateDirectoryLocation($object);
+
+        //$result = $object->location.'/'.$object->link;
+
+        $path = $directory->images.$result;
+
+        if(!file_exists($path))
+        {
+            mkdir($path, 0755, true);
+            copy($directory->module.'/index.php',$path.'/index.php');
+        }
+
+        //Fix directory permissions
+        chmod($path, 0755);
+
+        return $result;
+    }
+
+    /**
+    * This is a simple makeDir with absolute path (no object)
+    */
+    public function makeDirectorySimple($absolute)
+    {
+        if (!file_exists($absolute)) {
+            mkdir($absolute, 0755, true);
+            copy(_PS_MODULE_DIR_.'tp_framework/index.php', $absolute.'/index.php');
+        }
+
+        return true;
+    }
+
+    /**
+    *
+    */
+    public function calculateDirectoryLocation($object)
+    {
+        //We keep the object ’link_rewrite’ because the object will be recycled
+        $link_rewrite = $object->link_rewrite;
+
+        $result = '';
+
+        if($object->parent_id != 0)
+        {
+            while($object->parent_id != 0)
+            {
+                //Get parent object
+                $object = new FrameworkCategory($object->parent_id);
+                $result .= '/'.$object->link_rewrite;
+            }
+        }
+
+        $result .= '/'.$link_rewrite;
+
+        return $result;
+    }
+
+    /**
+    *
+    */
+    public function getDirectories()
+    {
+        $result = new stdClass();
+        $result->module = _PS_MODULE_DIR_.'tp_framework';
+        $result->uploads = $result->module.'/uploads';
+        $result->images = $result->uploads.'/images';
+
+        return $result;
+    }
 }

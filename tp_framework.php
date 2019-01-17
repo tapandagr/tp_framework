@@ -43,11 +43,13 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkObject.php';
 
 class tp_framework extends Module
 {
+    public $restriction = null;
     /**
     *
     */
-    public function __construct()
+    public function __construct($restriction = null)
     {
+        $this->restriction = $restriction;
         $this->name = 'tp_framework';
 		$this->tab = 'front_office_features';
 		$this->version = '1.0.0';
@@ -71,10 +73,12 @@ class tp_framework extends Module
         //Get the current language
         $this->language = Context::getContext()->language;
 
-        //Get the module classes
-        $this->class = $this->getClasses();
+        $this->getClasses();
 
-        $this->links = $this->class->link->getAdminLinks($this->getAdminControllers());
+        //We get the module links
+        if ($this->restriction != 'Link') {
+            $this->link->getModuleLinks();
+        }
 
         $this->directory = $this->getDirectories();
     }
@@ -129,36 +133,37 @@ class tp_framework extends Module
     /**
     *
     */
-    public function getClasses($class = null)
+    public function getClasses()
     {
-        $result = new stdClass();
-
         $classes = array(
             'Array',
-            'Category',
-            'Convert',
-            'Database',
-            'File',
-            'Form',
+            //'Category',
+            //'Convert',
+            //'Database',
+            //'File',
+            //'Form',
             'Link',
             'Object'
         );
 
-        if (($key = array_search($class, $classes)) !== false)
-        {
-            unset($classes[$key]);
-        }
+        //We reverse it because we know the value but not the index
+        $flip = array_flip($classes);
 
-        $result = new stdClass();
+        if ($this->restriction !== null)
+        {
+            unset($classes[$flip[$this->restriction]]);
+        }
 
         foreach($classes as $class)
         {
             $lower = strtolower($class);
             $class = 'Framework'.$class;
-            $result->{$lower} = new $class();
+            $this->{$lower} = new $class();
+
+            //We assign the module name and the language in the separate classes to preserve the objects inheritance
         }
 
-        return $result;
+        return $this;
     }
 
     /**
@@ -245,29 +250,6 @@ class tp_framework extends Module
         $result->templates->import = $result->templates->plain.'/import';
 
         return $result;
-    }
-
-    /**
-    *
-    */
-    public function getSettings($class = null)
-    {
-        $fw = new stdClass();
-
-        $fw->name = 'tp_framework';
-
-        //Get the shop languages
-        $fw->languages = self::getLanguages();
-
-        //Get the current language
-        $fw->language = Context::getContext()->language;
-
-        //Get the module classes
-        $fw->class = self::getClasses($class);
-
-        $fw->directory = self::getDirectories();
-
-        return $fw;
     }
 
     /**

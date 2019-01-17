@@ -2,9 +2,9 @@
 
 /**
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
- * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
- * @license    Single website per license
- * @version    0.0.3
+ * @copyright  2018 - 2019 © tapanda.gr <https://tapanda.gr/el/>
+ * @license    Free tapanda license <https://tapanda.gr/en/blog/licenses/free-license>
+ * @version    0.0.1
  * @since      0.0.1
  *
  * This class has been built to let us automate any procedure is related to database tables

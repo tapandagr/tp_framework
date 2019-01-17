@@ -20,18 +20,18 @@ $(document).ready(function()
     /**
     * Ajax form submit
     */
-    $(document).on('click','.tp_ajax_submit', function(e)
+    $(document).on('click','.tp-ajax-submit', function(e)
     {
     var form = $(this).closest('form');
     action = form.attr('data-pure-link') + '&action=ajaxProcess' + $(this).attr('data-action');
     refresh = form.attr('data-refresh');
     data = form.serialize();
-    files_browser = $('.files_browser');
-    footer_toolbar = $('.footer_toolbar');
-    result_box = $('.tp_ajax_submit_result');
+    files_browser = $('.files-browser');
+    footer_toolbar = $('.footer-toolbar');
+    result_box = $('.tp-ajax-result');
 
     //Categories tree that needs to be updated
-    refresh_categories = $('.refresh_categories');
+    refresh_categories = $('.refresh-categories');
 
     e.preventDefault();
     $.ajax(
@@ -48,9 +48,9 @@ $(document).ready(function()
 
         footer_toolbar.removeClass('hidden');
 
-        files_browser.load(form.attr('data-pure-link') + '&action=ajaxProcessCategoryView' + '&cid=' + files_browser.attr('data-current-category'));
+        files_browser.load(form.attr('data-pure-link') + '&action=ajaxProcessView' + '&cid=' + files_browser.attr('data-current-category'));
 
-        refresh_categories.load(form.attr('data-pure-link') + '&action=ajaxProcessGetCategoriesTree');
+        //refresh_categories.load(form.attr('data-pure-link') + '&action=ajaxProcessGetCategoriesTree');
       }
     });
   });

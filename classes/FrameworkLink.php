@@ -2,7 +2,10 @@
 
 /**
  * @author     Konstantinos A. Kogkalidis <konstantinos@tapanda.gr>
- * @copyright  2018 tapanda.gr <https://tapanda.gr/el/>
+ * @copyright  2018 - 2019 © tapanda.gr <https://tapanda.gr/el/>
+ * @license    Free tapanda license <https://tapanda.gr/en/blog/licenses/free-license>
+ * @version    0.0.1
+ * @since      0.0.1
  */
 
 require_once _PS_MODULE_DIR_.'tp_framework/tp_framework.php';
@@ -12,25 +15,33 @@ class FrameworkLink
     /**
     *
     */
-    public function getAdminLinks($admin_controllers)
+    public function __construct()
+    {
+        $this->fw = new tp_framework('Link');
+    }
+
+    /**
+    *
+    */
+    public function getAdminLinks()
     {
         //Initialize result
         $result = new stdClass();
         $result->admin = new stdClass();
 
-        foreach($admin_controllers as $c)
+        foreach($this->fw->getAdminControllers() as $c)
         {
-            $controller = FrameworkConvert::lowercase($c[1]);
+            $controller = $this->fw->convert->lowercase($c[1]);
             $result->admin->$controller = new stdClass();
-            $slug = FrameworkConvert::capital($c[1]);
+            $slug = $this->fw->convert->capital($c[1]);
 
-            $result->admin->$controller->url = self::getAdminLink($slug);
-            $result->admin->$controller->token = self::getAdminToken($controller);
+            $result->admin->$controller->url = $this->getAdminLink($slug);
+            $result->admin->$controller->token = $this->getAdminToken($controller);
 
             foreach($c[2] as $t)
             {
-                $type = FrameworkConvert::lowercase($t);
-                $result->admin->$controller->$type = self::getAdminLink($slug, $t);
+                $type = $this->fw->convert->lowercase($t);
+                $result->admin->$controller->$type = $this->getAdminLink($slug, $t);
             }
         }
 
@@ -56,7 +67,7 @@ class FrameworkLink
     */
     public function getAdminToken($controller, $prefix = 'Framework')
     {
-        $controller = FrameworkConvert::capital($controller);
+        $controller = $this->fw->convert->capital($controller);
         $controller = 'Admin'.$prefix.$controller;
 
         return Tools::getAdminToken(
@@ -82,7 +93,7 @@ class FrameworkLink
         $object = new stdClass();
         $object->name = $module;
         $object->controller = $controller;
-        return self::getLink($object, $data);
+        return $this->getLink($object, $data);
     }
 
     /**
@@ -106,7 +117,7 @@ class FrameworkLink
             //We make the link
             $data = array('link_rewrite' => $link_rewrite, 'page' => 1);
 
-            $link = FrameworkLink::getLink($object, $data);
+            $link = $this->getLink($object, $data);
 
             $result[0]['content'] = $a->open.$link.$a->middle.$meta_title.$a->close;
             $result[0]['class'] = '';
@@ -134,7 +145,7 @@ class FrameworkLink
             //We make the link
             $data = array('link_rewrite' => $link_rewrite, 'page' => $meta_title);
 
-            $link = FrameworkLink::getLink($object, $data);
+            $link = $this->getLink($object, $data);
             $result[$x]['content'] = $a->open.$link.$a->middle.$meta_title.$a->close;
             $result[$x]['class'] = '';
             $x++;
@@ -157,7 +168,7 @@ class FrameworkLink
             //We make the link
             $data = array('link_rewrite' => $link_rewrite, 'page' => $meta_title);
 
-            $link = FrameworkLink::getLink($object, $data);
+            $link = $this->getLink($object, $data);
             $result[$x]['content'] = $a->open.$link.$a->middle.$meta_title.$a->close;
             $result[$x]['class'] = '';
             $x++;
@@ -174,7 +185,7 @@ class FrameworkLink
             //We make the link
             $data = array('link_rewrite' => $link_rewrite, 'page' => $page->max);
 
-            $link = FrameworkLink::getLink($object, $data);
+            $link = $this->getLink($object, $data);
 
             $result[$x]['content'] = $a->open.$link.$a->middle.$meta_title.$a->close;
             $result[$x]['class'] = '';
@@ -182,5 +193,14 @@ class FrameworkLink
         }
 
         return $result;
+    }
+
+    /**
+    *
+    */
+    public function getModuleLinks()
+    {
+        //$this->links = $this->getAdminLinks();
+        return $this;
     }
 }

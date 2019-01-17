@@ -3,6 +3,6 @@
         <span aria-hidden="true"><i class="material-icons">close</i></span>
     </button>
     <div class="alert-text">
-        <p>{l s='Η κατηγορία'} {$category->meta_title[$language->id]} {l s='προστέθηκε επιτυχώς'}</p>
+        <p>{l s='Η κατηγορία'} {$category->meta_title[1]} {l s='προστέθηκε επιτυχώς'}</p>
     </div>
 </div>
