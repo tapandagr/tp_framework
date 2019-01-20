@@ -44,6 +44,7 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkObject.php';
 class tp_framework extends Module
 {
     public $restriction = null;
+
     /**
     *
     */
@@ -55,11 +56,11 @@ class tp_framework extends Module
 		$this->version = '1.0.0';
 		$this->author = 'tapanda.gr';
 		$this->ps_versions_compliancy = array(
-            'min' => '1.7',
+            'min' => '1.7.5',
             'max' => _PS_VERSION_
         );
         $this->need_instance = 0;
-		$this->bootstrap = true;
+		//$this->bootstrap = true;
         $this->controllers = array('convert');
 
         parent::__construct();
@@ -75,12 +76,9 @@ class tp_framework extends Module
 
         $this->getClasses();
 
-        //We get the module links
-        if ($this->restriction != 'Link') {
-            $this->link->getModuleLinks();
-        }
+        $this->getDirectories();
 
-        $this->directory = $this->getDirectories();
+        $this->links = $this->class->link->getAdminLinks($this->getAdminControllers());
     }
 
     /**
@@ -94,9 +92,9 @@ class tp_framework extends Module
         (
             parent::install() and
             $this->class->database->installTabs($this) and
-            $this->class->database->installTables($this) and
-            $this->class->file->copyfiles($files, _PS_ADMIN_DIR_.'/themes/default/template') and
-            $this->class->database->installHooks($this)// and
+            //$this->class->database->installTables($this) and
+            $this->class->file->copyfiles($files, _PS_ADMIN_DIR_.'/themes/default/template')// and
+            //$this->class->database->installHooks($this)// and
             //$this->class->convert->convertColumnsToLanguage($this)
         );
     }
@@ -110,8 +108,8 @@ class tp_framework extends Module
         (
             parent::uninstall() and
             //$this->class->convert->convertColumnsFromLanguage($this) and
-            $this->class->database->uninstallTabs($this) and
-            $this->class->database->uninstallTables($this)
+            $this->class->database->uninstallTabs($this)// and
+            //$this->class->database->uninstallTables($this)
         );
     }
 
@@ -137,11 +135,12 @@ class tp_framework extends Module
     {
         $classes = array(
             'Array',
-            //'Category',
-            //'Convert',
-            //'Database',
-            //'File',
-            //'Form',
+            'Category',
+            'Convert',
+            'Database',
+            'Directory',
+            'File',
+            'Form',
             'Link',
             'Object'
         );
@@ -149,16 +148,18 @@ class tp_framework extends Module
         //We reverse it because we know the value but not the index
         $flip = array_flip($classes);
 
-        if ($this->restriction !== null)
+        if (isset($this->restriction) and $this->restriction !== null)
         {
             unset($classes[$flip[$this->restriction]]);
         }
 
-        foreach($classes as $class)
+        $this->class = new stdClass();
+
+        foreach($classes as $c)
         {
-            $lower = strtolower($class);
-            $class = 'Framework'.$class;
-            $this->{$lower} = new $class();
+            $lower = strtolower($c);
+            $c = 'Framework'.$c;
+            $this->class->{$lower} = new $c();
 
             //We assign the module name and the language in the separate classes to preserve the objects inheritance
         }
@@ -206,7 +207,7 @@ class tp_framework extends Module
     /**
     *
     */
-    public function getAdminControllers()
+    public static function getAdminControllers()
     {
         $result = array(
             array(
@@ -241,15 +242,15 @@ class tp_framework extends Module
     */
     public function getDirectories()
     {
-        $result = new stdClass();
-        $result->module = _PS_MODULE_DIR_.'tp_framework';
-        $result->uploads = $result->module.'/uploads';
-        $result->images = $result->uploads.'/images';
-        $result->templates = new stdClass();
-        $result->templates->plain = $result->module.'/views/templates';
-        $result->templates->import = $result->templates->plain.'/import';
+        $this->directory = new stdClass();
+        $this->directory->module = _PS_MODULE_DIR_.'tp_framework';
+        $this->directory->uploads = $this->directory->module.'/uploads';
+        $this->directory->images = $this->directory->uploads.'/images';
+        $this->directory->templates = new stdClass();
+        $this->directory->templates->plain = $this->directory->module.'/views/templates';
+        $this->directory->templates->import = $this->directory->templates->plain.'/import';
 
-        return $result;
+        return $this;
     }
 
     /**

@@ -17,6 +17,32 @@ $(document).ready(function()
         hidden.val(id);
     });
 
+    $(document).on('click','.replace-select', function (e)
+    {
+        $(this).toggleClass('active');
+    });
+
+    $(document).on('focus','.floating input', function (e)
+    {
+        $(this).parent().addClass('active');
+    });
+
+    $(document).on('blur','.floating input', function (e)
+    {
+        if($(this).val().length == 0)
+        {
+            $(this).parent().removeClass('active');
+        }
+    });
+
+    $(document).on('click','.tp-change-lang', function (e)
+    {
+        var lang = '.' + $(this).attr('data-value');
+
+        $('.lang-field').addClass('hidden');
+        $(lang).removeClass('hidden');
+    });
+
     /**
     * Ajax form submit
     */

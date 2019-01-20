@@ -45,7 +45,7 @@
 			                            <i class="fas fa-chevron-up up"></i>
 			                            <div class="refresh-categories menu">
 			                                {foreach $tree as $c}
-			                                    {if $c.parent < 1}
+			                                    {if $c.parent_id < 1}
 			                                        <div class="parent" data-id="{$c.id_tp_framework_category}" data-name="{$c.meta_title}">{$c.meta_title}</div>
 			                                    {/if}
 			                                    {if isset($c.descendants)}
@@ -55,7 +55,7 @@
 			                                    {/if}
 			                                {/foreach}
 			                            </div>
-			                            <input type="hidden" name="parent" class="parent_hidden">
+			                            <input type="hidden" name="parent_id" class="parent_hidden">
 			                        </div>
 			                    </div>
 			                {elseif $f.name == 'meta_title'}

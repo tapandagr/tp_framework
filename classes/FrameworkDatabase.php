@@ -19,8 +19,8 @@ class FrameworkDatabase
     */
     public function __construct()
     {
-        $this->fw = new tp_framework('Database');
-        //$this->fw->setClassRestriction('Database');
+        //$this->fw = new tp_framework('Database');
+        $this->convert = new FrameworkConvert();
     }
 
     /**
@@ -28,10 +28,7 @@ class FrameworkDatabase
     */
     public static function insert($table, $fields, $csv,$action = 'ignore',$on_duplicate = null)
     {
-        if($action == 'ignore')
-            $sql = 'INSERT IGNORE INTO '._DB_PREFIX_.$table.' '.$fields.' VALUES '.$csv;
-        elseif($action == 'update')
-            $sql = 'INSERT INTO '._DB_PREFIX_.$table.' '.$fields.' VALUES '.$csv.' ON DUPLICATE KEY UPDATE '.$on_duplicate;
+        $sql = 'INSERT IGNORE INTO '._DB_PREFIX_.$table.' '.$fields.' VALUES '.$csv;
 
         (db::getInstance())->execute($sql);
     }
@@ -126,7 +123,7 @@ class FrameworkDatabase
     /**
     *
     */
-    public static function getValue($column, $table, $order_by = null, $where = null)
+    public static function getValue($column, $table, $where = null, $order_by = null)
     {
         if($where === null)
             $where = '';
@@ -146,10 +143,12 @@ class FrameworkDatabase
     /**
     * Update query
     */
-    public static function update($table,$fields,$csv,$column)
+    public function update($table, $columns, $data, $columns_to_update = null)
     {
-        $sql = 'INSERT INTO `'._DB_PREFIX_.$table.'` '.$fields.' VALUES '.$csv.' ON DUPLICATE KEY UPDATE '.$column.' = VALUES('.$column.')';
+        $sql = 'INSERT INTO `'._DB_PREFIX_.$table.'` '.$columns.' VALUES '.$data.' ON DUPLICATE KEY UPDATE '.$columns_to_update;
         db::getInstance()->execute($sql);
+
+        return true;
     }
 
     /**
@@ -362,74 +361,5 @@ class FrameworkDatabase
         $timezone = new DateTimeZone($zone);
         $result = new DateTime(null, $timezone);
         return $result->format('Y-m-d H:i:s');
-    }
-
-    /**
-    * Returns a categories tree from a module we specify
-    *
-    * @param $module varchar We have categories in many modules. This parameter helps us retrieve the desired ones
-    *
-    * @param $language int Language ID
-    *
-    * @param $level int Margin level / If set, the function will not return deeper children
-    *
-    * @return Returns a sorted array based on the position among the siblings and the parental hierarchy
-    */
-    public function getCategoriesTree($level = null, $restriction = null)
-    {
-        //Get the module categories table
-        $table = $this->name.'_category';
-
-        //Get the categories
-        $sql = $this->fw->database->selectLang('*', $table, $this->language->id, $restriction, '`level` ASC,`parent_id` ASC,t.`id_'.$table.'` ASC');
-
-        //Get the max level of categories depth
-        $max_level = $this->fw->database->getValue('level', $table, '`level` desc');
-
-        //Final result initialization
-        $result = array();
-
-        if(count($sql) > 0)
-        {
-            for ($x=0; $x < count($sql); $x++)
-            {
-                $result[$x] = $sql[$x];
-
-                //Get the parents of the specific category
-                $parents = FrameworkCategory::getParents($result[$x], $table, $max_level);
-
-                //Put them in the table
-                for ($p=0; $p < count($parents); $p++)
-                {
-                    $result[$x]['parent_'.$p] = $parents[$p];
-                }
-            }
-
-            //We put it into separate for, because we need the outcome of the previous one
-            for ($x=0; $x < count($sql); $x++)
-            {
-                $result[$x]['descendants'] = self::getDescendants($table, $result, $x);
-            }
-
-            //Update the actual positions with the absolute ones
-            $result = FrameworkArray::updatePositions($table, $result);
-
-            //We sort the results based on the `pos` field
-            $result = FrameworkArray::bubbleSort($result);
-        }
-
-        //Add images home directory
-        array_unshift(
-            $result,
-            array(
-                'id_'.$table => 0,
-                'level' => 0,
-                'parent_id' => 0,
-                'meta_title' => Context::getContext()->getTranslator()->trans('Αρχική κατηγορία',array(),'Modules.tp_framework.Admin'),
-                'descendants' => array()
-            )
-        );
-
-        return $result;
     }
 }

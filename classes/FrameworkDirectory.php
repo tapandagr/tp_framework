@@ -50,6 +50,14 @@ class FrameworkDirectory extends ObjectModel
     /**
     *
     */
+    public function __construct()
+    {
+        //$this->fw = new tp_framework('Directory');
+    }
+
+    /**
+    *
+    */
     public function getPath()
     {
         $result = '/'.$this->position;

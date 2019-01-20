@@ -13,6 +13,14 @@ require_once _PS_MODULE_DIR_.'tp_framework/tp_framework.php';
 class FrameworkArray
 {
     /**
+    *
+    */
+    public function __construct()
+    {
+        //$this->fw = new tp_framework('Array');
+    }
+
+    /**
     * It isolates a single column (with the respective values) from a given array
     */
     public static function getColumnFromArray($array, $index)

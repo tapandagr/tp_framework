@@ -12,7 +12,6 @@ class AdminFrameworkFilesController extends ModuleAdminController
 {
     public function __construct()
     {
-        //We call the framework module main class
         $this->fw = new tp_framework();
 
         $this->table = 'tp_framework_file';
@@ -39,6 +38,15 @@ class AdminFrameworkFilesController extends ModuleAdminController
                 'callback' => 'Image'
             )
         );
+
+        //testing
+        $categories = FrameworkDatabase::select('*', 'tp_framework_category', null, null, '`level` ASC, `parent_id` ASC, `position` ASC');
+
+        $descendants = FrameworkCategory::getDescendants($categories);
+
+        print('<pre>');
+        print_r($descendants);
+        print('</pre>');
     }
 
     /**
@@ -55,20 +63,20 @@ class AdminFrameworkFilesController extends ModuleAdminController
         	$category->path = $category->getRelativePath();
         }else
         {
-            $category = FrameworkObject::makeObjectByID('FrameworkCategory');
+            $category = $this->fw->class->object->makeObjectByID('FrameworkCategory');
         }
 
         if($category->parent != 0)
         {
-            $parent = new $this->fw->category($category->parent, $this->fw->language->id);
+            $parent = new $this->fw->class->category($category->parent, $this->fw->language->id);
         }else
         {
-        	$parent = $this->fw->object->makeObjectByID();
+        	$parent = $this->fw->class->object->makeObjectByID();
         	$parent->meta_title = $this->l('Αρχική κατηγορία');
         }
 
         //We add ajax link to the parent entity
-        $parent = $this->fw->object->getObjectWithExtraLink('FrameworkCategories', $parent, 'CategoryView');
+        $parent = $this->fw->class->object->getObjectWithExtraLink('FrameworkCategories', $parent, 'CategoryView');
 
         //$category->children = $this->fw->getDirectoryContent($category->path);
 
@@ -81,15 +89,15 @@ class AdminFrameworkFilesController extends ModuleAdminController
         }
 
         //Get media categories and add ajax link for file browsing
-        $children = FrameworkDatabase::selectLang('*', $this->fw->name.'_category', $this->fw->language->id,'`parent_id` = '.$category->id);
-        $category->children = FrameworkArray::getArrayWithExtraLink('FrameworkCategories',$this->fw->name.'_category',$children,'CategoryView');
+        $children = $this->fw->class->database->selectLang('*', $this->fw->name.'_category', $this->fw->language->id,'`parent_id` = '.$category->id);
+        $category->children = $this->fw->class->array->getArrayWithExtraLink('FrameworkCategories', $this->fw->name.'_category', $children, 'CategoryView');
 
         $this->errors = [];
 
     	if (!isset($this->display))
     	{
-    		$categories = FrameworkDatabase::selectLang('*', 'tp_framework_category', $this->fw->language->id);
-    		$files = FrameworkDatabase::select('*', 'tp_framework_file');
+    		$categories = $this->fw->class->database->selectLang('*', 'tp_framework_category', $this->fw->language->id);
+    		$files = $this->fw->class->database->select('*', 'tp_framework_file');
 
     		if(empty($categories))
             {
@@ -109,12 +117,12 @@ class AdminFrameworkFilesController extends ModuleAdminController
         $fields = $this->getFields();
 
         $this->context->smarty->assign(array(
-            'languages' => $this->fw->languages,
-            'current_language' => $this->fw->language,
+            'languages' => $this->module->languages,
+            'current_language' => $this->module->language,
             'links' => $this->fw->links,
             'fields' => $fields,
-            'tree' => $this->fw->database->getCategoriesTree(),
-            'column_remainder' => FrameworkForm::getColumnRemainder($fields->category),
+            'tree' => $this->fw->class->category->getCategoriesTree(),
+            'column_remainder' => $this->module->class->form->getColumnRemainder($fields->category),
             'categories' => $categories,
     		'category' => $category,
         ));

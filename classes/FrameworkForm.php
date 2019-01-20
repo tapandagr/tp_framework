@@ -15,6 +15,14 @@ class FrameworkForm
     /**
     *
     */
+    public function __construct()
+    {
+        //$this->fw = new tp_framework('Form');
+    }
+
+    /**
+    *
+    */
     public function getColumnRemainder($array)
     {
         $result = 0;

@@ -53,6 +53,15 @@ class FrameworkFile extends ObjectModel
     /**
     *
     */
+    public function __construct()
+    {
+        $this->class = new stdClass();
+        $this->class->directory = new FrameworkDirectory();
+    }
+
+    /**
+    *
+    */
     public function getPath()
     {
         //We get the directory object
@@ -95,7 +104,7 @@ class FrameworkFile extends ObjectModel
         $target = $destination;
         foreach ($file['directories'] as $d) {
             $target = $target.'/'.$d;
-            self::makeDirectory($target);
+            $this->class->directory->makeDirectory($target);
         }
 
         copy($file['absolute'], $target.'/'.$file['name']);

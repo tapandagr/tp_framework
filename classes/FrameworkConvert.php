@@ -19,6 +19,14 @@ class FrameworkConvert
     /**
     *
     */
+    public function __construct()
+    {
+        //$this->fw = new tp_framework('Convert');
+    }
+
+    /**
+    *
+    */
     public function convertColumnsToLanguage($object)
     {
         $this->convertColumnsInit($object);
@@ -100,7 +108,7 @@ class FrameworkConvert
     /**
     * Table to csv conversion
     */
-    public static function tableToCSV($sql, $fields, $languages = null)
+    public function tableToCSV($sql, $fields, $languages = null)
     {
         $result = '';
 
@@ -209,7 +217,7 @@ class FrameworkConvert
     /**
     *
     */
-    public function makeArrayBySerializedData($input)
+    public static function makeArrayBySerializedData($input)
     {
         $result = [];
 

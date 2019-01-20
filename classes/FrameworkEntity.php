@@ -42,4 +42,12 @@ class FrameworkEntity extends ObjectModel
             )
         ),
     );
+
+    /**
+    *
+    */
+    public function __construct()
+    {
+        //$this->fw = new tp_framework('Entity');
+    }
 }

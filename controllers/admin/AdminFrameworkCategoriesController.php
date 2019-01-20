@@ -36,11 +36,6 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             if ($action == 'ajaxProcessAdd')
             {
                 $this->ajaxProcessAdd();
-            } elseif ($action == 'ajaxProcessGetCategoriesTree')
-            {
-                $this->ajaxProcessGetCategoriesTree();
-            } elseif($action == 'ajaxProcessView') {
-                $this->ajaxProcessView();
             }
         }
     }
@@ -75,16 +70,7 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
 
             $object->add();
 
-            //Set status
-            $object->status = 1;
-
-            //Directory add
-            FrameworkDirectory::makeDirectory($object);
-
-            //Get last position
-            $object->position = FrameworkCategory::getLastPosition($this->fw, $this->table, $object, 1);
-
-            $object->update();
+            $object->regenerateTree();
 
             $this->context->smarty->assign(array(
                 'category' => $object,

@@ -19,17 +19,17 @@ class FrameworkObject
     */
     public function __construct()
     {
-        $this->fw = new tp_framework('Object');
+        //$this->fw = new tp_framework('Object');
     }
 
     /**
     *
     */
-    public function makeObjectById($class = 'stdClass', $id = 0, $language = null)
+    public static function makeObjectById($class = 'stdClass', $id = 0, $language = null)
     {
         if($id == 0)
         {
-            $object = new $class();
+            $object = new stdClass();
             $object->id = 0;
             $object->parent = 0;
             //We use -1 for initial parent, for the initial categories to be assigned to the proper level (0)
@@ -50,7 +50,7 @@ class FrameworkObject
     public function getObjectWithExtraLink($controller, $object, $action = null)
     {
         //Put controller url in
-        $controller = $this->fw->link->getAdminLink($controller, $action);
+        $controller = FrameworkLink::getAdminLink($controller, $action);
 
         $object->extra_link = $controller.'&cid='.$object->id;
 

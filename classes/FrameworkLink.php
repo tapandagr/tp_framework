@@ -17,30 +17,31 @@ class FrameworkLink
     */
     public function __construct()
     {
-        $this->fw = new tp_framework('Link');
+        $this->class = new stdClass();
+        $this->class->convert = new FrameworkConvert();
     }
 
     /**
     *
     */
-    public function getAdminLinks()
+    public function getAdminLinks($controllers)
     {
         //Initialize result
         $result = new stdClass();
         $result->admin = new stdClass();
 
-        foreach($this->fw->getAdminControllers() as $c)
+        foreach($controllers as $c)
         {
-            $controller = $this->fw->convert->lowercase($c[1]);
+            $controller = $this->class->convert->lowercase($c[1]);
             $result->admin->$controller = new stdClass();
-            $slug = $this->fw->convert->capital($c[1]);
+            $slug = $this->class->convert->capital($c[1]);
 
             $result->admin->$controller->url = $this->getAdminLink($slug);
             $result->admin->$controller->token = $this->getAdminToken($controller);
 
             foreach($c[2] as $t)
             {
-                $type = $this->fw->convert->lowercase($t);
+                $type = $this->class->convert->lowercase($t);
                 $result->admin->$controller->$type = $this->getAdminLink($slug, $t);
             }
         }
@@ -67,7 +68,7 @@ class FrameworkLink
     */
     public function getAdminToken($controller, $prefix = 'Framework')
     {
-        $controller = $this->fw->convert->capital($controller);
+        $controller = $this->class->convert->capital($controller);
         $controller = 'Admin'.$prefix.$controller;
 
         return Tools::getAdminToken(
@@ -193,14 +194,5 @@ class FrameworkLink
         }
 
         return $result;
-    }
-
-    /**
-    *
-    */
-    public function getModuleLinks()
-    {
-        //$this->links = $this->getAdminLinks();
-        return $this;
     }
 }
