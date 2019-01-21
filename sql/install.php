@@ -83,7 +83,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'tp_framework_entity_lan
 */
 $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'tp_framework_file`(
 	`id_tp_framework_file` int(11) UNSIGNED NOT NULL auto_increment,
-	`category` int(11) UNSIGNED NOT NULL,
+	`category_id` int(11) UNSIGNED NOT NULL,
 	`link_rewrite` varchar(150) NOT NULL,
 	`extension` varchar(4) NOT NULL,
 	`video` varchar(150) DEFAULT NULL,

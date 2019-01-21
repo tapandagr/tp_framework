@@ -13,7 +13,7 @@ require_once _PS_MODULE_DIR_ . 'tp_framework/tp_framework.php';
 class FrameworkFile extends ObjectModel
 {
     public $id_tp_framework_file;
-    public $category;
+    public $category_id;
     public $directory_id;
     public $link_rewrite;
     public $extension;
@@ -24,7 +24,7 @@ class FrameworkFile extends ObjectModel
         'primary'	=> 'id_tp_framework_file',
         'multilang'	=> false,
         'fields'	=> array(
-            'category' => array(
+            'category_id' => array(
                 'type' => self::TYPE_INT,
                 'validate' => 'isUnsignedInt',
                 'required' => true
@@ -111,5 +111,17 @@ class FrameworkFile extends ObjectModel
         chmod($target.'/'.$file['name'], 0644);
 
         return true;
+    }
+
+    /**
+    * It returns the files that belong to specific category
+    */
+    public static function getFiles($category, $p = 0)
+    {
+        if((!isset($p)) OR ($p == 0))
+            $p = 0;
+        $offset = $p * 30;
+
+        return FrameworkDatabase::select('*', 'tp_framework_file', null, '`category_id` = '.$category->id, null, $offset);
     }
 }

@@ -38,15 +38,6 @@ class AdminFrameworkFilesController extends ModuleAdminController
                 'callback' => 'Image'
             )
         );
-
-        //testing
-        $categories = FrameworkDatabase::select('*', 'tp_framework_category', null, null, '`level` ASC, `parent_id` ASC, `position` ASC');
-
-        $descendants = FrameworkCategory::getDescendants($categories);
-
-        print('<pre>');
-        print_r($descendants);
-        print('</pre>');
     }
 
     /**

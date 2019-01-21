@@ -123,6 +123,39 @@ class FrameworkDatabase
     /**
     *
     */
+    public function selectLanguageFull($table, $restriction, $languages)
+    {
+        //We get the regular table data
+        $sql = $this->select('*', $table, null, $restriction);
+
+        //We get the language table data
+        $language_sql = $this->select('*', $table.'_lang', null, $restriction);
+
+        //We get the language table fields
+        $fields = $this->getTableFields($table.'_lang');
+
+        $result = array();
+
+        for ($x=0; $x < count($sql); $x++)
+        {
+            //We assign each record to the $result array
+            $result[$x] = $sql[$x];
+
+            for ($l=0; $l < count($languages); $l++)
+            {
+                foreach ($fields as $field)
+                {
+                    $result[$x][$field['Field']][$languages[$l]['id_lang']] = $language_sql[count($languages)*$x+$l][$field['Field']];
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+    *
+    */
     public static function getValue($column, $table, $where = null, $order_by = null)
     {
         if($where === null)
@@ -361,5 +394,19 @@ class FrameworkDatabase
         $timezone = new DateTimeZone($zone);
         $result = new DateTime(null, $timezone);
         return $result->format('Y-m-d H:i:s');
+    }
+
+    /**
+    *
+    */
+    public function getTableFields($table)
+    {
+        $sql = 'SHOW COLUMNS FROM `'._DB_PREFIX_.$table.'`';
+        $result = db::getInstance()->executeS($sql);
+
+        //We remove the primary key
+        unset($result[0], $result[1]);
+
+        return $result;
     }
 }

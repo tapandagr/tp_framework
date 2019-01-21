@@ -83,6 +83,13 @@ class FrameworkCategory extends ObjectModel
         parent::__construct($id_tp_framework_category, $id_lang);
     }
 
+    public function add($autodate = true, $null_values = false)
+    {
+        $this->position = $this->getPosition();
+        $return = parent::add($autodate, $null_values);
+        return $return;
+    }
+
     /**
     * Returns a categories tree from a module we specify
     *
@@ -92,11 +99,8 @@ class FrameworkCategory extends ObjectModel
     *
     * @return Returns a sorted array based on the position among the siblings and the parental hierarchy
     */
-    public function getCategoriesTree($module_name = 'tp_framework', $level = null)
+    public function getCategoriesTree($table = 'tp_framework_category', $level = null)
     {
-        //Get the module categories table
-        $table = $module_name.'_category';
-
         if ($level !== null) {
             $restriction = '`level` <= '.$level;
         } else {
@@ -104,7 +108,7 @@ class FrameworkCategory extends ObjectModel
         }
 
         //Get the categories
-        $result = FrameworkDatabase::selectLang('*', $table, $this->language->id, $restriction, '`nleft` ASC');
+        $result = FrameworkDatabase::selectLang('*', $table, Context::getContext()->language->id, $restriction, '`nleft` ASC');
 
         //Add images home directory
         array_unshift(
@@ -112,9 +116,7 @@ class FrameworkCategory extends ObjectModel
             array(
                 'id_'.$table => 0,
                 'level' => 0,
-                'parent_id' => 0,
-                'meta_title' => Context::getContext()->getTranslator()->trans('Αρχική κατηγορία',array(),'Modules.tp_framework.Admin'),
-                'descendants' => array()
+                'meta_title' => Context::getContext()->getTranslator()->trans('Αρχική κατηγορία',array(),'Modules.tp_framework.Admin')
             )
         );
 
@@ -130,18 +132,14 @@ class FrameworkCategory extends ObjectModel
 
         $table = $module.'_category';
 
-        $ids = $this->database->select('id_'.$table, $table, null, null, $sort);
-
-        $index = array();
-
-        for ($x=0; $x < count($ids); $x++) {
-            $index[$ids[$x]['id_'.$table]] = $x;
-        }
-
-        $flip = array_flip($index);
-
         //We get the whole table
         $sql = $this->database->select('*', $table, null, null, $sort);
+
+        //We flip the array to be able to get the position when given the id
+        $flip = array_flip(array_column($sql, 'id_tp_framework_category'));
+
+        //We update the descendants
+        $sql = self::getDescendants($sql, $flip);
 
         //Always the first one will have nleft = 1
         $needle = 1;
@@ -188,7 +186,7 @@ class FrameworkCategory extends ObjectModel
     /**
     * It returns the last position among siblings
     */
-    public function getLastPosition()
+    public function getPosition()
     {
         $result = $this->database->getValue('position', $this->table, '`parent_id` = '.$this->parent_id, '`position` DESC');
 
@@ -239,11 +237,8 @@ class FrameworkCategory extends ObjectModel
     /**
     *
     */
-    public function getDescendants($categories)
+    public static function getDescendants($categories, $flip)
     {
-        //We flip the array to be able to get the position when given the id
-        $flip = array_flip(array_column($categories, 'id_tp_framework_category'));
-
         //We initialize the descendants counter
         foreach ($categories as $c)
         {
@@ -269,7 +264,7 @@ class FrameworkCategory extends ObjectModel
     /**
     *
     */
-/*    public static function getRelativePath()
+    public function getRelativePath()
     {
         $object = new FrameworkCategory($this->id);
 
@@ -288,6 +283,33 @@ class FrameworkCategory extends ObjectModel
         $path = $path.'/'.$link_rewrite;
 
         return $path;
+    }
+
+    /**
+    *
+    */
+    public function getUpdateFields()
+    {
+        $result = array();
+
+        $result[0]['name']  = 'meta_title';
+        $result[0]['type']  = 'text';
+        $result[0]['lang']  = true;
+        $result[0]['width'] = 3;
+        $result[1]['name']  = 'link_rewrite';
+        $result[1]['type']  = 'text';
+        $result[1]['lang']  = false;
+        $result[1]['width'] = 3;
+        $result[2]['name']  = 'parent_id';
+        $result[2]['type']  = 'select';
+        $result[2]['lang']  = false;
+        $result[2]['width'] = 3;
+        $result[3]['name']  = 'position';
+        $result[3]['type']  = 'text';
+        $result[3]['lang']  = false;
+        $result[3]['width'] = 3;
+
+        return $result;
     }
 
     /**

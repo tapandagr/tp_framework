@@ -19,6 +19,16 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
 
         $this->table = 'tp_framework_category';
         $this->className = 'FrameworkCategory';
+
+        $this->array = new FrameworkArray();
+        $this->category = new FrameworkCategory();
+        $this->convert = new FrameworkConvert();
+        $this->database = new FrameworkDatabase();
+        $this->directory = new FrameworkDirectory();
+        $this->link = new FrameworkLink();
+        $this->object = new FrameworkObject();
+
+        $this->language = Context::getContext()->language;
         $this->lang = true;
         $this->bootstrap = true;
 
@@ -36,6 +46,18 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             if ($action == 'ajaxProcessAdd')
             {
                 $this->ajaxProcessAdd();
+            } elseif ($action == 'ajaxProcessGetCategoriesTree')
+            {
+                $this->ajaxProcessGetCategoriesTree();
+            } elseif ($action == 'ajaxProcessView')
+            {
+                $this->ajaxProcessView();
+            } elseif ($action == 'ajaxProcessGetMassiveForm')
+            {
+                $this->ajaxProcessGetMassiveForm();
+            } elseif ($action == 'ajaxProcessMassiveUpdate')
+            {
+                $this->ajaxProcessMassiveUpdate();
             }
         }
     }
@@ -87,13 +109,17 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
     public function ajaxProcessGetCategoriesTree()
     {
         //Get media categories
-        $categories = FrameworkCategory::getCategoriesTree($this->fw);
+        $categories = FrameworkCategory::getCategoriesTree($this->table);
+
+        //FrameworkConvert::pre($categories);
 
         $this->context->smarty->assign(array(
             'allowed_categories' => $categories,
         ));
 
-        die($this->context->smarty->fetch('module:'.$this->fw->name.'/views/templates/admin/ajax/categories/allowed_categories.tpl'));
+        echo $this->context->smarty->fetch(_PS_MODULE_DIR_ .'tp_framework/views/templates/admin/ajax/categories/allowed_categories.tpl');
+
+        die();
     }
 
     /**
@@ -109,7 +135,7 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
 
         //Sanitization
         if(isset($mid) and Validate::isInt($mid) == 1)
-            $medium = new $this->className($mid,$this->lid);
+            $medium = new $this->className($mid, $this->lid);
         else
         {
             //Bug-proof for unique smarty declaration
@@ -117,30 +143,23 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
         }
 
         //In case `cid` has not been set, we render the images home directory
-        if(!isset($cid) or $cid == 0)
+        if (!isset($category_id) or $category_id <= 0 or !Validate::isInt($category_id))
         {
             $category = new $this->className();
             $category->id = 0;
             $category->path = '';
-        }else
+        } else
         {
-            //Sanitization check
-            if(Validate::isInt($cid) and $cid >= 0)
-            {
-                //Category object retrieval
-                $category = new $this->className($cid,$this->lid);
-                //Path creation
-                $category->path = $this->fw->calculateDirectoryLocation($category);
-            }else
-            {
-                //Whitelisting: In any other condition we kill the function
-                //die;
-            }
+            //Category object retrieval
+            $category = new $this->className($category_id, $this->language->id);
+
+            //Path creation
+            $category->path = $this->directory->calculateDirectoryLocation($category);
         }
 
         if($category->parent_id != 0)
         {
-            $parent = new FrameworkCategory($category->parent, $this->lid);
+            $parent = new FrameworkCategory($category->parent_id, $this->language->id);
         }else
         {
             $parent = new stdClass();
@@ -150,14 +169,14 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
         }
 
         //Get media categories and add ajax link for file browsing
-        $children = $this->fw->database->selectLang('*', $this->fw->name.'_category', $this->fw->language->id, '`parent_id` = '.$category->id);
-        $children = $this->fw->array->getArrayWithExtraLink('FrameworkCategories', $this->fw->name.'_category', $children, 'ajaxprocesscategoryview');
+        $children = $this->database->selectLang('*', $this->fw->name.'_category', $this->fw->language->id, '`parent_id` = '.$category->id);
+        $children = $this->array->getArrayWithExtraLink('FrameworkCategories', $this->fw->name.'_category', $children, 'ajaxprocesscategoryview');
 
         //We add the parent link (3 is to get parent contents)
-        $parent = $this->fw->object->getObjectWithExtraLink('FrameworkCategories', $parent, 'ajaxprocesscategoryview');
+        $parent = $this->object->getObjectWithExtraLink('FrameworkCategories', $parent, 'ajaxprocesscategoryview');
 
         //Get categories regular link. In order not to burden our server too much, we make the rest of the link with jQuery
-        $move_categories_link = $this->fw->link->getAdminLink('FrameworkCategories');
+        $move_categories_link = $this->link->getAdminLink('FrameworkCategories');
 
         $this->context->smarty->assign(array(
             'move_categories_link' => $move_categories_link,
@@ -165,11 +184,58 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             'category' => $category,
             'children' => $children,
             //We fill it only if we are not browsing the home directory
-            'files' => ($category->id > 0)?FrameworkMedium::getMedia($category):'',
+            'files' => ($category->id > 0)?FrameworkFile::getFiles($category):'',
             'medium' => $medium,
-            'tree' => $this->fw->category->getCategoriesTree(),
+            'tree' => $this->category->getCategoriesTree(),
         ));
 
-        die($this->context->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/category_view.tpl'));
+        die($this->context->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/view.tpl'));
+    }
+
+    /**
+    *
+    */
+    public function ajaxProcessGetMassiveForm()
+    {
+        $categories = $_GET['check-category'];
+
+        //Sanitization
+        foreach ($categories as $c)
+        {
+            if (!Validate::isInt($c))
+            {
+                unset($c);
+            }
+        }
+
+        $categories_csv = $this->convert->listToCSV($categories);
+
+        $category = new stdClass();
+
+        $category->entities = $this->database->selectLanguageFull($this->table, '`id_'.$this->table.'` IN '.$categories_csv, $this->fw->languages);
+        $category->fields = $this->category->getUpdateFields();
+
+        $language = new stdClass();
+
+        $language->entities = $this->fw->languages;
+        $language->current = $this->fw->language;
+
+        $this->context->smarty->assign(array(
+            'category' => $category,
+            'language' => $language,
+        ));
+
+        die($this->context->smarty->fetch(_PS_MODULE_DIR_.$this->fw->name.'/views/templates/admin/ajax/categories/massive_form.tpl'));
+    }
+
+    /**
+    *
+    */
+    public function ajaxProcessMassiveUpdate()
+    {
+        //Convert serialized data into table
+        $data = FrameworkConvert::makeArrayBySerializedData(urldecode($_POST['data']));
+
+        FrameworkConvert::pre($data);
     }
 }

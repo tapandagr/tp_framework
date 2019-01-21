@@ -178,7 +178,7 @@ class FrameworkConvert
             if($language === true and $x == 1)
                 $result .= '`id_lang`,`'.$array[$x].'`,';
             else
-                $result .= '`'.$array[$x].'`,';
+                $result .= '"'.$array[$x].'",';
         }
 
         $result = rtrim($result, ',');
@@ -259,5 +259,12 @@ class FrameworkConvert
         $crypto = ServiceLocator::get('\\PrestaShop\\PrestaShop\\Core\\Crypto\\Hashing');
 
         return $crypto->hash($plain_text);
+    }
+
+    public function pre($array)
+    {
+        print('<pre>');
+        print_r($array);
+        print('</pre>');
     }
 }

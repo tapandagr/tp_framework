@@ -9,10 +9,14 @@ $(document).ready(function()
     /**
     * It updates the actual parent (hiddden) field with the value we clink on
     */
-    $('.parent').on('click', function(e)
+    $(document).on('click','.parent',function()
     {
         var id = $(this).attr('data-id'),
-        hidden = $('.parent_hidden');
+        hidden = $('.parent_hidden'),
+        files_browser = $('.files-browser');
+
+        //We update the data-current-category attribute
+        files_browser.attr('data-current-category', id);
 
         hidden.val(id);
     });
@@ -48,36 +52,84 @@ $(document).ready(function()
     */
     $(document).on('click','.tp-ajax-submit', function(e)
     {
-    var form = $(this).closest('form');
-    action = form.attr('data-pure-link') + '&action=ajaxProcess' + $(this).attr('data-action');
-    refresh = form.attr('data-refresh');
-    data = form.serialize();
-    files_browser = $('.files-browser');
-    footer_toolbar = $('.footer-toolbar');
-    result_box = $('.tp-ajax-result');
+        $('.modal-backdrop').hide();
+        $('.modal').hide();
+        var form = $(this).closest('form');
+        action = form.attr('data-pure-link') + '&action=ajaxProcess' + $(this).attr('data-action');
+        refresh = form.attr('data-refresh');
+        data = form.serialize();
+        files_browser = $('.files-browser');
+        footer_toolbar = $('.footer-toolbar');
+        result_box = $('.tp-ajax-result');
 
-    //Categories tree that needs to be updated
-    refresh_categories = $('.refresh-categories');
+        //Categories tree that needs to be updated
+        refresh_categories = $('.refresh-categories');
 
-    e.preventDefault();
-    $.ajax(
-    {
-      url : action,
-      type : 'POST',
-      data:
-      {
-        'data': data
-      },
-      success: function(data)
-      {
-        result_box.html(data);
-
-        footer_toolbar.removeClass('hidden');
-
-        files_browser.load(form.attr('data-pure-link') + '&action=ajaxProcessView' + '&cid=' + files_browser.attr('data-current-category'));
-
-        //refresh_categories.load(form.attr('data-pure-link') + '&action=ajaxProcessGetCategoriesTree');
-      }
+        e.preventDefault();
+        $.ajax(
+        {
+            url : action,
+            type : 'POST',
+            data:
+            {
+                'data': data
+            },
+            success: function(data)
+            {
+                result_box.html(data);
+                footer_toolbar.removeClass('hidden');
+                files_browser.load(form.attr('data-pure-link') + '&action=ajaxProcessView' + '&cid=' + files_browser.attr('data-current-category'));
+                refresh_categories.load(form.attr('data-pure-link') + '&action=ajaxProcessGetCategoriesTree');
+            }
+        });
     });
-  });
+
+    /**
+    * Category contents display
+    */
+    $(document).on('click','.category.view', function(e)
+    {
+        var form = $(this).closest('form');
+
+        files_browser = $('.files-browser');
+
+        files_browser.load(form.attr('data-pure-link') + '&action=ajaxProcessView' + '&cid=' + $(this).attr('data-category'));
+    });
+
+    /**
+    * Preparation for multi select
+    */
+    $(document).on('click','.update-selected-files', function(e)
+    {
+        $(this).toggleClass('active');
+
+        var categories = $('.category');
+
+        categories.toggleClass('view').toggleClass('check');
+    });
+
+    /**
+    * Categories check/uncheck for multi edit
+    */
+    $(document).on('click','.category.check', function(e)
+    {
+        var $check = $(this).find('input:checkbox');
+
+        $check.click();
+    });
+
+    /**
+    * Multi select execution
+    */
+    $(document).on('click','.update-selected-files.active', function(e)
+    {
+        $(this).toggleClass('active');
+
+        var loader = $('.loader');
+            form = $(this).closest('form');
+            action = form.attr('data-pure-link') + '&action=ajaxProcessGetMassiveForm&' + form.serialize();
+            files_browser = $('.files-browser');
+            files_browser.load(action);
+            footer_toolbar = $('.footer-toolbar');
+    });
 });

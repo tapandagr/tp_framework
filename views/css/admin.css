@@ -58,6 +58,11 @@
   }
 }
 
+.files-browser .panel
+{
+    display:flex;
+}
+
 .replace-select label
 {
     width:100%;position:relative;border:2px solid #ccc;color:#ccc;cursor:pointer;font-size:initial;padding:0 2.875rem 0 1rem;line-height:38px;line-height:2.375rem;margin-bottom:0;height:auto
@@ -148,4 +153,9 @@
     top:-.75rem;
     font-size:100%;
     color:#286da8
+}
+
+.footer.toolbar
+{
+    display:inline-flex;
 }
