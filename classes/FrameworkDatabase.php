@@ -409,4 +409,33 @@ class FrameworkDatabase
 
         return $result;
     }
+
+    /**
+    *
+    */
+    public function separateMixedData($data, $regular, $language, $identifier)
+    {
+        for ($x=0; $x < count($data); $x++)
+        {
+            $result['regular'][$x][$identifier] = $data[$x][$identifier];
+
+            foreach ($regular as $r)
+            {
+                $result['regular'][$x][$r] = $data[$x][$r];
+            }
+
+            for ($y = 0; $y < count($this->languages); $y++)
+            {
+                $result['language'][$x][$identifier][$y] = $data[$x][$identifier];
+                $result['language'][$x]['id_lang'][$y] = $this->languages[$y]['id_lang'];
+
+                foreach ($language as $l)
+                {
+                    $result['language'][$x][$l][$y] = $data[$x][$l][$this->languages[$y]['id_lang']];
+                }
+            }
+        }
+
+        return $result;
+    }
 }

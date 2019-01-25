@@ -41,6 +41,9 @@ require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkLink.php';
 //Object
 require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkObject.php';
 
+//Validate
+require_once _PS_MODULE_DIR_.'tp_framework/classes/FrameworkValidate.php';
+
 class tp_framework extends Module
 {
     public $restriction = null;

@@ -77,12 +77,6 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             //Get parent ID
             $object->parent_id = $data['parent_id'];
 
-            //Get parent object
-            $parent = FrameworkObject::makeObjectById($this->className, $object->parent_id, $this->fw->language->id);
-
-            //Get respective level
-            $object->level = $parent->level + 1;
-
             for ($x=1; $x <= count($this->fw->languages); $x++)
             {
                 $object->meta_title[$x] = $data['meta_title'][$x];
@@ -91,8 +85,6 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
             $object->link_rewrite = $data['link_rewrite'];
 
             $object->add();
-
-            $object->regenerateTree();
 
             $this->context->smarty->assign(array(
                 'category' => $object,
@@ -110,8 +102,6 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
     {
         //Get media categories
         $categories = FrameworkCategory::getCategoriesTree($this->table);
-
-        //FrameworkConvert::pre($categories);
 
         $this->context->smarty->assign(array(
             'allowed_categories' => $categories,
@@ -235,6 +225,14 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
     {
         //Convert serialized data into table
         $data = FrameworkConvert::makeArrayBySerializedData(urldecode($_POST['data']));
+
+        //We get validation settings
+        $rules = ObjectModel::getValidationRules('FrameworkCategory');
+
+        $rules['validate']['category_id'] = 'isUnsignedInt';
+
+        //We remove the rows with empty or invalid values
+        $data = FrameworkValidate::removeUnwantedRows($data, $rules);
 
         FrameworkConvert::pre($data);
     }

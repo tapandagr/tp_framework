@@ -73,20 +73,37 @@ class FrameworkCategory extends ObjectModel
     {
         $this->name = 'tp_framework';
         $this->table = $this->name.'_category';
-
-        $this->convert = new FrameworkConvert();
-        $this->database = new FrameworkDatabase();
+        $this->class = 'FrameworkCategory';
 
         $this->languages = tp_framework::getLanguages();
         $this->language = Context::getContext()->language;
+
+        $this->directory = new stdClass();
+        $this->directory->module = _PS_MODULE_DIR_.'tp_framework';
+        $this->directory->uploads = $this->directory->module.'/uploads';
+        $this->directory->images = $this->directory->uploads.'/images';
+        $this->directory->templates = new stdClass();
+        $this->directory->templates->plain = $this->directory->module.'/views/templates';
+        $this->directory->templates->import = $this->directory->templates->plain.'/import';
+
+        $this->convert = new FrameworkConvert();
+        $this->database = new FrameworkDatabase();
 
         parent::__construct($id_tp_framework_category, $id_lang);
     }
 
     public function add($autodate = true, $null_values = false)
     {
-        $this->position = $this->getPosition();
+        $this->getPosition();
+
+        $this->getLevel();
+
         $return = parent::add($autodate, $null_values);
+
+        $this->makeDirectory();
+
+        $this->regenerateTree();
+
         return $return;
     }
 
@@ -190,14 +207,12 @@ class FrameworkCategory extends ObjectModel
     {
         $result = $this->database->getValue('position', $this->table, '`parent_id` = '.$this->parent_id, '`position` DESC');
 
-        if($result === null)
+        if($result !== null)
         {
-            return 0;
+            $this->position = $result + 1;
         }
 
-        $result++;
-
-        return $result;
+        return $this;
     }
 
     public function getClassFields()
@@ -266,7 +281,8 @@ class FrameworkCategory extends ObjectModel
     */
     public function getRelativePath()
     {
-        $object = new FrameworkCategory($this->id);
+        //We assign the object to a new instance that will be able to re-assigned
+        $object = new $this->class($this->id);
 
         //We keep the link_rewrite because the object will be recycled
         $link_rewrite = $object->link_rewrite;
@@ -276,13 +292,13 @@ class FrameworkCategory extends ObjectModel
 
         while($object->parent_id != 0)
         {
-            $object = new FrameworkCategory($object->parent_id);
+            $object = new $this->class($object->parent_id);
             $path = '/'.$object->link_rewrite.$path;
         }
 
-        $path = $path.'/'.$link_rewrite;
+        $this->path = $path.'/'.$link_rewrite;
 
-        return $path;
+        return $this;
     }
 
     /**
@@ -310,6 +326,75 @@ class FrameworkCategory extends ObjectModel
         $result[3]['width'] = 3;
 
         return $result;
+    }
+
+    /**
+    * It calculates the category location and creates a directory
+    */
+    public function makeDirectory()
+    {
+        $this->getRelativePath();
+
+        $absolute_path = $this->directory->images.$this->path;
+
+        FrameworkDirectory::makeDirectorySimple($absolute_path);
+
+        return true;
+    }
+
+    /**
+    *
+    */
+    public function getLevel()
+    {
+        //Get parent object
+        $parent = FrameworkObject::makeObjectById($this->class, $this->parent_id);
+
+        //Get respective level
+        $this->level = $parent->level + 1;
+
+        return $this;
+    }
+
+    /**
+    *
+    */
+    public function prepareCategoriesUpdate($data)
+    {
+        //We isolate the category IDs
+        $ids = array_column($data, $this->identifier);
+
+        //We convert them to csv (ready for use in MySQL queries)
+        $ids_csv = $this->convert->listToCSV($ids);
+
+        //We get the respective saved data
+        $saved_data = $this->database->select('*', $table, null, '`'.$this->identifier.'` IN '.$ids_csv, '`'.$this->identifier.'` ASC');
+
+        //We check if there is parent_id or link_rewrite update
+        for ($x=0; $x < count($data); $x++)
+        {
+            if ($data[$x]['parent_id'] == $saved_data[$x]['parent_id'] and $data[$x]['link_rewrite'] == $saved_data[$x]['link_rewrite'])
+            {
+                unset($data[$x]);
+            } else
+            {
+                $data[$x]['path'] = $this->getPath($data[$x][$this->identifier]);
+            }
+        }
+
+        //We now have only the records that the directory needs to be updated
+        foreach ($data as $key => $value)
+        {
+            //We get the parent object
+            $parent = new $this->class($data[$key][$this->identifier]);
+
+            $parent->getPath();
+
+            //We move the directory
+            FrameworkDirectory::moveDirectory($data[$key], $parent);
+        }
+
+        return true;
     }
 
     /**
