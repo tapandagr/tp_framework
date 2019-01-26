@@ -36,7 +36,6 @@ class FrameworkValidate
                     }
                 } else
                 {
-                    echo '<br>Example: '.$result['data'][$x][$column];
                     if ($result['data'][$x][$column] == '' or !Validate::{$validate['validate'][$column]}($result['data'][$x][$column]))
                     {
                         unset($result['data'][$x]);

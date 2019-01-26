@@ -18,7 +18,7 @@ $(document).ready(function()
         //We update the data-current-category attribute
         files_browser.attr('data-current-category', id);
 
-        hidden.val(id);
+        $(this).parent().parent().find('.parent_hidden').val(id);
     });
 
     $(document).on('click','.replace-select', function (e)

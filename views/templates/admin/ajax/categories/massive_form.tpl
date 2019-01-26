@@ -2,17 +2,17 @@
 	{assign var=x value=0}
 	{foreach $category->entities as $c}
 		<div class="panel">
-			<input type="hidden" name="data[{$x}][category_id]" value="{$c.id_tp_framework_category}">
+			<input type="hidden" name="data[{$x}][id_tp_framework_category]" value="{$c.id_tp_framework_category}">
 			{foreach $category->fields as $f}
-                {if $f.name == 'categories'}
+                {if $f.type == 'select'}
 					<div class="field col-lg-{$f.width}">
 						<label class="replace_select inactive" id="meta_title" for="display">Select category</label>
 						<div class="menu">
-							{foreach $categories[$x]['allowed_categories'] as $ac}
-								<div class="parent value" data-id="{$ac.id_tp_framework_category}">{$ac.meta_title}</div>
+							{foreach $c['allowed_categories'] as $ac}
+								<div class="parent id value" data-id="{$ac.id_tp_framework_category}">{$ac.meta_title}</div>
 							{/foreach}
 						</div>
-						<input type="hidden" name="data[{$x}][parent]" class="parent_hidden">
+						<input type="hidden" name="data[{$x}][parent_id]" class="parent_hidden" value="{$c['allowed_categories'][0]['id_tp_framework_category']}">
 					</div>
 				{elseif $f.name == 'meta_title'}
 					<div class="floating field {$f.name} col-lg-{$f.width}">

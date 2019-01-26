@@ -21,6 +21,9 @@ class FrameworkDatabase
     {
         //$this->fw = new tp_framework('Database');
         $this->convert = new FrameworkConvert();
+
+        //Get the shop languages
+        $this->languages = tp_framework::getLanguages();
     }
 
     /**

@@ -16,6 +16,8 @@ class FrameworkCategory extends ObjectModel
     public $level;
     public $parent_id;
     public $position;
+    public $nleft;
+    public $nright;
     public $link_rewrite;
     public $children;
     public $descendants;
@@ -39,6 +41,14 @@ class FrameworkCategory extends ObjectModel
             'position' => array(
                 'type' => self::TYPE_INT,
                 'validate' => 'isInt'
+            ),
+            'nleft' => array(
+                'type' => self::TYPE_INT,
+                'validate' => 'isUnsignedInt'
+            ),
+            'nright' => array(
+                'type' => self::TYPE_INT,
+                'validate' => 'isUnsignedInt'
             ),
             'link_rewrite' => array(
                 'type' => self::TYPE_STRING,
@@ -74,6 +84,7 @@ class FrameworkCategory extends ObjectModel
         $this->name = 'tp_framework';
         $this->table = $this->name.'_category';
         $this->class = 'FrameworkCategory';
+        $this->identifier = 'id_tp_framework_category';
 
         $this->languages = tp_framework::getLanguages();
         $this->language = Context::getContext()->language;
@@ -357,9 +368,37 @@ class FrameworkCategory extends ObjectModel
     }
 
     /**
+    * This function will get the available categories that can be assigned as parent_id. Think about assigning a child as parent (by mistake). Non-braking loop.
+    */
+    public function getAllowedCategories()
+    {
+        //We want recursive parents and siblings with their recursive children
+        $result = $this->database->selectLang('*', $this->table, $this->language->id, '(`nleft` < '.$this->nleft.' OR `nright` > '.$this->nright.')');
+
+        return $result;
+    }
+
+    public function getAllowedCategoriesBulk($data)
+    {
+        $result = array();
+
+        for ($x=0; $x < count($data); $x++)
+        {
+            $result[$x] = $data[$x];
+
+            //We get the category object
+            $category = new $this->class($data[$x][$this->identifier], $this->language->id);
+
+            $result[$x]['allowed_categories'] = $category->getAllowedCategories();
+        }
+
+        return $result;
+    }
+
+    /**
     *
     */
-    public function prepareCategoriesUpdate($data)
+    public function prepareCategoriesUpdate($table, $data, $columns)
     {
         //We isolate the category IDs
         $ids = array_column($data, $this->identifier);

@@ -203,6 +203,9 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
         $category = new stdClass();
 
         $category->entities = $this->database->selectLanguageFull($this->table, '`id_'.$this->table.'` IN '.$categories_csv, $this->fw->languages);
+
+        $category->entities = $this->fw->class->category->getAllowedCategoriesBulk($category->entities);
+
         $category->fields = $this->category->getUpdateFields();
 
         $language = new stdClass();
@@ -229,10 +232,16 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
         //We get validation settings
         $rules = ObjectModel::getValidationRules('FrameworkCategory');
 
-        $rules['validate']['category_id'] = 'isUnsignedInt';
+        $rules['validate']['id_tp_framework_category'] = 'isUnsignedInt';
 
         //We remove the rows with empty or invalid values
         $data = FrameworkValidate::removeUnwantedRows($data, $rules);
+
+        //We break the data to regular and language
+        //$data = $this->fw->class->database->separateMixedData($data['data'], array('parent_id', 'position', 'link_rewrite'), array('meta_title'), 'id_tp_framework_category');
+
+        //$this->fw->class->category->prepareCategoriesUpdate('tp_framework_category', $data['regular'], array('id_tp_framework_category', 'level', 'parent_id', 'position', 'link_rewrite'));
+
 
         FrameworkConvert::pre($data);
     }
