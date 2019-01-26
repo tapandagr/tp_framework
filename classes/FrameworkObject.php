@@ -38,7 +38,7 @@ class FrameworkObject
         }else
         {
             $object = new $class($id, $language);
-            $object->path = $object->getRelativePath();
+            $object->path = $object->getPath();
         }
 
         return $object;

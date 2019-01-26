@@ -12,7 +12,7 @@
 {foreach $children as $c}
 	<div class="col-lg-2">
 		<div class="category view panel" data-category="{$c.id_tp_framework_category}">
-			<input type="checkbox" name="check_category[{$x}]" value="{$c.id_tp_framework_category}" class="check_category">
+			<input type="checkbox" name="check-category[{$x}]" value="{$c.id_tp_framework_category}" class="check-category">
 			<div class="img">
 				<i class="fas fa-folder-open fa-10x"></i>
 				<div class="toolbar">

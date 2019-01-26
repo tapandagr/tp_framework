@@ -99,6 +99,7 @@ class FrameworkCategory extends ObjectModel
 
         $this->convert = new FrameworkConvert();
         $this->database = new FrameworkDatabase();
+        $this->directory = new FrameworkDirectory();
 
         parent::__construct($id_tp_framework_category, $id_lang);
     }
@@ -290,13 +291,10 @@ class FrameworkCategory extends ObjectModel
     /**
     *
     */
-    public function getRelativePath()
+    public function getPath()
     {
         //We assign the object to a new instance that will be able to re-assigned
         $object = new $this->class($this->id);
-
-        //We keep the link_rewrite because the object will be recycled
-        $link_rewrite = $object->link_rewrite;
 
         //Path initialization
         $path = '';
@@ -307,7 +305,7 @@ class FrameworkCategory extends ObjectModel
             $path = '/'.$object->link_rewrite.$path;
         }
 
-        $this->path = $path.'/'.$link_rewrite;
+        $this->path = $path;
 
         return $this;
     }
@@ -407,7 +405,7 @@ class FrameworkCategory extends ObjectModel
     /**
     *
     */
-    public function prepareCategoriesUpdate($table, $data, $columns)
+    public function prepareCategoriesUpdate($table, $data, $columns, $date)
     {
         //We isolate the category IDs
         $ids = array_column($data, $this->identifier);
@@ -424,26 +422,62 @@ class FrameworkCategory extends ObjectModel
             if ($data[$x]['parent_id'] == $saved_data[$x]['parent_id'] and $data[$x]['link_rewrite'] == $saved_data[$x]['link_rewrite'])
             {
                 unset($data[$x]);
-            } else
-            {
-                $data[$x]['path'] = $this->getPath($data[$x][$this->identifier]);
             }
         }
+
+        $result = array();
+        $result['date'] = $date;
+        $result['entities'] = array();
+        $x = 0;
 
         //We now have only the records that the directory needs to be updated
         foreach ($data as $key => $value)
         {
             //We get the parent object
-            $parent = new $this->class($data[$key][$this->identifier]);
+            $parent = new $this->class($data[$key]['parent_id']);
 
             $parent->getPath();
 
-            //We move the directory
-            FrameworkDirectory::moveDirectory($data[$key], $parent);
+            //We get the category object
+            $category = new $this->class($data[$key][$this->identifier]);
+
+            $category->old_name = $category->link_rewrite;
+
+            $category->new_name = $data[$key]['link_rewrite'];
+
+            $category->getPath();
+
+            $result['entities'][$x] = array(
+                'category' => $category,
+                'parent_id' => $parent->id
+            );
+
+            //We move the directory to the temporary directory
+            $result['entities'][$x]['temporary_directory'] = $this->directory->moveFileToTemporaryDirectory($category, $date);
+
+            $x++;
         }
 
-        return true;
+        //We subtract positions by half to give them priority in the tree update
+        $data = $this->subtractPosition($data);
+
+        //We move the directories to the destination
+        for ($x=0; $x < count($result['entities']); $x++)
+        {
+            $this->directory->moveFileToDestination(
+                $result['entities'][$x]['category'],
+                $result['entities'][$x]['parent_id'],
+                $result['entities'][$x]['temporary_directory']
+            );
+        }
+
+        return $result;
     }
+
+    /**
+    *
+    */
+    
 
     /**
     *

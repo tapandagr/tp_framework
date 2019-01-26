@@ -226,6 +226,9 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
     */
     public function ajaxProcessMassiveUpdate()
     {
+        //We get the time the form has been submitted
+        $date = FrameworkDatabase::getDateTime();
+
         //Convert serialized data into table
         $data = FrameworkConvert::makeArrayBySerializedData(urldecode($_POST['data']));
 
@@ -240,9 +243,8 @@ class AdminFrameworkCategoriesController extends ModuleAdminController
         //We break the data to regular and language
         $data = $this->fw->class->database->separateMixedData($data['data'], array('parent_id', 'position', 'link_rewrite'), array('meta_title'), 'id_tp_framework_category');
 
-        //$this->fw->class->category->prepareCategoriesUpdate('tp_framework_category', $data['regular'], array('id_tp_framework_category', 'level', 'parent_id', 'position', 'link_rewrite'));
+        $this->fw->class->category->prepareCategoriesUpdate('tp_framework_category', $data['regular'], array('id_tp_framework_category', 'level', 'parent_id', 'position', 'link_rewrite'), $date);
 
-
-        FrameworkConvert::pre($data);
+        //FrameworkConvert::pre($data);
     }
 }

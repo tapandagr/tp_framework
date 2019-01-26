@@ -53,6 +53,12 @@ class FrameworkDirectory extends ObjectModel
     public function __construct()
     {
         //$this->fw = new tp_framework('Directory');
+        $this->convert = new FrameworkConvert();
+
+        $this->directory = new stdClass();
+        $this->directory->module = _PS_MODULE_DIR_.'tp_framework';
+        $this->directory->uploads = $this->directory->module.'/uploads';
+        $this->directory->images = $this->directory->uploads.'/images';
     }
 
     /**
@@ -168,5 +174,165 @@ class FrameworkDirectory extends ObjectModel
         $result->images = $result->uploads.'/images';
 
         return $result;
+    }
+
+    /**
+    *
+    */
+    public function moveFileToTemporaryDirectory($object, $date)
+    {
+        //We calculate the path
+        $origin = $object->path.'/'.$object->old_name;
+
+        $temporary_directory = $this->getTemporaryDirectory($date);
+
+        $this->copyFile($origin, $temporary_directory, $object->new_name);
+
+        if (is_dir($origin))
+        {
+            rmdir($origin);
+        }
+
+        return $temporary_directory.'/'.$object->new_name;
+    }
+
+    /**
+    *
+    */
+    public function moveFileToDestination($object, $parent_id, $temporary_directory, $class = 'FrameworkCategory')
+    {
+        $new_parent = new $parent_class($parent_id);
+
+        $new_parent->getPath();
+
+        $this->copyFile($temporary_directory, $new_parent->path, $object->new_name, 1);
+
+        if (is_dir($temporary_directory))
+        {
+            rmdir($temporary_directory);
+        }
+
+        return true;
+    }
+
+    /**
+    * We create temporary directory (based on the employee ID
+    * and the submission datetime) to move files smoothly
+    */
+    public function getTemporaryDirectory($date)
+    {
+        $hash = $this->convert->hash(Context::getContext()->employee->id.$date);
+
+        $path = '/temporary/'.$hash;
+
+        //If the directory does not exist, we do create interface
+        if (!is_dir($this->directory->uploads.$path))
+        {
+            $this->makeDirectorySimple($this->directory->uploads.$path);
+        }
+
+        return $path;
+    }
+
+    /**
+    *
+    */
+    public function copyFile($origin, $destination, $new_name, $to_destination = 0)
+    {
+        //We calculate the absolute paths
+        $temporary = 1 - $to_destination;
+
+        $absolute = new stdClass();
+        $absolute->origin = $this->getAbsolutePath($origin, $to_destination);
+        $absolute->destination = $this->getAbsolutePath($destination, $temporary);
+        $absolute->new = $absolute->destination.'/'.$new_name;
+
+        //File copy
+        if (is_file($absolute->origin))
+        {
+            return rename($absolute->origin, $absolute->new);
+        }
+
+        echo $absolute->origin;
+
+        if (is_dir($absolute->origin))
+        {
+            //If the file does not exist in the destination, we will create it
+            if (!is_dir($absolute->destination))
+            {
+                mkdir($absolute->new);
+
+                //Fix directory permissions
+                chmod($absolute->new, 0755);
+            }
+
+            //We loop through the directory
+            $this->copyFileRecursion($absolute->origin, $absolute->new);
+
+            //When finished and the old directory is empty, we delete it
+            rmdir($absolute->origin);
+        }
+
+        return true;
+    }
+
+    /**
+    *
+    */
+    public function copyFileRecursion($origin, $destination)
+    {
+        //File copy
+        if (is_file($origin))
+        {
+            return rename($origin, $destination);
+        }
+
+        if (is_dir($origin))
+        {
+            //If the file does not exist in the destination, we will create it
+            if (!is_dir($destination))
+            {
+                mkdir($destination);
+
+                //Fix directory permissions
+                chmod($destination, 0755);
+            }
+
+            //We read the category contents
+            $directory = dir($origin);
+
+            while (false !== $entry = $directory->read())
+            {
+                //We skip pointers
+                if (in_array($entry, array('.', '..')))
+                {
+                    continue;
+                }
+
+                $new_origin = $origin.'/'.$entry;
+                $new_destination = $destination.'/'.$entry;
+
+                //Recursion
+                $this->copyFileRecursion($new_origin, $new_destination);
+            }
+
+            //Clean up
+            $directory->close();
+        }
+
+        return true;
+    }
+
+    /**
+    *
+    */
+    public function getAbsolutePath($path, $temporary = 0)
+    {
+        if ($temporary == 0)
+        {
+            return $this->directory->images.$path;
+        }
+
+        return $this->directory->uploads.$path;
     }
 }
