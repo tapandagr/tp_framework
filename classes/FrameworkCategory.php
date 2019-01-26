@@ -375,6 +375,15 @@ class FrameworkCategory extends ObjectModel
         //We want recursive parents and siblings with their recursive children
         $result = $this->database->selectLang('*', $this->table, $this->language->id, '(`nleft` < '.$this->nleft.' OR `nright` > '.$this->nright.')');
 
+        array_unshift(
+            $result,
+            array(
+                $this->identifier => 0,
+                'level' => 0,
+                'meta_title' => Context::getContext()->getTranslator()->trans('Αρχική κατηγορία',array(),'Modules.tp_framework.Admin')
+            )
+        );
+
         return $result;
     }
 
