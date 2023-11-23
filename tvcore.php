@@ -5,6 +5,9 @@
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/basic-license
  */
+require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDatetime.php';
+require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDb.php';
+require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
 
 class Tvcore extends Module
 {
@@ -34,12 +37,17 @@ class Tvcore extends Module
     public function hookDisplayHeader()
     {
         $this->context->controller->registerStylesheet(
-            'modules-searchbar',
+            'modules-tvcore-bootstrap',
             'modules/' . $this->name . '/views/css/front/bootstrap.css',
             ['media' => 'all', 'priority' => 150]
         );
+        $this->context->controller->registerStylesheet(
+            'modules-tvcore-main',
+            'modules/' . $this->name . '/views/css/front/main.css',
+            ['media' => 'all', 'priority' => 150]
+        );
         $this->context->controller->registerJavascript(
-            'modules-searchbar',
+            'modules-tvcore-bootstrap',
             'modules/' . $this->name . '/views/js/front/bootstrap.js',
             ['position' => 'bottom', 'priority' => 150]
         );

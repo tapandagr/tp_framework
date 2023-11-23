@@ -1,0 +1,17 @@
+{
+  "name": "prestashop/tvfeaturegroups",
+  "authors": [
+    {
+      "name": "Konstantinos A. Kogkalidis",
+      "email": "hi@tivuno.com"
+    }
+  ],
+  "config": {
+    "preferred-install": "dist",
+    "prepend-autoloader": false
+  },
+  "type": "prestashop-module",
+  "require": {
+    "minwork/array": "^1.13"
+  }
+}

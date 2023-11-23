@@ -1,0 +1,58 @@
+.accordion {
+  font-size: 0.9375rem;
+}
+
+.accordion-item h2, .accordion-item button {
+  font-size: inherit;
+}
+
+.accordion-body {
+  line-height: 1.2;
+  padding: 0;
+}
+.accordion-body div {
+  display: -ms-flexbox;
+  display: flex;
+  padding: 0.5rem 0.625rem;
+}
+.accordion-body div:nth-child(2n) {
+  background-color: #EFEFEF;
+}
+.accordion-body div dt, .accordion-body div dd {
+  margin: 0;
+  word-break: break-word;
+}
+.accordion-body div dt {
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  width: 50%;
+  padding-right: 1.125rem;
+  color: #8a8a8a;
+  font-weight: normal;
+}
+.accordion-body div dd {
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+}
+
+@media screen and (min-width: 40em) {
+  .accordion {
+    font-size: 1.25rem;
+  }
+  .accordion .accordion-body div {
+    padding: 1rem 1.25rem;
+  }
+}
+@media screen and (min-width: 64em) {
+  .accordion-body dt {
+    width: 18.75rem;
+    padding-right: 2.1875rem;
+  }
+}
+@media screen and (min-width: 80em) {
+  .accordion-body dt {
+    width: 25rem;
+  }
+}
+
+/*# sourceMappingURL=main.css.map */
