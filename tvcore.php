@@ -3,35 +3,47 @@
  * Cornelius - Core PrestaShop module
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/basic-license
+ * @license   https://tivuno.com/blog/bp/business-news/1-basic-license
  */
-require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDatetime.php';
-require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDb.php';
-require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
+
+//require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDatetime.php';
+//require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDb.php';
+//require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
 
 class Tvcore extends Module
 {
-    public $restriction = null;
-
-    /**
-     *
-     */
     public function __construct()
     {
         $this->name = 'tvcore';
         $this->tab = 'front_office_features';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'tivuno.com';
         $this->ps_versions_compliancy = [
             'min' => '8.0.0',
             'max' => _PS_VERSION_,
         ];
         $this->displayName = $this->l('Cornelius - Core PrestaShop module');
-        $this->description = $this->l(
-            'It adds useful hooks and other capabilities to PrestaShop.'
-        );
+        $this->description = $this->l('It adds useful hooks, functions and libraries to PrestaShop');
 
         parent::__construct();
+    }
+
+    public function install()
+    {
+        return parent::install() && $this->registerHooks();
+    }
+
+    public function registerHooks()
+    {
+        $hooks = [
+            'displayHeader',
+        ];
+
+        foreach ($hooks as $h) {
+            $this->registerHook($h);
+        }
+
+        return true;
     }
 
     public function hookDisplayHeader()

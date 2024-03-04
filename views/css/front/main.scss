@@ -1,72 +1,76 @@
-.accordion {
-    font-size: 0.9375rem;
+#test{
+    color:red;
 }
 
-.accordion-item {
-    h2, button {
-        font-size: inherit;
+.accordion{
+    font-size:0.9375rem;
+}
+
+.accordion-item{
+    h2, button{
+        font-size:inherit;
     }
 }
 
-.accordion-body {
-    line-height: 1.2;
-    padding: 0;
+.accordion-body{
+    line-height:1.2;
+    padding:0;
 
-    div {
-        display: -ms-flexbox;
-        display: flex;
-        padding: 0.5rem 0.625rem;
+    div{
+        display:-ms-flexbox;
+        display:flex;
+        padding:0.5rem 0.625rem;
 
-        &:nth-child(2n) {
-            background-color: #EFEFEF;
+        &:nth-child(2n){
+            background-color:#efefef;
         }
 
-        dt, dd {
-            margin: 0;
-            word-break: break-word;
+        dt, dd{
+            margin:0;
+            word-break:break-word;
         }
 
-        dt {
-            -ms-flex-negative: 0;
-            flex-shrink: 0;
-            width: 50%;
-            padding-right: 1.125rem;
-            color: #8a8a8a;
-            font-weight: normal;
+        dt{
+            -ms-flex-negative:0;
+            flex-shrink:0;
+            width:50%;
+            padding-right:1.125rem;
+            color:#8a8a8a;
+            font-weight:normal;
         }
 
-        dd {
-            -ms-flex-positive: 1;
-            flex-grow: 1;
+        dd{
+            -ms-flex-positive:1;
+            flex-grow:1;
         }
     }
 }
 
-@media screen and (min-width: 40em) {
-    .accordion {
-        font-size: 1.25rem;
+@media screen and (min-width:40em){
+    .accordion{
+        font-size:1.25rem;
 
-        .accordion-body {
-            div {
-                padding: 1rem 1.25rem;
+        .accordion-body{
+            div{
+                padding:1rem 1.25rem;
             }
         }
     }
 }
 
-@media screen and (min-width: 64em) {
-    .accordion-body {
-        dt {
-            width: 18.75rem;
-            padding-right: 2.1875rem;
+@media screen and (min-width:64em){
+    .accordion-body{
+        dt{
+            width:18.75rem;
+            padding-right:2.1875rem;
         }
     }
 }
 
-@media screen and (min-width: 80em) {
-    .accordion-body {
-        dt {
-            width: 25rem;
+@media screen and (min-width:80em){
+    .accordion-body{
+        dt{
+            width:25rem;
         }
     }
 }

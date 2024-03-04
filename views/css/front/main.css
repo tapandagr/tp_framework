@@ -1,3 +1,7 @@
+#test {
+  color: red;
+}
+
 .accordion {
   font-size: 0.9375rem;
 }
@@ -16,7 +20,7 @@
   padding: 0.5rem 0.625rem;
 }
 .accordion-body div:nth-child(2n) {
-  background-color: #EFEFEF;
+  background-color: #efefef;
 }
 .accordion-body div dt, .accordion-body div dd {
   margin: 0;
