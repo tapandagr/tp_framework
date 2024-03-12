@@ -76,4 +76,30 @@ class TvcoreString
             preg_replace('/[^0-9]/', '', substr($string, $sep + 1, strlen($string)))
         );
     }
+
+    /**
+     * It converts camel to snake
+     * Example: setCamelFromSnake => set_camel_to_snake
+     *
+     * @credits https://gist.github.com/carousel/1aacbea013d230768b3dec1a14ce5751
+     * @param $input
+     * @return string
+     */
+    public static function setSnakeFromCamel($input)
+    {
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
+    }
+
+    /**
+     * It converts snake to camel
+     * Example: set_camel_to_snake => setCamelFromSnake
+     *
+     * @credits https://gist.github.com/carousel/1aacbea013d230768b3dec1a14ce5751
+     * @param $input
+     * @return string
+     */
+    public static function setCamelFromSnake($input)
+    {
+        return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $input))));
+    }
 }

@@ -1,14 +1,20 @@
 <?php
+/**
+ * Cornelius - Core PrestaShop module
+ * @author    tivuno.com <hi@tivuno.com>
+ * @copyright 2018 - 2024 © tivuno.com
+ * @license   https://tivuno.com/blog/bp/business-news/1-basic-license
+ */
 
 class Language extends LanguageCore
 {
     /**
-     * @param $active
-     * @param $id_shop
-     * @param $ids_only
+     * @param bool $active
+     * @param bool $id_shop
+     * @param bool $ids_only
      * @return array
      */
-    public static function getSecondaryLanguages($active = true, $id_shop = false, $ids_only = false)
+    public static function getSecondaryLanguages(bool $active = true, bool $id_shop = false, bool $ids_only = false)
     {
         $cached_file = _PS_MODULE_DIR_ . 'tvcore/cache/languages' . (int) $active . (int) $id_shop . (int) $ids_only . '.json';
         if (!is_file($cached_file)) {
