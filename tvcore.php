@@ -62,6 +62,11 @@ class Tvcore extends Module
             ['media' => 'all', 'priority' => 150]
         );
         $this->context->controller->registerStylesheet(
+            'modules-tvcore-fontawesome',
+            'modules/' . $this->name . '/libraries/fontawesome/css/all.min.css',
+            ['media' => 'all', 'priority' => 150]
+        );
+        $this->context->controller->registerStylesheet(
             'modules-tvcore-main',
             'modules/' . $this->name . '/views/css/front/main.css',
             ['media' => 'all', 'priority' => 150]
