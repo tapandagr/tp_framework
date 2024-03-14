@@ -1,0 +1,39 @@
+{
+	"name" : "minwork/array",
+	"description" : "Pack of advanced array functions specifically tailored for: associative (assoc) array, multidimensional array, array of objects and handling nested array elements",
+	"type" : "library",
+	"keywords" : [
+		"array",
+		"arrays",
+		"assoc",
+		"multidimensional",
+		"objects",
+		"helper",
+		"associative",
+		"php 7"
+	],
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Christopher Kalkhoff",
+			"email" : "krzysztof.kalkhoff@gmail.com",
+			"role" : "Founder"
+		}
+	],
+	"require" : {
+		"php" : ">=7.1"
+    },
+	"require-dev" : {
+		"phpunit/phpunit" : "^7.0",
+		"php-coveralls/php-coveralls": "^2.1"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Minwork\\Helper\\" : "src/"
+		}
+	},
+	"autoload-dev" : {
+		"psr-4" : {
+			"Minwork\\Helper\\Tests\\" : "tests/"
+		}
+	}
+}

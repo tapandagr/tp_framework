@@ -1,4 +1,14 @@
 <?php
+/**
+ * Cornelius - Core PrestaShop module
+ *
+ * @author    tivuno.com <hi@tivuno.com>
+ * @copyright 2018 - 2024 © tivuno.com
+ * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class TvcoreArray
 {
@@ -13,21 +23,29 @@ class TvcoreArray
         return $return;
     }
 
-    public static function flatten(array $array)
+    /**
+     * It converts a nested array to flat, preserving the keys
+     *
+     * @credits https://stackoverflow.com/a/16855432
+     * @param array $data
+     * @return array
+     */
+    public static function flatten(array $data)
     {
-        $ritit = new RecursiveIteratorIterator(new RecursiveArrayIterator($array));
+        $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
         $results = [];
-        foreach ($ritit as $value) {
-            $path = [];
-            foreach (range(0, $ritit->getDepth()) as $depth) {
-                $key = $ritit->getSubIterator($depth)->key();
-                if (is_int($key)) {
-                    $key = $ritit->getSubIterator($depth)->current();
+        foreach ($iterator as $key => $value) {
+            // loop through the subIterators...
+            $keys = [];
+            // in this case i skip the grand parent (numeric array)
+            for ($i = 0; $i < $iterator->getDepth(); $i++) {
+                $tmp_key = $iterator->getSubIterator($i)->key();
+                if (!is_int($tmp_key)) {
+                    $keys[] = $tmp_key;
                 }
-                $path[] = $key;
             }
-
-            $results[join('_', $path)] = $value;
+            $keys[] = $key;
+            $results[implode('_', $keys)] = $value;
         }
 
         return $results;
@@ -37,7 +55,7 @@ class TvcoreArray
     {
         $x = count($array) - 1;
         $temp = [];
-        for ($i = $x; $i >= 0; $i--) {
+        for ($i = $x; $i >= 0; --$i) {
             $temp = [$array[$i] => $temp];
         }
     }
@@ -53,7 +71,7 @@ class TvcoreArray
                 if (is_int($key)) {
                     $key = $ritit->getSubIterator($depth)->current();
                 }
-                $path[] = $key;//$ritit->getSubIterator($depth)->key();
+                $path[] = $key; // $ritit->getSubIterator($depth)->key();
             }
             $results[] = [
                 'nested' => join('.', $path),
@@ -62,5 +80,12 @@ class TvcoreArray
         }
 
         return $results;
+    }
+
+    public static function addRow(array &$array, $new_record, int $position)
+    {
+        $array = array_slice($array, 0, $position, true) +
+            $new_record +
+            array_slice($array, $position, count($array) - $position, true);
     }
 }

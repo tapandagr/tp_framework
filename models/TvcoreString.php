@@ -1,4 +1,14 @@
 <?php
+/**
+ * Cornelius - Core PrestaShop module
+ *
+ * @author    tivuno.com <hi@tivuno.com>
+ * @copyright 2018 - 2024 © tivuno.com
+ * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class TvcoreString
 {
@@ -11,6 +21,7 @@ class TvcoreString
      *
      * @param string $separator
      * @param string $string
+     *
      * @return array
      */
     public static function explode(string $separator, string $string)
@@ -35,6 +46,7 @@ class TvcoreString
         foreach ($explode as $item) {
             $result[] = ltrim($item, '- ');
         }
+
         return $result;
     }
 
@@ -59,6 +71,7 @@ class TvcoreString
         foreach ($items as $item) {
             $result[] = trim($item);
         }
+
         return $result;
     }
 
@@ -69,12 +82,11 @@ class TvcoreString
         $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos :
             ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
         if (!$sep) {
-            return floatval(preg_replace('/[^0-9]/', '', $string));
+            return (float) preg_replace('/[^0-9]/', '', $string);
         }
-        return floatval(
-            preg_replace('/[^0-9]/', '', substr($string, 0, $sep)) . '.' .
-            preg_replace('/[^0-9]/', '', substr($string, $sep + 1, strlen($string)))
-        );
+
+        return (float) preg_replace('/[^0-9]/', '', substr($string, 0, $sep)) . '.' .
+            preg_replace('/[^0-9]/', '', substr($string, $sep + 1, strlen($string)));
     }
 
     /**
@@ -82,7 +94,9 @@ class TvcoreString
      * Example: setCamelFromSnake => set_camel_to_snake
      *
      * @credits https://gist.github.com/carousel/1aacbea013d230768b3dec1a14ce5751
+     *
      * @param $input
+     *
      * @return string
      */
     public static function setSnakeFromCamel($input)
@@ -95,11 +109,46 @@ class TvcoreString
      * Example: set_camel_to_snake => setCamelFromSnake
      *
      * @credits https://gist.github.com/carousel/1aacbea013d230768b3dec1a14ce5751
-     * @param $input
+     * @param string $input
      * @return string
      */
-    public static function setCamelFromSnake($input)
+    public static function setCamelFromSnake(string $input)
     {
         return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $input))));
+    }
+
+    /**
+     * It removes a part of the string from the right side (if exists)
+     *
+     * @credits https://stackoverflow.com/a/32739088
+     * @param string $string
+     * @param string $needle
+     * @param bool $case_sensitive Performs case-sensitive matching, default to false
+     * @return string
+     */
+    public static function rightTrim(string $string, string $needle, bool $case_sensitive = false)
+    {
+        $function = $case_sensitive ? 'strpos' : 'stripos';
+        if ($function($string, $needle, strlen($string) - strlen($needle)) !== false) {
+            $string = substr($string, 0, -strlen($needle));
+        }
+
+        return $string;
+    }
+
+    /**
+     * @param $string
+     * @param string $needle String to trim from the start
+     * @param bool $case_sensitive Performs case-sensitive matching, default to false
+     * @return string
+     */
+    public static function leftTrim($string, string $needle, bool $case_sensitive = false)
+    {
+        $function = $case_sensitive ? 'strpos' : 'stripos';
+        if ($function($string, $needle) === 0) {
+            $string = substr($string, strlen($needle));
+        }
+
+        return $string;
     }
 }

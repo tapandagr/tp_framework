@@ -1,27 +1,24 @@
 <?php
 /**
  * Cornelius - Core PrestaShop module
+ *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/1-basic-license
+ * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
  */
-
-//require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDatetime.php';
-//require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreDb.php';
-//require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class Tvcore extends Module
 {
-    /**
-     * @var array
-     */
     private $languages;
 
     public function __construct()
     {
         $this->name = 'tvcore';
         $this->tab = 'front_office_features';
-        $this->version = '1.0.1';
+        $this->version = '1.0.3';
         $this->author = 'tivuno.com';
         $this->ps_versions_compliancy = [
             'min' => '8.0.0',
@@ -37,18 +34,20 @@ class Tvcore extends Module
 
     public function install()
     {
-        return parent::install() && $this->registerHooks();
+        return parent::install() && self::registerHooks($this->name);
     }
 
-    public function registerHooks()
+    public static function registerHooks(string $module_dir)
     {
-        $hooks = [
-            'displayHeader',
-            'displayAfterBodyOpeningTag',
-        ];
-
-        foreach ($hooks as $h) {
-            $this->registerHook($h);
+        $module_obj = Module::getInstanceByName($module_dir);
+        if (Validate::isLoadedObject($module_obj)) {
+            $file = _PS_MODULE_DIR_ . $module_dir . '/sql/hooks.php';
+            if (is_file($file)) {
+                $hooks = include_once $file;
+                foreach ($hooks as $hook) {
+                    $module_obj->registerHook($hook);
+                }
+            }
         }
 
         return true;
@@ -56,11 +55,6 @@ class Tvcore extends Module
 
     public function hookDisplayHeader()
     {
-        $this->context->controller->registerStylesheet(
-            'modules-tvcore-bootstrap',
-            'modules/' . $this->name . '/views/css/front/bootstrap.css',
-            ['media' => 'all', 'priority' => 150]
-        );
         $this->context->controller->registerStylesheet(
             'modules-tvcore-fontawesome',
             'modules/' . $this->name . '/libraries/fontawesome/css/all.min.css',
@@ -74,11 +68,6 @@ class Tvcore extends Module
         $this->context->controller->registerJavascript(
             'modules-tvcore-bootstrap',
             'modules/' . $this->name . '/views/js/front/bootstrap.js',
-            ['position' => 'bottom', 'priority' => 150]
-        );
-        $this->context->controller->registerJavascript(
-            'modules-tvcore-main',
-            'modules/' . $this->name . '/views/js/front/main.js',
             ['position' => 'bottom', 'priority' => 150]
         );
     }
@@ -98,6 +87,52 @@ class Tvcore extends Module
                     return false;
                 }
             }
+
+            self::installTableOverrides($module_dir);
+
+            // Some tables which belong to a module are useful only when another one is installed
+            self::installAdditionalTables($module_dir);
+        }
+
+        return true;
+    }
+
+    public static function installTableOverrides(string $module_dir)
+    {
+        $file = _PS_MODULE_DIR_ . $module_dir . '/sql/table_overrides.php';
+        if (is_file($file)) {
+            $sql = include_once $file;
+            foreach ($sql as $s) {
+                $results = Db::getInstance()->executeS($s['check']);
+
+                // If the columns do not exist, add them
+                if (!sizeof($results)) {
+                    if (!Db::getInstance()->execute($s['add'])) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public static function installAdditionalTables(string $module_dir)
+    {
+        $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
+        if (is_dir($additional_tables)) {
+            require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
+            $additional = TvcoreFile::getDirFiles($additional_tables);
+            foreach ($additional as $module) {
+                if (Module::isEnabled($module)) {
+                    $module_tables = include_once $additional_tables . '/' . $module . '.php';
+                    foreach ($module_tables as $table_key => $table_key) {
+                        if (!Db::getInstance()->execute($module_tables[$table_key])) {
+                            return false;
+                        }
+                    }
+                }
+            }
         }
 
         return true;
@@ -113,11 +148,63 @@ class Tvcore extends Module
                     return false;
                 }
             }
+
+            self::uninstallTableOverrides($module_dir);
+
+            // Some tables which belong to a module are useful only when another one is installed
+            self::uninstallAdditionalTables($module_dir);
         }
 
         return true;
     }
 
+    public static function uninstallTableOverrides(string $module_dir)
+    {
+        $file = _PS_MODULE_DIR_ . $module_dir . '/sql/table_overrides.php';
+        if (is_file($file)) {
+            $sql = include_once $file;
+            foreach ($sql as $s) {
+                $results = Db::getInstance()->executeS($s['check']);
+
+                // If the columns do exist, drop them
+                if (sizeof($results)) {
+                    if (!Db::getInstance()->execute($s['drop'])) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public static function uninstallAdditionalTables(string $module_dir)
+    {
+        $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
+        if (is_dir($additional_tables)) {
+            require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
+            $additional = TvcoreFile::getDirFiles($additional_tables);
+            //self::debug($additional);
+            foreach ($additional as $module) {
+                if (Module::isEnabled($module)) {
+                    $module_tables = include_once $additional_tables . '/' . $module . '.php';
+                    foreach ($module_tables as $table_key => $table_key) {
+                        if (!Db::getInstance()->execute('DROP TABLE IF EXISTS  `' . _DB_PREFIX_ . $table_key . '`')) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $module_dir
+     *
+     * @return true
+     */
     public static function importData(string $module_dir)
     {
         require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreString.php';
@@ -126,7 +213,6 @@ class Tvcore extends Module
         if (is_file($file)) {
             $languages = Language::getLanguages(false);
             $tables = include_once $file;
-            //self::debug($tables);
             foreach ($tables as $table) {
                 $model_path = _PS_MODULE_DIR_ . $module_dir . '/models/' . $table['class'] . '.php';
                 include_once $model_path;
@@ -154,7 +240,6 @@ class Tvcore extends Module
                                             $language_column_data[$language['id_lang']] = $language_column_value['en'];
                                         }
                                     }
-                                    //self::debug($language_column_data);
                                     $class->{$function_name}($language_column_data);
                                 }
                             }
@@ -223,6 +308,6 @@ class Tvcore extends Module
 
     public static function debug(array $array)
     {
-        print('<pre>' . print_r($array, true) . '</pre>');
+        echo '<pre>' . print_r($array, true) . '</pre>';
     }
 }

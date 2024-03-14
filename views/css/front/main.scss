@@ -1,4 +1,4 @@
-@import 'scss/bootstrap.scss';
+@import '../../../libraries/bootstrap/scss/bootstrap.scss';
 @import '_variables.scss';
 /* --- Theme styling below --- */
 .mr_1{
@@ -278,6 +278,7 @@ input:focus{
         border-bottom:1px solid #ddd;
     }
 }
+
 /** ps_shoppingcart **/
 .cart-content{
     display:flex;

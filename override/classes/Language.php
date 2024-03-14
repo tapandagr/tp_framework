@@ -1,10 +1,14 @@
 <?php
 /**
  * Cornelius - Core PrestaShop module
+ *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/1-basic-license
+ * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
  */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class Language extends LanguageCore
 {
@@ -12,6 +16,7 @@ class Language extends LanguageCore
      * @param bool $active
      * @param bool $id_shop
      * @param bool $ids_only
+     *
      * @return array
      */
     public static function getSecondaryLanguages(bool $active = true, bool $id_shop = false, bool $ids_only = false)
@@ -37,6 +42,7 @@ class Language extends LanguageCore
             }
 
             TvcoreFile::setJson($cached_file, $result);
+
             return $result;
         }
 
