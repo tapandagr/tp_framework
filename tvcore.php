@@ -32,6 +32,11 @@ class Tvcore extends Module
         $this->languages = Language::getLanguages();
     }
 
+    public static function debugValue($string)
+    {
+        echo '<pre>' . $string . '</pre>';
+    }
+
     public function install()
     {
         return parent::install() && self::registerHooks($this->name);
@@ -60,9 +65,16 @@ class Tvcore extends Module
             'modules/' . $this->name . '/libraries/fontawesome/css/all.min.css',
             ['media' => 'all', 'priority' => 150]
         );
+        /*
         $this->context->controller->registerStylesheet(
             'modules-tvcore-main',
             'modules/' . $this->name . '/views/css/front/main.css',
+            ['media' => 'all', 'priority' => 150]
+        );
+        */
+        $this->context->controller->registerStylesheet(
+            'modules-tvcore-minimum',
+            'modules/' . $this->name . '/views/css/front/minimum.css',
             ['media' => 'all', 'priority' => 150]
         );
         $this->context->controller->registerJavascript(

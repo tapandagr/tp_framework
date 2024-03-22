@@ -19,7 +19,7 @@ class Language extends LanguageCore
      *
      * @return array
      */
-    public static function getSecondaryLanguages(bool $active = true, bool $id_shop = false, bool $ids_only = false)
+    public static function getSecondaryLanguages(bool $active = false, bool $id_shop = false, bool $ids_only = false)
     {
         $cached_file = _PS_MODULE_DIR_ . 'tvcore/cache/languages' . (int) $active . (int) $id_shop . (int) $ids_only . '.json';
         if (!is_file($cached_file)) {

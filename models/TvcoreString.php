@@ -75,7 +75,7 @@ class TvcoreString
         return $result;
     }
 
-    public static function getFloat($string)
+    public static function getFloat(string $string, int $decimals = 6)
     {
         $dotPos = strrpos($string, '.');
         $commaPos = strrpos($string, ',');
@@ -85,8 +85,10 @@ class TvcoreString
             return (float) preg_replace('/[^0-9]/', '', $string);
         }
 
-        return (float) preg_replace('/[^0-9]/', '', substr($string, 0, $sep)) . '.' .
+        $float = (float) preg_replace('/[^0-9]/', '', substr($string, 0, $sep)) . '.' .
             preg_replace('/[^0-9]/', '', substr($string, $sep + 1, strlen($string)));
+
+        return number_format($float, $decimals, '.', '');
     }
 
     /**
@@ -150,5 +152,152 @@ class TvcoreString
         }
 
         return $string;
+    }
+
+    public static function hasLettersAndNumbers(string $string)
+    {
+        return preg_match('/\p{L}/', $string) && preg_match('/[0-9]/', $string);
+    }
+
+    public static function getEscapedString(string &$string, int $repeats = 3)
+    {
+        $string = str_replace('\\', str_repeat('\\', $repeats), $string);
+    }
+
+    public static function multiply(array $values, mixed $multiplier)
+    {
+        $result = [];
+
+        foreach ($values as $id_lang => $value) {
+            $result[$id_lang] = (float) $value * $multiplier;
+        }
+
+        return $result;
+    }
+
+    /**
+     * It returns a float, converted from a measure unit to another one
+     * Example: mm => cm, g => kg, ml => l
+     *
+     * value: The amount given from the file
+     * from_unit: The unit given from the file
+     * to_unit: The unit used in the shop
+     * type: 0 => Distance, 1 => Mass, 2 => Volume
+     *
+     * @param array $params
+     * @return float
+     */
+    public static function convertMeasureUnit(array $params)
+    {
+        $multiplier = 1;
+        if (!isset($params['from_unit'])) {
+            echo $params['obj']->reference;
+        }
+        if ($params['type'] == 0) {
+            self::getDistanceMultiplier($multiplier, $params['from_unit'], $params['to_unit']);
+        } elseif ($params['type'] == 1) {
+            self::getMassMultiplier($multiplier, $params['from_unit'], $params['to_unit']);
+        } elseif ($params['type'] == 2) {
+            self::getVolumeMultiplier($multiplier, $params['from_unit'], $params['to_unit']);
+        }
+
+        return (float) self::getFloat($params['value']) * $multiplier;
+    }
+
+    /**
+     * It converts distance units
+     *
+     * @param float $multiplier
+     * @param string $from_unit
+     * @param string $to_unit
+     * @return void
+     */
+    protected static function getDistanceMultiplier(float &$multiplier, string $from_unit, string $to_unit)
+    {
+        if ($from_unit == 'mm') {
+            if ($to_unit == 'cm') {
+                $multiplier = .1;
+            } elseif ($to_unit == 'dm') {
+                $multiplier = .01;
+            } elseif ($to_unit == 'm') {
+                $multiplier = .001;
+            }
+        } elseif ($from_unit == 'cm') {
+            if ($to_unit == 'mm') {
+                $multiplier = 10;
+            } elseif ($to_unit == 'dm') {
+                $multiplier = .1;
+            } elseif ($to_unit == 'm') {
+                $multiplier = .01;
+            }
+        } elseif ($from_unit == 'dm') {
+            if ($to_unit == 'mm') {
+                $multiplier = 100;
+            } elseif ($to_unit == 'cm') {
+                $multiplier = 10;
+            } elseif ($to_unit == 'm') {
+                $multiplier = .1;
+            }
+        } elseif ($from_unit == 'm') {
+            if ($to_unit == 'mm') {
+                $multiplier = 1000;
+            } elseif ($to_unit == 'cm') {
+                $multiplier = 100;
+            } elseif ($to_unit == 'dm') {
+                $multiplier = 10;
+            }
+        }
+    }
+
+    /**
+     * It converts mass units
+     *
+     * @param float $multiplier
+     * @param string $from_unit
+     * @param string $to_unit
+     * @return void
+     */
+    protected static function getMassMultiplier(float &$multiplier, string $from_unit, string $to_unit)
+    {
+        if ($from_unit == 'g') {
+            if ($to_unit == 'kg') {
+                $multiplier = .001;
+            }
+        } elseif ($from_unit == 'kg') {
+            if ($to_unit == 'g') {
+                $multiplier = 1000;
+            }
+        }
+    }
+
+    /**
+     * It converts volume units
+     *
+     * @param float $multiplier
+     * @param string $from_unit
+     * @param string $to_unit
+     * @return void
+     */
+    protected static function getVolumeMultiplier(float &$multiplier, string $from_unit, string $to_unit)
+    {
+        if (in_array($from_unit, ['cc', 'ml'])) {
+            if (in_array($to_unit, ['l', 'lt'])) {
+                $multiplier = .001;
+            } elseif ($to_unit == 'm3') {
+                $multiplier = .000001;
+            }
+        } elseif (in_array($from_unit, ['l', 'lt'])) {
+            if (in_array($to_unit, ['cc', 'ml'])) {
+                $multiplier = 1000;
+            } elseif ($to_unit == 'm3') {
+                $multiplier = .001;
+            }
+        } elseif ($from_unit == 'm3') {
+            if (in_array($from_unit, ['cc', 'ml'])) {
+                $multiplier = 1000000;
+            } elseif (in_array($to_unit, ['l', 'lt'])) {
+                $multiplier = 1000;
+            }
+        }
     }
 }

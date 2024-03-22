@@ -7,6 +7,10 @@ namespace Composer\Autoload;
 class ComposerStaticInit9c746dd0151fa46352f66934ea265d2a
 {
     public static $prefixLengthsPsr4 = array (
+        'S' => 
+        array (
+            'Spatie\\ArrayToXml\\' => 18,
+        ),
         'M' => 
         array (
             'Minwork\\Helper\\' => 15,
@@ -14,6 +18,10 @@ class ComposerStaticInit9c746dd0151fa46352f66934ea265d2a
     );
 
     public static $prefixDirsPsr4 = array (
+        'Spatie\\ArrayToXml\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/spatie/array-to-xml/src',
+        ),
         'Minwork\\Helper\\' => 
         array (
             0 => __DIR__ . '/..' . '/minwork/array/src',

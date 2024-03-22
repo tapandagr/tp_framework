@@ -69,17 +69,22 @@ class TvcoreFile
             // We get data, proceed
             $json_string = Tools::file_get_contents($link);
 
-            return json_decode($json_string);
+            return json_decode($json_string, true);
         }
 
         return false;
     }
 
-    public static function pretty($json)
+    public static function pretty($json, bool $stop = true)
     {
         echo '<pre>';
         print_r($json);
         echo '</pre>';
+
+        if ($stop) {
+            // We return some random sh!t that does not exist, aiming to break the process
+            $stop_here;
+        }
     }
 
     /**

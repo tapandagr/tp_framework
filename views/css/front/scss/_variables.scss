@@ -1,0 +1,44 @@
+/* Project specific colors */
+$white:#fff !default;
+$gray-100:#f8f9fa !default;
+$gray-200:#e9ecef !default;
+$gray-300:#dee2e6 !default;
+$gray-400:#ced4da !default;
+$gray-500:#adb5bd !default;
+$gray-600:#6c757d !default;
+$gray-700:#495057 !default;
+$gray-800:#343a40 !default;
+$gray-900:#212529 !default;
+$black:#000 !default;
+
+$grays:(
+        "100": $gray-100,
+        "200": $gray-200,
+        "300": $gray-300,
+        "400": $gray-400,
+        "500": $gray-500,
+        "600": $gray-600,
+        "700": $gray-700,
+        "800": $gray-800,
+        "900": $gray-900
+) !default;
+
+$primary_blue:#0076a8;
+$primary_green:#64a70b;
+/* Custom variables */
+$font_size:1rem;
+$spacer:.25rem;
+$margin_1:$spacer;
+$margin_2:$spacer*2;
+$margin_3:$spacer*3;
+$margin_4:$spacer*4;
+
+$padding_1:$spacer;
+$padding_2:$spacer*2;
+$padding_3:$spacer*3;
+$padding_4:$spacer*4;
+
+$header_bottom_height:3.75rem;
+$header_bottom_line_height:2.5;
+
+$drawer_width:20rem;

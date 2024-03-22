@@ -1,5 +1,6 @@
 {
     "require": {
-        "minwork/array": "^1.13"
+        "minwork/array": "^1.13",
+        "spatie/array-to-xml": "^3.2"
     }
 }

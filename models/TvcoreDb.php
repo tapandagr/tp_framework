@@ -106,7 +106,7 @@ class TvcoreDb
      *
      * @return float|int|string
      */
-    public static function getHigherPosition(string $table, bool|string $where = true)
+    public static function _getHigherPosition(string $table, bool|string $where = true)
     {
         $sql = new DbQuery();
         $sql->select('MAX(position)')
@@ -115,6 +115,21 @@ class TvcoreDb
         $position = Db::getInstance()->getValue($sql);
 
         return (is_numeric($position)) ? $position : -1;
+    }
+
+    public static function getHigherPosition(
+        string $table = 'category',
+        string $where = '1',
+        string $field = 'position',
+    ) {
+        $q = new DbQuery();
+        $q->select('MAX(`' . pSQL($field) . '`)')
+            ->from(pSQL($table))
+            ->where(pSQL($where));
+
+        $position = Db::getInstance()->getValue($q);
+
+        return (is_numeric($position)) ? $position + 1 : 0;
     }
 
     /**
@@ -143,7 +158,6 @@ class TvcoreDb
                 ];
             }
 
-            tvcore::debug($result);
             TvcoreDb::update($table, $result);
         }
 
@@ -185,5 +199,22 @@ class TvcoreDb
         }
 
         return true;
+    }
+
+    /**
+     * It returns a record id based on a condition.
+     * In case it does not exist, it returns false.
+     *
+     * @param string $id
+     * @param string $table
+     * @param string $where
+     * @return false|string
+     */
+    public static function getRecordId(string $id, string $table, string $where)
+    {
+        $sql = new DbQuery();
+        $sql->select(pSQL($id))->from(pSQL($table))->where($where);
+
+        return Db::getInstance()->getValue($sql);
     }
 }

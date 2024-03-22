@@ -1,5 +1,5 @@
-@import '../../../libraries/bootstrap/scss/bootstrap.scss';
-@import '_variables.scss';
+// @import '../../../libraries/bootstrap/scss/bootstrap.scss';
+@import 'scss/_variables.scss';
 /* --- Theme styling below --- */
 .mr_1{
     margin-right:$margin_1;
@@ -90,6 +90,10 @@ input:focus{
     display:none;
 }
 
+.collapse.show{
+    display:block;
+}
+
 .close{
     float:left;
 }
@@ -129,7 +133,7 @@ input:focus{
 }
 
 .dark_layer{
-    background:$body-tertiary-color;
+    background:rgba(0, 0, 0, .5);
     position:fixed;
     top:0;
     left:0;
