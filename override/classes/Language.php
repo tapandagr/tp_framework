@@ -12,16 +12,10 @@ if (!defined('_PS_VERSION_')) {
 
 class Language extends LanguageCore
 {
-    /**
-     * @param bool $active
-     * @param bool $id_shop
-     * @param bool $ids_only
-     *
-     * @return array
-     */
     public static function getSecondaryLanguages(bool $active = false, bool $id_shop = false, bool $ids_only = false)
     {
-        $cached_file = _PS_MODULE_DIR_ . 'tvcore/cache/languages' . (int) $active . (int) $id_shop . (int) $ids_only . '.json';
+        $cached_file = _PS_MODULE_DIR_ . 'tvcore/cache/languages' .
+            (int) $active . (int) $id_shop . (int) $ids_only . '.json';
         if (!is_file($cached_file)) {
             $result = [];
             $id_default = (int) Configuration::get('PS_LANG_DEFAULT');

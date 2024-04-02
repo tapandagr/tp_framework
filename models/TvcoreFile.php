@@ -23,7 +23,7 @@ class TvcoreFile
         return false;
     }
 
-    public static function setJson($cache_file, $contents)
+    public static function setJson($cache_file, $contents): void
     {
         $jsonString = json_encode($contents, JSON_UNESCAPED_UNICODE);
         // Write in the file
@@ -33,7 +33,7 @@ class TvcoreFile
         @chmod($cache_file, 0664);
     }
 
-    public static function arrayToXml($array, &$xml)
+    public static function arrayToXml($array, &$xml): void
     {
         foreach ($array as $key => $value) {
             // We make sure there is no index starting with a number :)
@@ -47,7 +47,7 @@ class TvcoreFile
         }
     }
 
-    public static function getXmlFromArray($data)
+    public static function getXmlFromArray($data): SimpleXMLElement
     {
         $xml = new SimpleXMLElement('<node/>');
         self::arrayToXml($data, $xml);
@@ -75,7 +75,7 @@ class TvcoreFile
         return false;
     }
 
-    public static function pretty($json, bool $stop = true)
+    public static function pretty($json, bool $stop = true): void
     {
         echo '<pre>';
         print_r($json);
@@ -83,7 +83,7 @@ class TvcoreFile
 
         if ($stop) {
             // We return some random sh!t that does not exist, aiming to break the process
-            $stop_here;
+            exit(rand());
         }
     }
 
@@ -100,7 +100,7 @@ class TvcoreFile
         string $file_link,
         string $values_separated = ';',
         int $ignore = 0
-    ) {
+    ): array {
         ini_set('memory_limit', '8192M');
         $file_contents = Tools::file_get_contents($file_link);
         $lines = explode(PHP_EOL, $file_contents);
@@ -142,7 +142,7 @@ class TvcoreFile
         string $values_separated = ';',
         int $ignore = 0,
         int $step = 0
-    ) {
+    ): array {
         ini_set('memory_limit', '8192M');
         $file_contents = Tools::file_get_contents($file_link);
         $lines = explode(PHP_EOL, $file_contents);
@@ -154,7 +154,6 @@ class TvcoreFile
         }
 
         $i += $ignore;
-
 
         $last_index = sizeof($lines) - 1;
         // If last row is empty, get rid of it
@@ -186,20 +185,25 @@ class TvcoreFile
 
     /**
      * It returns a slice from a given csv file
+     *
      * @param string $csv_path
      * @param string $values_separator
      * @param int $slice_size
      * @param int $ignore
      * @return array
      */
-    public static function getCsvSlice(string $csv_path, string $values_separator, int $slice_size = 5, int $ignore = 1)
-    {
+    public static function getCsvSlice(
+        string $csv_path,
+        string $values_separator,
+        int $slice_size = 5,
+        int $ignore = 1
+    ): array {
         $records = self::getAllCsvRecords($csv_path, $values_separator, $ignore);
 
         return array_slice($records, 0, $slice_size);
     }
 
-    public static function getCsvTotal(string $link, $exclude_first_row)
+    public static function getCsvTotal(string $link, $exclude_first_row): int
     {
         ini_set('memory_limit', '8192M');
         // $this->getFileLink();
@@ -222,7 +226,7 @@ class TvcoreFile
         return $csv_total;
     }
 
-    public static function getDirFiles(string $dir_path)
+    public static function getDirFiles(string $dir_path): array
     {
         $result = [];
         $files = scandir($dir_path);
@@ -238,20 +242,20 @@ class TvcoreFile
         return $result;
     }
 
-    public static function deleteDirectory(string $dir)
+    public static function deleteDirectory(string $dir): void
     {
         self::deleteDirectoryContents($dir);
         // rmdir($dir);
     }
 
-    public static function getFileType(string $file_path)
+    public static function getFileType(string $file_path): false|string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
 
         return finfo_file($finfo, $file_path);
     }
 
-    public static function deleteDirectoryContents(string $dir, array $relative_whitelisted_dirs = [])
+    public static function deleteDirectoryContents(string $dir, array $relative_whitelisted_dirs = []): void
     {
         $whitelisted_dirs = [$dir];
 
@@ -282,7 +286,7 @@ class TvcoreFile
         }
     }
 
-    public static function getSubDirectories(string $dir)
+    public static function getSubDirectories(string $dir): array
     {
         $result = [];
 
@@ -308,7 +312,20 @@ class TvcoreFile
         return $result;
     }
 
-    public static function copyFile(string $origin, string $destination, string $file_name)
+    /**
+     * @param string $dir_path
+     * @param string $module_name
+     * @return void
+     */
+    public static function mkdir(string $dir_path, string $module_name): void
+    {
+        if (!is_dir($dir_path)) {
+            mkdir($dir_path, 0775, true);
+            self::copy(_PS_MODULE_DIR_ . $module_name, $dir_path, 'index.php');
+        }
+    }
+
+    public static function copy(string $origin, string $destination, string $file_name): true
     {
         $origin = $origin . '/' . $file_name;
         $destination = $destination . '/' . $file_name;

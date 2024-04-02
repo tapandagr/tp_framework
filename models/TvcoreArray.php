@@ -38,7 +38,7 @@ class TvcoreArray
             // loop through the subIterators...
             $keys = [];
             // in this case i skip the grand parent (numeric array)
-            for ($i = 0; $i < $iterator->getDepth(); $i++) {
+            for ($i = 0; $i < $iterator->getDepth(); ++$i) {
                 $tmp_key = $iterator->getSubIterator($i)->key();
                 if (!is_int($tmp_key)) {
                     $keys[] = $tmp_key;

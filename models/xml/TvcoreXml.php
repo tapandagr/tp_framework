@@ -1,4 +1,14 @@
 <?php
+/**
+ * Cornelius - Core PrestaShop module
+ *
+ * @author    tivuno.com <hi@tivuno.com>
+ * @copyright 2018 - 2024 © tivuno.com
+ * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class TvcoreXml
 {
@@ -18,14 +28,10 @@ class TvcoreXml
             $this->setPrefix($prefix);
         }
 
-        //header('Content-Type: text/plain');
         $doc = new DOMDocument();
         $doc->formatOutput = true;
-
         $root = $doc->createElement('root');
-
         $this->convertInternal($doc, $root, $data);
-
         $doc->appendChild($root);
 
         return $doc;
@@ -37,7 +43,7 @@ class TvcoreXml
     private function convertInternal(DOMDocument $doc, DOMElement &$root, $data)
     {
         foreach ($data as $key => $value) {
-            //echo '<br>' . $this->prefix . $key;
+            // echo '<br>' . $this->prefix . $key;
             $tmp_key = preg_replace('/[\s\W]+/', '', $key);
             if (is_numeric($key)) {
                 $tmp_key = $this->prefix . $key;

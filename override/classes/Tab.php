@@ -14,6 +14,8 @@ class Tab extends TabCore
 {
     public static function getIdFromClassName($className)
     {
-        return Db::getInstance()->getValue('SELECT `id_tab` FROM `' . _DB_PREFIX_ . 'tab` WHERE `class_name` = "' . pSQL($className) . '"');
+        return Db::getInstance()->getValue(
+            'SELECT `id_tab` FROM `' . _DB_PREFIX_ . 'tab` WHERE `class_name` = "' . pSQL($className) . '"'
+        );
     }
 }

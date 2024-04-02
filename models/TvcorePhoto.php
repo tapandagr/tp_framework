@@ -1,4 +1,14 @@
 <?php
+/**
+ * Cornelius - Core PrestaShop module
+ *
+ * @author    tivuno.com <hi@tivuno.com>
+ * @copyright 2018 - 2024 © tivuno.com
+ * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class TvcorePhoto
 {
@@ -8,15 +18,17 @@ class TvcorePhoto
     }
 
     /**
-     * It creates an image for the specified product, given a link.
+     * It creates an image for the specified product, given a link
      * In case it’s the first image, we can set it as cover via the 3rd parameter
      *
-     * @param integer $id_product
-     * @param string $image_link
-     * @param boolean $is_cover
-     * @return bool|int
+     * @param int $id_product
+     * @param string $image_source
+     * @param bool $is_cover
+     * @return bool
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
      */
-    public static function setProductPhoto($id_product, $image_source, $is_cover = false)
+    public static function setProductPhoto(int $id_product, string $image_source, bool $is_cover = false)
     {
         if (self::doesExist($image_source)) {
             $valid_filename = self::getRemoteImage($image_source);
@@ -32,6 +44,7 @@ class TvcorePhoto
                 return $image->id;
             }
         }
+
         return false;
     }
 
@@ -68,11 +81,13 @@ class TvcorePhoto
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         fclose($fp);
+
         if (self::isDownloadable($file_name, $http_code)) {
             return _PS_TMP_IMG_DIR_ . $file_name;
         } else {
             unlink(_PS_TMP_IMG_DIR_ . $file_name);
         }
+
         return false;
     }
 
@@ -112,8 +127,6 @@ class TvcorePhoto
             ['cover' => null],
             '`id_product`=' . (int) $id_product
         );
-        //$sql = 'UPDATE `' . _DB_PREFIX_ . 'image` SET `cover`=NULL WHERE `id_product`=\'' . pSQL($id_product) . '\'';
-        //Db::getInstance()->execute($sql);
     }
 
     public static function createImageFile($file, $path, $id_image, $id_product, $thumbnail = true)
@@ -124,11 +137,11 @@ class TvcorePhoto
         $MAX_IMAGE_HEIGHT = 3000;
         if ($tmp_width > $MAX_IMAGE_WIDTH) {
             $tmp_width = $MAX_IMAGE_WIDTH;
-            //$this->logger->logInfo('Image: ' . $file . ", has been resized because it's too wide.");
+            // $this->logger->logInfo('Image: ' . $file . ", has been resized because it's too wide.");
         }
         if ($tmp_height > $MAX_IMAGE_HEIGHT) {
             $tmp_height = $MAX_IMAGE_HEIGHT;
-            //$this->logger->logInfo('Image: ' . $file . ", has been resized because it's too tall.");
+            // $this->logger->logInfo('Image: ' . $file . ", has been resized because it's too tall.");
         }
 
         $image_created = ImageManager::resize($file, $path . '.jpg', $tmp_width, $tmp_height);
@@ -137,8 +150,13 @@ class TvcorePhoto
 
         if ($thumbnail) {
             foreach ($images_types as $image_type) {
-                ImageManager::resize($file, $path . '-' . Tools::stripslashes($image_type['name']) . '.jpg',
-                                     $image_type['width'], $image_type['height']);
+                ImageManager::resize(
+                    $file,
+                    $path . '-' . Tools::stripslashes($image_type['name']) . '.jpg',
+                    $image_type['width'],
+                    $image_type['height']
+                );
+
                 if (in_array($image_type['id_image_type'], $watermark_types)) {
                     Hook::exec('actionWatermark', ['id_image' => $id_image, 'id_product' => $id_product]);
                 }

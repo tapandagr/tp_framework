@@ -18,7 +18,7 @@ class Tvcore extends Module
     {
         $this->name = 'tvcore';
         $this->tab = 'front_office_features';
-        $this->version = '1.0.3';
+        $this->version = '1.0.4';
         $this->author = 'tivuno.com';
         $this->ps_versions_compliancy = [
             'min' => '8.0.0',
@@ -26,6 +26,7 @@ class Tvcore extends Module
         ];
         $this->displayName = $this->l('Cornelius - Core PrestaShop module');
         $this->description = $this->l('It adds useful hooks, functions and libraries to PrestaShop');
+        $this->bootstrap = true;
 
         parent::__construct();
 
@@ -87,6 +88,49 @@ class Tvcore extends Module
     public function hookDisplayAfterBodyOpeningTag()
     {
         return $this->fetch('module:' . $this->name . '/views/templates/hooks/displayAfterBodyOpeningTag.tpl');
+    }
+
+    public static function installSettings(array $settings)
+    {
+        foreach ($settings as $key => $value) {
+            if (isset($value['default_value'])) {
+                Configuration::updateValue($key, $value['default_value']);
+            }
+        }
+
+        return true;
+    }
+
+    public static function uninstallSettings(array $settings)
+    {
+        foreach ($settings as $key => $key) {
+            Configuration::deleteByName($key);
+        }
+
+        return true;
+    }
+
+    public function getSettingsWithValues(array $settings)
+    {
+        $values = [];
+        foreach ($settings as $setting) {
+            $validation_method = $setting['validation'];
+            if (isset($setting['language'])) {
+                foreach (Language::getLanguages(false, false, true) as $language_id) {
+                    $tmp_value = Configuration::get($setting['key'], $language_id);
+                    if (Validate::$validation_method($tmp_value)) {
+                        $values[$setting['key']][$language_id] = $tmp_value;
+                    }
+                }
+            } else {
+                $tmp_value = Configuration::get($setting['key']);
+                if (Validate::$validation_method($tmp_value)) {
+                    $values[$setting['key']] = $tmp_value;
+                }
+            }
+        }
+
+        return $values;
     }
 
     public static function installTables(string $module_dir)
@@ -196,7 +240,6 @@ class Tvcore extends Module
         if (is_dir($additional_tables)) {
             require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
             $additional = TvcoreFile::getDirFiles($additional_tables);
-            //self::debug($additional);
             foreach ($additional as $module) {
                 if (Module::isEnabled($module)) {
                     $module_tables = include_once $additional_tables . '/' . $module . '.php';
@@ -321,5 +364,23 @@ class Tvcore extends Module
     public static function debug(array $array)
     {
         echo '<pre>' . print_r($array, true) . '</pre>';
+        exit(rand());
+    }
+
+    public function getContent()
+    {
+        $token = Tools::hash('tvcore/cron');
+        $this->context->smarty->assign([
+            'add_index_cron' => $this->context->link->getModuleLink(
+                'tvcore',
+                'addindex',
+                [
+                    'token' => $token,
+                    'module_name' => 'YOUR_MODULE_DIR',
+                ],
+            ),
+        ]);
+
+        return $this->display(__FILE__, 'views/templates/admin/configuration.tpl');
     }
 }
