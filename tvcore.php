@@ -369,6 +369,21 @@ class Tvcore extends Module
 
     public function getContent()
     {
+        $output = '';
+
+        // this part is executed only when the form is submitted
+        if (Tools::isSubmit('submit' . $this->name)) {
+            // retrieve the value set by the user
+            $configValue = (string) Tools::getValue('tvimport_prod_link');
+
+            if (empty($configValue) || !Validate::isUrl($configValue)) {
+                $output = $this->displayError($this->l('Invalid Configuration value'));
+            } else {
+                Configuration::updateValue('tvimport_prod_link', $configValue);
+                $output = $this->displayConfirmation($this->l('Settings updated'));
+            }
+        }
+
         $token = Tools::hash('tvcore/cron');
         $this->context->smarty->assign([
             'add_index_cron' => $this->context->link->getModuleLink(
@@ -381,6 +396,44 @@ class Tvcore extends Module
             ),
         ]);
 
-        return $this->display(__FILE__, 'views/templates/admin/configuration.tpl');
+        return $output . $this->displayForm() . $this->display(__FILE__, 'views/templates/admin/configuration.tpl');
+    }
+
+    public function displayForm()
+    {
+        $form = [
+            'form' => [
+                'input' => [
+                    [
+                        'type' => 'text',
+                        'label' => $this->l('Import module link'),
+                        'name' => 'tvimport_prod_link',
+                        'size' => 20,
+                        'required' => true,
+                    ],
+                ],
+                'submit' => [
+                    'title' => $this->l('Save'),
+                    'class' => 'btn btn-default pull-right',
+                ],
+            ],
+        ];
+
+        $helper = new HelperForm();
+
+        // Module, token and currentIndex
+        $helper->table = $this->table;
+        $helper->name_controller = $this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+        $helper->currentIndex = AdminController::$currentIndex . '&' . http_build_query(['configure' => $this->name]);
+        $helper->submit_action = 'submit' . $this->name;
+
+        // Default language
+        $helper->default_form_language = (int) Configuration::get('PS_LANG_DEFAULT');
+
+        // Load current value into the form
+        $helper->fields_value['tvimport_prod_link'] = Tools::getValue('tvimport_prod_link', Configuration::get('tvimport_prod_link'));
+
+        return $helper->generateForm([$form]);
     }
 }

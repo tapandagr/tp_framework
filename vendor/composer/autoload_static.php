@@ -6,6 +6,10 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit9c746dd0151fa46352f66934ea265d2a
 {
+    public static $files = array (
+        '9e4824c5afbdc1482b6025ce3d4dfde8' => __DIR__ . '/..' . '/league/csv/src/functions_include.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'S' => 
         array (
@@ -14,6 +18,10 @@ class ComposerStaticInit9c746dd0151fa46352f66934ea265d2a
         'M' => 
         array (
             'Minwork\\Helper\\' => 15,
+        ),
+        'L' => 
+        array (
+            'League\\Csv\\' => 11,
         ),
     );
 
@@ -26,13 +34,14 @@ class ComposerStaticInit9c746dd0151fa46352f66934ea265d2a
         array (
             0 => __DIR__ . '/..' . '/minwork/array/src',
         ),
+        'League\\Csv\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/csv/src',
+        ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Minwork\\Helper\\Arr' => __DIR__ . '/..' . '/minwork/array/src/Arr.php',
-        'Minwork\\Helper\\ArrObj' => __DIR__ . '/..' . '/minwork/array/src/ArrObj.php',
-        'Spatie\\ArrayToXml\\ArrayToXml' => __DIR__ . '/..' . '/spatie/array-to-xml/src/ArrayToXml.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

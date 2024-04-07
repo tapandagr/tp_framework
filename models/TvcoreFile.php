@@ -6,32 +6,34 @@
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
  */
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreJson.php';
+
 class TvcoreFile
 {
-    public static function getJson($file_path)
-    {
-        if (is_file($file_path)) {
-            $json_string = Tools::file_get_contents($file_path);
-
-            return json_decode($json_string, true);
-        }
-
-        return false;
-    }
-
-    public static function setJson($cache_file, $contents): void
-    {
-        $jsonString = json_encode($contents, JSON_UNESCAPED_UNICODE);
-        // Write in the file
-        $fp = fopen($cache_file, 'w');
-        fwrite($fp, $jsonString);
-        fclose($fp);
-        @chmod($cache_file, 0664);
-    }
+    protected static array $mime_types = [
+        'application/json' => 'json', // json
+        'application/octet-stream' => 'xlsx', // xlsx (?)
+        //"application/pdf", // pdf
+        //"application/msword", // MS Word
+        'application/vnd.ms-excel' => 'xls', // MS Excel
+        'application/vnd.ms-office' => 'xls', // xls
+        //"application/vnd.ms-powerpoint", // MS Powerpoint
+        //"application/vnd.oasis.opendocument.presentation", // odp
+        'application/vnd.oasis.opendocument.spreadsheet' => 'ods', // ods
+        //"application/vnd.oasis.opendocument.text", // odt
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx', // xlsx
+        //"application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
+        'application/xml' => 'xml', // xml
+        'application/zip' => 'zip', // zip
+        'text/csv' => 'csv', // csv
+        'text/plain' => 'txt', // csv, json (?)
+        'text/xml' => 'xml',
+    ];
 
     public static function arrayToXml($array, &$xml): void
     {
@@ -55,6 +57,7 @@ class TvcoreFile
         return $xml;
     }
 
+    // deprecated
     public static function getJsonFromRemoteFile(string $link)
     {
         $curl = curl_init($link);
@@ -226,8 +229,121 @@ class TvcoreFile
         return $csv_total;
     }
 
-    public static function getDirFiles(string $dir_path): array
+    /**
+     * @param string $link
+     * @return bool
+     */
+    public static function doesExist(string $link)
     {
+        $file_headers = @get_headers($link);
+
+        if ($file_headers and $file_headers[0] == 'HTTP/1.1 200 OK') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function getDirectoryFiles(
+        string $dir_path,
+        string|bool $json_cache = false
+    ) {
+        $files = TvcoreJson::getFile($json_cache);
+        if ($files) {
+            return $files;
+        }
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $dir_path,
+                RecursiveDirectoryIterator::SKIP_DOTS
+            ),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        $result = [];
+
+        foreach ($files as $fileinfo) {
+            if (!$fileinfo->isDir()) {
+                // We need only the files
+                $file_path = $fileinfo->getRealPath();
+                $file_name = $fileinfo->getFilename();
+                if (!in_array($file_name, ['index.php', '.htaccess', '.DS_Store'])) {
+                    if (!str_contains($file_path, '~lock')) {
+                        $extension = self::getExtension($file_path);
+                        if (in_array($extension, ['json', 'ods', 'txt', 'xls', 'xlsx', 'xml'])) {
+                            $result[] = $file_path;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (is_string($json_cache)) {
+            TvcoreJson::setFile($json_cache, $result, 'path');
+        }
+
+        return $result;
+    }
+
+    public static function getExtension(string $file_path): string
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $file_path);
+
+        return self::getExtensionByMimeType($mime_type);
+    }
+
+    public static function getExtensionByMimeType(string $mime_type)
+    {
+        if (isset(self::$mime_types[$mime_type])) {
+            return self::$mime_types[$mime_type];
+        }
+
+        return false;
+    }
+
+    public static function getMimeType(string $file_path): string
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $file_path);
+
+        if (isset(self::$mime_types[$mime_type])) {
+            return $mime_type;
+        }
+
+        return false;
+    }
+
+    public static function getDirFiles(string $dir_path)
+    {
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $dir_path,
+                RecursiveDirectoryIterator::SKIP_DOTS
+            ),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        $result = [];
+
+        foreach ($files as $fileinfo) {
+            $result[] = $fileinfo->getRealPath();
+            /*if ($fileinfo->isDir() && in_array($fileinfo->getRealPath(), $whitelisted_dirs)) {
+                continue; // The children have already been deleted
+            } elseif ($fileinfo->getFilename() == 'index.php'
+                && in_array($fileinfo->getPath(), $whitelisted_dirs)
+            ) {
+                continue; // We do need the index.php file from whitelisted directory
+            } else {
+                // Neither whitelisted directory, nor index.php of whitelisted => Delete everything
+                $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
+                $todo($fileinfo->getRealPath());
+            }*/
+        }
+
+        return $result;
+
         $result = [];
         $files = scandir($dir_path);
         $files = array_diff($files, ['.', '..', 'index.php']);
@@ -333,5 +449,16 @@ class TvcoreFile
         chmod($destination, 0644);
 
         return true;
+    }
+
+    /**
+     * @param $path
+     * @param $contents
+     * @return void
+     */
+    public static function addFile($path, $contents)
+    {
+        file_put_contents($path, $contents);
+        chmod($path, 0644);
     }
 }

@@ -36,5 +36,7 @@ class TvcoreAddIndexModuleFrontController extends ModuleFrontController
 
             exit('The index.php has been copied');
         }
+
+        exit('Module not found');
     }
 }

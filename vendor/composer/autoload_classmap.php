@@ -7,7 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'Minwork\\Helper\\Arr' => $vendorDir . '/minwork/array/src/Arr.php',
-    'Minwork\\Helper\\ArrObj' => $vendorDir . '/minwork/array/src/ArrObj.php',
-    'Spatie\\ArrayToXml\\ArrayToXml' => $vendorDir . '/spatie/array-to-xml/src/ArrayToXml.php',
 );

@@ -30,22 +30,23 @@ class TvcoreArray
      * @param array $data
      * @return array
      */
-    public static function flatten(array $data)
+    public static function flatten(array $data): array
     {
         $iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($data));
         $results = [];
         foreach ($iterator as $key => $value) {
-            // loop through the subIterators...
             $keys = [];
-            // in this case i skip the grand parent (numeric array)
             for ($i = 0; $i < $iterator->getDepth(); ++$i) {
                 $tmp_key = $iterator->getSubIterator($i)->key();
                 if (!is_int($tmp_key)) {
                     $keys[] = $tmp_key;
                 }
             }
-            $keys[] = $key;
-            $results[implode('_', $keys)] = $value;
+            $keys[] = $value;
+            $results[] = [
+                'nested' => implode('.', $keys),
+                'flat' => implode('_', $keys),
+            ];
         }
 
         return $results;
