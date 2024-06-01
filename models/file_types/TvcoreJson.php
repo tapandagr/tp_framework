@@ -144,8 +144,8 @@ class TvcoreJson
                             RecursiveIteratorIterator::SELF_FIRST
                         );
 
-                        $result = '<div class="element lvl_0">' . '<div class="expander">-</div>';
-                        $result .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div><div class="content">';
+                        $node = '<div class="element lvl_0">' . '<div class="expander">-</div>';
+                        $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div><div class="content">';
                         //$index = 1;
                         $relative_path = '';
                         foreach ($sxi as $key => $value) {
@@ -184,22 +184,23 @@ class TvcoreJson
                             }
 
                             //echo
-                            $result .= '<div ' . 'class="element lvl_' . $lvl . ' ' . implode(
+                            $node .= '<div ' . 'class="element lvl_' . $lvl . ' ' . implode(
                                     ' ',
                                     $classes
                                 ) . '" ' . 'data-path="' . $relative_path . '">' . $expander;
 
-                            $result .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>' . '<div class="content">' . $value . '</div>' . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>';
+                            $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>' . '<div class="content">' . $value . '</div>' . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>';
 
-                            $result .= '</div>'; // !element closing tag
+                            $node .= '</div>'; // !element closing tag
                             // $currentDepth = $sxi->getDepth();
                             //$index++;
                         }
-                        $result .= '</div>' // !content closing tag
+                        $node .= '</div>' // !content closing tag
                             . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div>';
-                        $result .= '</div>';
+                        $node .= '</div>';
                         $xml->next($record_node);
                         unset($element);
+                        $result['node'] = $node;
                         break;
                     } else {
                         //echo $xml->name . "<br />";

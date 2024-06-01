@@ -58,4 +58,95 @@ class TvcoreXml
             $root->appendChild($new_node);
         }
     }
+
+    /**
+     * @param string $file_link
+     * @param string $data_path
+     * @param int $node_index
+     * @return void
+     * @throws Exception
+     */
+    public static function getAdminSideNode(
+        string $file_link,
+        string $data_path,
+        int $node_index,
+    ) {
+        require_once _PS_MODULE_DIR_ . 'tvimport/models/TvimportFile.php';
+$xml = new DOMDocument();
+        $result = [];
+        exit();
+        $xml = new XMLReader();
+        $xml->open($file_link);
+
+        $element = new SimpleXMLElement($xml->readString());
+        $index = 2;
+        $filter = $element->xpath("//table1[$node_index]");
+        if ($filter) {
+            $sxi = new RecursiveIteratorIterator(
+                new SimpleXMLIterator($element->asXML()),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            $node = '<div class="element lvl_0">' . '<div class="expander">-</div>';
+            $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div><div class="content">';
+            //$index = 1;
+            $relative_path = '';
+            foreach ($sxi as $key => $value) {
+                $lvl = (int) $sxi->getDepth() + 1;
+
+                $relative_path = '';
+                $field_items = $element->xpath('//' . $key);
+                foreach ($field_items as $field_item) {
+                    $parent = $field_item->xpath('ancestor-or-self::*');
+                    foreach ($parent as $p) {
+                        if ($p->getName() == $record_node) {
+                            continue;
+                        }
+                        $relative_path .= '/' . $p->getName();
+                    }
+                    //echo PHP_EOL;
+                }
+
+                $relative_path = '[' . $relative_path . ']';
+
+                //echo $key;
+
+                //echo $index . ' --- ' . $sxi->getName() . "<br />";
+
+                $classes = [];
+                $expander = '';
+
+                if (!$sxi->hasChildren()) {
+                    $classes[] = 'string';
+
+                    if (strlen($value) <= 40) {
+                        $classes[] = 'short';
+                    } else {
+                        $expander .= '<div class="expander">-</div>';
+                    }
+                }
+
+                //echo
+                $node .= '<div ' . 'class="element lvl_' . $lvl . ' ' . implode(
+                        ' ',
+                        $classes
+                    ) . '" ' . 'data-path="' . $relative_path . '">' . $expander;
+
+                $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>' . '<div class="content">' . $value . '</div>' . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>';
+
+                $node .= '</div>'; // !element closing tag
+                // $currentDepth = $sxi->getDepth();
+                //$index++;
+            }
+            $node .= '</div>' // !content closing tag
+                . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div>';
+            $node .= '</div>';
+            $xml->next($record_node);
+            //unset($element);
+            $result['node'] = $node;
+            //break;
+        }
+
+        exit(json_encode($result, JSON_UNESCAPED_UNICODE));
+    }
 }
