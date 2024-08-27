@@ -89,7 +89,8 @@ class TvcoreJson
 
         if (Validate::isUnsignedInt($id_tv_import_file)) {
             $file = new TvimportFile($id_tv_import_file);
-            if ($file_type == 1) {
+            if ($file_type == 0) {
+                // CSV
                 require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreCsv.php';
 
                 $row = TvcoreCsv::getRowData($file_link, $node_index, $exclude_row, $delimiter);
@@ -115,12 +116,13 @@ class TvcoreJson
                 }
                 $result['node'] = $node;
                 if ($api == 1) {
+                    //tvimport::debug($row);
                     // Icecat
-                    $result['id_api'] = pSQL($row[$api_column]);
+                    $result['id_api'] = pSQL(trim($row[$api_column], '"'));
                 }
 
-            } elseif ($file_type == 2) {
-                // xml
+            } elseif ($file_type == 1) {
+                // XML
                 $record_node = $file::getRecordNode($file->settings->default->data_path);
                 $xml = new XMLReader();
                 $xml->open($link);

@@ -20,7 +20,6 @@ class Language extends LanguageCore
             $result = [];
             $id_default = (int) Configuration::get('PS_LANG_DEFAULT');
             $languages = Language::getLanguages($active, $id_shop, $ids_only);
-
             if ($ids_only) {
                 foreach ($languages as $id_lang) {
                     if ($id_lang != $id_default) {
@@ -34,12 +33,9 @@ class Language extends LanguageCore
                     }
                 }
             }
-
-            TvcoreFile::setJson($cached_file, $result);
-
+            TvcoreJson::setFile($cached_file, $result);
             return $result;
         }
-
-        return TvcoreFile::getJson($cached_file);
+        return TvcoreJson::getFile($cached_file);
     }
 }
