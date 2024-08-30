@@ -159,7 +159,7 @@ class TvcoreString
         return preg_match('/\p{L}/', $string) && preg_match('/[0-9]/', $string);
     }
 
-    public static function getEscapedString(string &$string, int $repeats = 3)
+    public static function getEscapedString(string &$string, int $repeats = 4)
     {
         $string = str_replace('\\', str_repeat('\\', $repeats), $string);
     }

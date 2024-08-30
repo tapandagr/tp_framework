@@ -69,12 +69,20 @@ class TvcoreArray
             $path = [];
             foreach (range(0, $ritit->getDepth()) as $depth) {
                 $key = $ritit->getSubIterator($depth)->key();
-                if (is_int($key)) {
-                    $key = $ritit->getSubIterator($depth)->current();
+                if ($key == 'array') {
+                    continue 2;
+                } else {
+                    if (is_int($key)) {
+                        $key = $ritit->getSubIterator($depth)->current();
+                    }
+
+                    $path[] = $key;
                 }
-                $path[] = $key; // $ritit->getSubIterator($depth)->key();
+                // $ritit->getSubIterator($depth)->key();
             }
+            //Tvimport::debug($path);
             $results[] = [
+                //json_encode($path),
                 'nested' => join('.', $path),
                 'flat' => join('_', $path),
             ];
