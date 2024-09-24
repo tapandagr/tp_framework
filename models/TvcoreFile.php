@@ -1,7 +1,6 @@
 <?php
 /**
  * Cornelius - Core PrestaShop module
- *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
@@ -92,18 +91,17 @@ class TvcoreFile
 
     /**
      * 2024
-     *
      * @param string $file_link
      * @param string $values_separated
      * @param int $ignore
-     *
      * @return array
      */
     public static function getAllCsvRecords(
         string $file_link,
         string $values_separated = ';',
-        int $ignore = 0
-    ): array {
+        int    $ignore = 0
+    ): array
+    {
         ini_set('memory_limit', '8192M');
         $file_contents = Tools::file_get_contents($file_link);
         $lines = explode(PHP_EOL, $file_contents);
@@ -141,11 +139,12 @@ class TvcoreFile
 
     public static function getCsvRecords(
         string $file_link,
-        bool $exclude_first_row = true,
+        bool   $exclude_first_row = true,
         string $values_separated = ';',
-        int $ignore = 0,
-        int $step = 0
-    ): array {
+        int    $ignore = 0,
+        int    $step = 0
+    ): array
+    {
         ini_set('memory_limit', '8192M');
         $file_contents = Tools::file_get_contents($file_link);
         $lines = explode(PHP_EOL, $file_contents);
@@ -188,7 +187,6 @@ class TvcoreFile
 
     /**
      * It returns a slice from a given csv file
-     *
      * @param string $csv_path
      * @param string $values_separator
      * @param int $slice_size
@@ -198,9 +196,10 @@ class TvcoreFile
     public static function getCsvSlice(
         string $csv_path,
         string $values_separator,
-        int $slice_size = 5,
-        int $ignore = 1
-    ): array {
+        int    $slice_size = 5,
+        int    $ignore = 1
+    ): array
+    {
         $records = self::getAllCsvRecords($csv_path, $values_separator, $ignore);
 
         return array_slice($records, 0, $slice_size);
@@ -245,9 +244,10 @@ class TvcoreFile
     }
 
     public static function getDirectoryFiles(
-        string $dir_path,
+        string      $dir_path,
         string|bool $json_cache = false
-    ) {
+    )
+    {
         $files = TvcoreJson::getFile($json_cache);
         if ($files) {
             return $files;
