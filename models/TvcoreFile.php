@@ -34,6 +34,22 @@ class TvcoreFile
         'text/xml' => 'xml',
     ];
 
+    protected static array $file_types = [
+        'csv' => 0,
+        'xml' => 1,
+        'xls' => 2,
+        'xlsx' => 3,
+        'json' => 5,
+    ];
+
+    protected static array $reverse_file_types = [
+        0 => 'csv',
+        1 => 'xml',
+        2 => 'xls',
+        3 => 'xlsx',
+        4 => 'json',
+    ];
+
     public static function arrayToXml($array, &$xml): void
     {
         foreach ($array as $key => $value) {
@@ -315,7 +331,7 @@ class TvcoreFile
         return false;
     }
 
-    public static function getDirFiles(string $dir_path)
+    public static function getDirFiles(string $dir_path, array $exclude = [])
     {
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(
@@ -328,7 +344,13 @@ class TvcoreFile
         $result = [];
 
         foreach ($files as $fileinfo) {
-            $result[] = $fileinfo->getRealPath();
+            if (!in_array($fileinfo->getFilename(), $exclude)) {
+                $name = $fileinfo->getBasename('.' . $fileinfo->getExtension());
+                $result[] = [
+                    'name' => $name,
+                    'path' => $fileinfo->getRealPath(),
+                ];
+            }
             /*if ($fileinfo->isDir() && in_array($fileinfo->getRealPath(), $whitelisted_dirs)) {
                 continue; // The children have already been deleted
             } elseif ($fileinfo->getFilename() == 'index.php'
@@ -342,18 +364,8 @@ class TvcoreFile
             }*/
         }
 
-        return $result;
-
-        $result = [];
-        $files = scandir($dir_path);
-        $files = array_diff($files, ['.', '..', 'index.php']);
-        foreach ($files as $file) {
-            $file_path = $dir_path . '/' . $file;
-            if (is_file($file_path)) {
-                $path_parts = pathinfo($file_path);
-                $result[] = $path_parts['filename'];
-            }
-        }
+        //exit(json_encode($result));
+        //$aek();
 
         return $result;
     }
@@ -364,11 +376,20 @@ class TvcoreFile
         // rmdir($dir);
     }
 
-    public static function getFileType(string $file_path): false|string
+    public static function getFileType(string $link)
     {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $headers = get_headers($link, 1);
+        $mime_type = strtok($headers['Content-Type'], ';');
+        $file_type = false;
+        if (self::$mime_types[$mime_type]) {
+            $extension = self::$mime_types[$mime_type];
+            $file_type = self::$file_types[$extension];
+        }
 
-        return finfo_file($finfo, $file_path);
+        return $file_type;
+        //$finfo = finfo_open(FILEINFO_MIME_TYPE);
+
+        //return finfo_file($finfo, $file_path);
     }
 
     public static function deleteDirectoryContents(string $dir, array $relative_whitelisted_dirs = []): void
@@ -460,5 +481,26 @@ class TvcoreFile
     {
         file_put_contents($path, $contents);
         chmod($path, 0644);
+    }
+
+    public static function copyRemoteFileToServer($origin, $destination, $file_name, $file_type = 0)
+    {
+        $extension = self::$reverse_file_types[$file_type];
+        if ($extension) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $origin);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $data = curl_exec($ch);
+            curl_close($ch);
+            $destination .= $file_name . '.' . $extension;
+            $file = fopen($destination, "w+");
+            fputs($file, $data);
+            fclose($file);
+            chmod($destination, 0644);
+
+            return $destination;
+        }
+
+        return false;
     }
 }

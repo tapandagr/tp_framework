@@ -1,7 +1,6 @@
 <?php
 /**
  * Core PrestaShop module - Cornelius
- *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
@@ -51,6 +50,8 @@ class TvcoreJson
             $result = $contents;
         }
 
+        //print $cache_file;
+
         $jsonString = json_encode($result, JSON_UNESCAPED_UNICODE);
 
         // Write in the file
@@ -74,15 +75,16 @@ class TvcoreJson
      * @throws PrestaShopException
      */
     public static function getAdminSideNode(
-        int $id_tv_import_file,
+        int    $id_tv_import_file,
         string $file_link,
-        int $node_index,
-        int $file_type = 1,
-        int $exclude_row = 1,
+        int    $node_index,
+        int    $file_type = 1,
+        int    $exclude_row = 1,
         string $delimiter = ';',
-        int $api = 0,
-        int $api_column = 2,
-    ) {
+        int    $api = 0,
+        int    $api_column = 2,
+    )
+    {
         require_once _PS_MODULE_DIR_ . 'tvimport/models/TvimportFile.php';
 
         $result = [];

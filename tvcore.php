@@ -1,7 +1,6 @@
 <?php
 /**
  * Cornelius - Core PrestaShop module
- *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
@@ -66,13 +65,13 @@ class Tvcore extends Module
             'modules/' . $this->name . '/libraries/fontawesome/css/all.min.css',
             ['media' => 'all', 'priority' => 150]
         );
-        /*
+
         $this->context->controller->registerStylesheet(
             'modules-tvcore-main',
             'modules/' . $this->name . '/views/css/front/main.css',
             ['media' => 'all', 'priority' => 150]
         );
-        */
+        
         $this->context->controller->registerStylesheet(
             'modules-tvcore-minimum',
             'modules/' . $this->name . '/views/css/front/minimum.css',
@@ -178,10 +177,10 @@ class Tvcore extends Module
         $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
         if (is_dir($additional_tables)) {
             require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
-            $additional = TvcoreFile::getDirFiles($additional_tables);
+            $additional = TvcoreFile::getDirFiles($additional_tables, ['index.php']);
             foreach ($additional as $module) {
-                if (Module::isEnabled($module)) {
-                    $module_tables = include_once $additional_tables . '/' . $module . '.php';
+                if (Module::isEnabled($module['name'])) {
+                    $module_tables = include_once $additional_tables . '/' . $module['name'] . '.php';
                     foreach ($module_tables as $table_key => $table_key) {
                         if (!Db::getInstance()->execute($module_tables[$table_key])) {
                             return false;
@@ -239,10 +238,10 @@ class Tvcore extends Module
         $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
         if (is_dir($additional_tables)) {
             require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
-            $additional = TvcoreFile::getDirFiles($additional_tables);
+            $additional = TvcoreFile::getDirFiles($additional_tables, ['index.php']);
             foreach ($additional as $module) {
-                if (Module::isEnabled($module)) {
-                    $module_tables = include_once $additional_tables . '/' . $module . '.php';
+                if (Module::isEnabled($module['name'])) {
+                    $module_tables = include_once $additional_tables . '/' . $module['name'] . '.php';
                     foreach ($module_tables as $table_key => $table_key) {
                         if (!Db::getInstance()->execute('DROP TABLE IF EXISTS  `' . _DB_PREFIX_ . $table_key . '`')) {
                             return false;
@@ -257,7 +256,6 @@ class Tvcore extends Module
 
     /**
      * @param string $module_dir
-     *
      * @return true
      */
     public static function importData(string $module_dir)
