@@ -70,7 +70,7 @@ class TvcoreJson
      * @param string $delimiter
      * @param int $api
      * @param int $api_column
-     * @return void
+     * @return string
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
@@ -125,98 +125,14 @@ class TvcoreJson
 
             } elseif ($file_type == 1) {
                 // XML
-                $record_node = $file::getRecordNode($file->settings->default->data_path);
-                $xml = new XMLReader();
-                $xml->open($link);
-                //echo $record_node;
-                /*while ($xml->read()) {
-                    echo $xml->name . "<br />";
-                }*/
-                while ($xml->read() && $xml->name != $record_node) {
-                    ;
-                }
-                while ($xml->name == $record_node) {
-                    $element = new SimpleXMLElement($xml->readOuterXML());
-                    //echo $file->filter . "<br />";
-                    $v = $element->xpath($file->filter); // | //product_id[. ="21"] | //name[starts-with(.,"BULLE")]');
-                    if ($v) {
-                        //echo "<pre>";
-                        //echo " RecursiveIteratorIterator \n";
+                require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreXml.php';
 
-                        $sxi = new RecursiveIteratorIterator(
-                            new SimpleXMLIterator($element->asXML()),
-                            RecursiveIteratorIterator::SELF_FIRST
-                        );
-
-                        $node = '<div class="element lvl_0">' . '<div class="expander">-</div>';
-                        $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div><div class="content">';
-                        //$index = 1;
-                        $relative_path = '';
-                        foreach ($sxi as $key => $value) {
-                            $lvl = (int) $sxi->getDepth() + 1;
-
-                            $relative_path = '';
-                            $field_items = $element->xpath('//' . $key);
-                            foreach ($field_items as $field_item) {
-                                $parent = $field_item->xpath('ancestor-or-self::*');
-                                foreach ($parent as $p) {
-                                    if ($p->getName() == $record_node) {
-                                        continue;
-                                    }
-                                    $relative_path .= '/' . $p->getName();
-                                }
-                                //echo PHP_EOL;
-                            }
-
-                            $relative_path = '[' . $relative_path . ']';
-
-                            //echo $key;
-
-                            //echo $index . ' --- ' . $sxi->getName() . "<br />";
-
-                            $classes = [];
-                            $expander = '';
-
-                            if (!$sxi->hasChildren()) {
-                                $classes[] = 'string';
-
-                                if (strlen($value) <= 40) {
-                                    $classes[] = 'short';
-                                } else {
-                                    $expander .= '<div class="expander">-</div>';
-                                }
-                            }
-
-                            //echo
-                            $node .= '<div ' . 'class="element lvl_' . $lvl . ' ' . implode(
-                                    ' ',
-                                    $classes
-                                ) . '" ' . 'data-path="' . $relative_path . '">' . $expander;
-
-                            $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>' . '<div class="content">' . $value . '</div>' . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>';
-
-                            $node .= '</div>'; // !element closing tag
-                            // $currentDepth = $sxi->getDepth();
-                            //$index++;
-                        }
-                        $node .= '</div>' // !content closing tag
-                            . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div>';
-                        $node .= '</div>';
-                        $xml->next($record_node);
-                        unset($element);
-                        $result['node'] = $node;
-                        break;
-                    } else {
-                        //echo $xml->name . "<br />";
-                    }
-                    $xml->next($record_node);
-
-                    //break;
-                }
+                $result['node'] = TvcoreXml::getRowData($file_link, $node_index);
             }
         } else {
             exit(json_encode(['error_code' => 1], JSON_UNESCAPED_UNICODE));
         }
+
         exit(json_encode($result, JSON_UNESCAPED_UNICODE));
     }
 }

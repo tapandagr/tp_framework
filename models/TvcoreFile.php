@@ -265,7 +265,7 @@ class TvcoreFile
     )
     {
         $files = TvcoreJson::getFile($json_cache);
-        if ($files) {
+        if ($files && !_PS_MODE_DEV_) {
             return $files;
         }
 
@@ -288,7 +288,7 @@ class TvcoreFile
                     if (!str_contains($file_path, '~lock')) {
                         $extension = self::getExtension($file_path);
                         if (in_array($extension, ['json', 'ods', 'txt', 'xls', 'xlsx', 'xml'])) {
-                            $result[] = $file_path;
+                            $result[]['path'] = $file_path;
                         }
                     }
                 }
