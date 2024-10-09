@@ -1,6 +1,7 @@
-@import "_colors";
+@import '_colors';
 
 .loader_container {
+    display: none;
     position: fixed;
     width: 100vw;
     height: 100vh;

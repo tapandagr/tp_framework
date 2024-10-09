@@ -13,6 +13,66 @@ class TvcoreXml
 {
     protected string $prefix = 'col';
 
+    private static function getNodeObject(string $link, int $node_index, string $tag)
+    {
+        $reader = new XMLReader();
+        $reader->open($link);
+
+        $index = 1;
+        while ($reader->read()) {
+            if ($reader->nodeType == \XMLReader::ELEMENT and $reader->name == $tag) {
+                while ($index < $node_index) {
+                    ++$index;
+                    continue 2;
+                }
+                $dom = new DOMDocument();
+                $node = $reader->expand($dom);
+                $xpath = new DOMXpath($dom);
+                return [
+                    'dom' => $dom,
+                    'node' => $node,
+                    'xpath' => $xpath,
+                ];
+            }
+        }
+    }
+
+    private static function getSubNode(mixed $node, RecursiveIteratorIterator $dit)
+    {
+        $has_children = 0;
+        $cdata = 0;
+
+        if ($node->childElementCount > 0) {
+            $has_children = 1;
+        }
+
+        if ($node->childNodes[0]->nodeType == 4) {
+            $cdata = 1;
+        }
+
+        $size = 2 * strlen($node->nodeName) + 5 + strlen($node->nodeValue)
+            + $cdata + 12;
+
+        $class = $expander = '';
+        if ($size <= 60 && !$has_children) {
+            $class = ' short';
+        } else {
+            $expander = '<div class="expander">-</div>';
+        }
+
+        return [
+            'name' => $node->nodeName,
+            'path' => $node->getNodePath(),
+            'depth' => $dit->getDepth() + 1,
+            'value' => $node->nodeValue,
+            'cdata' => $cdata,
+            'has_children' => $has_children,
+            'size' => $size,
+            'class' => $class,
+            'expander' => $expander,
+        ];
+    }
+
     public function setPrefix($prefix)
     {
         $this->prefix = $prefix;
@@ -65,90 +125,82 @@ class TvcoreXml
      * @return void
      * @throws Exception
      */
-    public static function getAdminSideNode(
-        string $file_link,
-        string $data_path,
-        int    $node_index,
-    )
+    public static function getPrettyPrintedNode(
+        string $link,
+        int    $node_index = 0,
+        string $tag = 'product')
     {
-        require_once _PS_MODULE_DIR_ . 'tvimport/models/TvimportFile.php';
-        $xml = new DOMDocument();
-        $result = [];
-        exit();
-        $xml = new XMLReader();
-        $xml->open($file_link);
+        $obj = self::getNodeObject($link, $node_index, $tag);
+        require_once __DIR__ . '/TvcoreRecursiveDOMIterator.php';
+        $dit = new RecursiveIteratorIterator(
+            new TvcoreRecursiveDOMIterator($obj['node']),
+            RecursiveIteratorIterator::SELF_FIRST);
 
-        $element = new SimpleXMLElement($xml->readString());
-        $index = 2;
-        $filter = $element->xpath("//table1[$node_index]");
-        if ($filter) {
-            $sxi = new RecursiveIteratorIterator(
-                new SimpleXMLIterator($element->asXML()),
-                RecursiveIteratorIterator::SELF_FIRST
-            );
+        $i = 0;
+        foreach ($dit as $node) {
+            if ($node->nodeType === XML_ELEMENT_NODE) {
+                $file_rows[$i] = self::getSubNode($node, $dit);
 
-            $node = '<div class="element lvl_0">' . '<div class="expander">-</div>';
-            $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $record_node .
-                '</span>' . htmlentities('>') . '</div><div class="content">';
-            //$index = 1;
-            $relative_path = '';
-            foreach ($sxi as $key => $value) {
-                $lvl = (int) $sxi->getDepth() + 1;
-
-                $relative_path = '';
-                $field_items = $element->xpath('//' . $key);
-                foreach ($field_items as $field_item) {
-                    $parent = $field_item->xpath('ancestor-or-self::*');
-                    foreach ($parent as $p) {
-                        if ($p->getName() == $record_node) {
-                            continue;
-                        }
-                        $relative_path .= '/' . $p->getName();
-                    }
-                    //echo PHP_EOL;
-                }
-
-                $relative_path = '[' . $relative_path . ']';
-
-                //echo $key;
-
-                //echo $index . ' --- ' . $sxi->getName() . "<br />";
-
-                $classes = [];
-                $expander = '';
-
-                if (!$sxi->hasChildren()) {
-                    $classes[] = 'string';
-
-                    if (strlen($value) <= 40) {
-                        $classes[] = 'short';
-                    } else {
-                        $expander .= '<div class="expander">-</div>';
-                    }
-                }
-
-                //echo
-                $node .= '<div ' . 'class="element lvl_' . $lvl . ' ' . implode(
-                        ' ',
-                        $classes
-                    ) . '" ' . 'data-path="' . $relative_path . '">' . $expander;
-
-                $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>' . '<div class="content">' . $value . '</div>' . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $key . '</span>' . htmlentities('>') . '</div>';
-
-                $node .= '</div>'; // !element closing tag
-                // $currentDepth = $sxi->getDepth();
-                //$index++;
+                ++$i;
             }
-            $node .= '</div>' // !content closing tag
-                . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $record_node . '</span>' . htmlentities('>') . '</div>';
-            $node .= '</div>';
-            $xml->next($record_node);
-            //unset($element);
-            $result['node'] = $node;
-            //break;
         }
 
-        exit(json_encode($result, JSON_UNESCAPED_UNICODE));
+        $result = '<div class="element lvl_0" data-path="/product"><div class="expander">-</div>' .
+            '<div class="tag">&lt;<span class="tag_name">product</span>&gt;</div><div class="content">' .
+            '<div class="element lvl_1' . $file_rows[0]['class'] . '" ' . 'data-path="' . $file_rows[0]['path'] .
+            '">' . $file_rows[0]['expander'] .
+            '<div class="tag">&lt;<span class="tag_name">' . $file_rows[0]['name'] . '</span>&gt;</div><div class="content">';
+
+        for ($i = 1; $i < sizeof($file_rows); $i++) {
+            $prev = $file_rows[$i - 1];
+
+            if ($prev['cdata'] == 1) {
+                $value = '&#x3C;![CDATA[' . $prev['value'] . ']]&#x3E;';
+            } else {
+                $value = $prev['value'];
+            }
+
+            if ($file_rows[$i]['depth'] == $prev['depth']) {
+                // The previous one should be closed
+                $result .= $value . '</div><div class="tag">&lt;/<span class="tag_name">' . $prev['name'] . '</span>&gt;</div></div>' .
+                    '<div class="element lvl_' . $file_rows[$i]['depth'] . $file_rows[$i]['class'] . '" ' .
+                    'data-path="' . $file_rows[$i]['path'] . '">' . $file_rows[$i]['expander'] .
+                    '<div class="tag">&lt;<span class="tag_name">' . $file_rows[$i]['name'] . '</span>&gt;</div><div class="content">';
+            } elseif ($file_rows[$i]['depth'] == $prev['depth'] + 1) {
+                // We save to the open array
+                $open[] = '</div><div class="tag">&lt;/<span class="tag_name">' . $prev['name'] . '</span>&gt;</div></div>';
+
+                $result .= '<div class="element lvl_' . $file_rows[$i]['depth'] . $file_rows[$i]['class'] .
+                    '" data-path="' . $file_rows[$i]['path'] . '">' . $file_rows[$i]['expander'] .
+                    '<div class="tag">&lt;<span class="tag_name">' . $file_rows[$i]['name'] . '</span>&gt;</div><div class="content">';
+            } else {
+                $result .= $value . '</div><div class="tag">&lt;/<span class="tag_name">' . $prev['name'] . '</span>&gt;</div></div>';
+                // It's going up after descend - We count the steps
+                $steps = $prev['depth'] - $file_rows[$i]['depth'];
+                for ($last_i = 0; $last_i < $steps; ++$last_i) {
+                    $last = array_key_last($open);
+                    $result .= $open[$last];
+                    unset($open[$last]);
+                }
+
+                $result .= '<div class="element lvl_' . $file_rows[$i]['depth'] . $file_rows[$i]['class'] . '" data-path="' . $file_rows[$i]['path'] . '">' . $file_rows[$i]['expander'] .
+                    '<div class="tag">&lt;<span class="tag_name">' . $file_rows[$i]['name'] . '</span>&gt;</div><div class="content">';
+            }
+        }
+
+        $last_record = $file_rows[$i - 1];
+
+        if ($last_record['cdata'] == 1) {
+            $value = '&#x3C;![CDATA[' . $last_record['value'] . ']]&#x3E;';
+        } else {
+            $value = $last_record['value'];
+        }
+
+        $result .= $value . '</div><div class="tag">&lt;/<span class="tag_name">' . $last_record['name'] . '</span>&gt;</div></div>';
+
+        $result .= '</div><div class="tag">&lt;<span class="tag_name">/product</span>&gt;</div></div>';
+
+        return $result;
     }
 
     public static function getRowData($file_link, $index)

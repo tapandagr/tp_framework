@@ -62,6 +62,7 @@ class TvcoreJson
     }
 
     /**
+     * @param array $params
      * @param int $id_tv_import_file
      * @param string $file_link
      * @param int $node_index
@@ -75,19 +76,23 @@ class TvcoreJson
      * @throws PrestaShopException
      */
     public static function getAdminSideNode(
-        int    $id_tv_import_file,
+        array $params,
+        /*int    $id_tv_import_file,
         string $file_link,
         int    $node_index,
         int    $file_type = 1,
         int    $exclude_row = 1,
         string $delimiter = ';',
         int    $api = 0,
-        int    $api_column = 2,
+        int    $api_column = 2,*/
     )
     {
         require_once _PS_MODULE_DIR_ . 'tvimport/models/TvimportFile.php';
 
         $result = [];
+
+        $id_tv_import_file = $params['id_tv_import_file'];
+        $file_type = $params['file_type'];
 
         if (Validate::isUnsignedInt($id_tv_import_file)) {
             $file = new TvimportFile($id_tv_import_file);
@@ -127,7 +132,11 @@ class TvcoreJson
                 // XML
                 require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreXml.php';
 
-                $result['node'] = TvcoreXml::getRowData($file_link, $node_index);
+                $result['node'] = TvcoreXml::getPrettyPrintedNode(
+                    $params['file_link'],
+                    $params['node_index'],
+                    $params['tag']
+                );
             }
         } else {
             exit(json_encode(['error_code' => 1], JSON_UNESCAPED_UNICODE));

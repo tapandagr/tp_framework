@@ -1,6 +1,7 @@
 /* Project specific colors */
 /* Custom variables */
 .loader_container {
+  display: none;
   position: fixed;
   width: 100vw;
   height: 100vh;
