@@ -340,4 +340,22 @@ class TvcoreXml
             'cdata' => $i,
         ];
     }
+
+    public static function getNodesCount(string $link, string $tag, string $filter) {
+        $count = 0;
+        $dom = new DOMDocunent();
+        $reader = new XMLReader();
+        $reader->open($link);
+        while ($reader->read()) {
+            if ($reader->nodeType == \XMLReader::ELEMENT && $reader->name == $tag) {
+                $node = $reader->expand($dom);
+                $xpath = new DOMXpath($dom);
+                if ($xpath->query($tag . $filter, $node)) {
+                    ++$count;
+                }
+            }
+        }
+
+        return $count;
+    }
 }
