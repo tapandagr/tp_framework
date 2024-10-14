@@ -50,15 +50,13 @@ class TvcoreJson
             $result = $contents;
         }
 
-        //print $cache_file;
-
         $jsonString = json_encode($result, JSON_UNESCAPED_UNICODE);
 
         // Write in the file
         $fp = fopen($cache_file, 'w');
         fwrite($fp, $jsonString);
         fclose($fp);
-        @chmod($cache_file, 0664);
+        @chmod($cache_file, 0644);
     }
 
     /**

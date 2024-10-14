@@ -13,6 +13,34 @@ class TvcoreXml
 {
     protected string $prefix = 'col';
 
+    public static function getSlice($link, $tag, $filter, $ignore, $step)
+    {
+        $result = [];
+        $dom = new DOMDocument();
+        $reader = new XMLReader();
+        $reader->open($link);
+
+        $count = $index = 0;
+        $min_index = $ignore * $step;
+        while ($reader->read() && $count < $step) {
+            if ($reader->nodeType == \XMLReader::ELEMENT and $reader->name == $tag) {
+                while ($index < $min_index) {
+                    $reader->next($tag);
+                    ++$index;
+                }
+                ++$count;
+                $node = $reader->expand($dom);
+                $result[] = $node;
+
+                $reader->next($tag);
+                // clearing current element
+                unset($node);
+            }
+        }
+
+        return $result;
+    }
+
     private static function getNodeObject(string $link, int $node_index, string $tag)
     {
         $reader = new XMLReader();
@@ -341,15 +369,17 @@ class TvcoreXml
         ];
     }
 
-    public static function getNodesCount(string $link, string $tag, string $filter) {
+    public static function getNodesCount(string $link, string $tag, string $filter = '')
+    {
+        //$count = TvimportCacheAdmin::getNodesCount($link, $tag, $filter);
         $count = 0;
-        $dom = new DOMDocunent();
+        $dom = new DOMDocument();
+        $xpath = new DOMXpath($dom);
         $reader = new XMLReader();
         $reader->open($link);
         while ($reader->read()) {
             if ($reader->nodeType == \XMLReader::ELEMENT && $reader->name == $tag) {
                 $node = $reader->expand($dom);
-                $xpath = new DOMXpath($dom);
                 if ($xpath->query($tag . $filter, $node)) {
                     ++$count;
                 }
