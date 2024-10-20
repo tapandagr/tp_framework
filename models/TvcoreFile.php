@@ -477,7 +477,7 @@ class TvcoreFile
      * @param $contents
      * @return void
      */
-    public static function addFile($path, $contents)
+    public static function addFile($path, $contents): void
     {
         file_put_contents($path, $contents);
         chmod($path, 0644);

@@ -32,7 +32,6 @@ class TvcoreXml
                 $node = $reader->expand($dom);
                 $result[] = $node;
 
-                $reader->next($tag);
                 // clearing current element
                 unset($node);
             }

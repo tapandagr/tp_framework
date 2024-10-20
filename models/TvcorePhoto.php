@@ -1,7 +1,6 @@
 <?php
 /**
  * Cornelius - Core PrestaShop module
- *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
@@ -20,7 +19,6 @@ class TvcorePhoto
     /**
      * It creates an image for the specified product, given a link
      * In case it’s the first image, we can set it as cover via the 3rd parameter
-     *
      * @param int $id_product
      * @param string $image_source
      * @param bool $is_cover
@@ -48,7 +46,7 @@ class TvcorePhoto
         return false;
     }
 
-    public static function doesExist($link)
+    public static function doesExist($link): bool
     {
         $file_headers = @get_headers($link);
         if ($file_headers and $file_headers[0] == 'HTTP/1.1 200 OK') {
