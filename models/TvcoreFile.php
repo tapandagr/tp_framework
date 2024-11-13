@@ -462,6 +462,20 @@ class TvcoreFile
         }
     }
 
+    /**
+     * @param string $dir_path
+     * @param array $dir_names
+     * @param string $module_name
+     * @return void
+     */
+    public static function mkdirBulk(string $dir_path, array $dir_names, string $module_name): void
+    {
+        foreach ($dir_names as $dir_name) {
+            $dir_path .= '/' . $dir_name;
+            TvcoreFile::mkdir($dir_path, $module_name);
+        }
+    }
+
     public static function copy(string $origin, string $destination, string $file_name): true
     {
         $origin = $origin . '/' . $file_name;
@@ -475,15 +489,24 @@ class TvcoreFile
     /**
      * @param $path
      * @param $contents
-     * @return void
+     * @return true
      */
-    public static function addFile($path, $contents): void
+    public static function addFile($path, $contents): true
     {
         file_put_contents($path, $contents);
         chmod($path, 0644);
+
+        return true;
     }
 
-    public static function copyRemoteFileToServer($origin, $destination, $file_name, $file_type = 0)
+    /**
+     * @param $origin
+     * @param $destination
+     * @param $file_name
+     * @param $file_type
+     * @return false|string
+     */
+    public static function copyRemoteFileToServer($origin, $destination, $file_name, $file_type = 0): false|string
     {
         $extension = self::$reverse_file_types[$file_type];
         if ($extension) {
@@ -492,7 +515,7 @@ class TvcoreFile
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             $data = curl_exec($ch);
             curl_close($ch);
-            $destination .= $file_name . '.' . $extension;
+            $destination .= '/' . $file_name . '.' . $extension;
             $file = fopen($destination, "w+");
             fputs($file, $data);
             fclose($file);
