@@ -13,4 +13,12 @@
             {$add_index_cron|escape:'htmlall':'UTF-8'}
         </a>
     </p>
+    {foreach $cron_links as $cron_link}
+        <p>
+            <strong>{$cron_link.label|escape:'htmlall':'UTF-8'}</strong>
+            <a href="{$cron_link.href|escape:'htmlall':'UTF-8'}" target="_blank">
+                {$cron_link.href|escape:'htmlall':'UTF-8'}
+            </a>
+        </p>
+    {/foreach}
 </div>

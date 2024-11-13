@@ -462,6 +462,20 @@ class TvcoreFile
         }
     }
 
+    /**
+     * @param string $dir_path
+     * @param array $dir_names
+     * @param string $module_name
+     * @return void
+     */
+    public static function mkdirBulk(string $dir_path, array $dir_names, string $module_name): void
+    {
+        foreach ($dir_names as $dir_name) {
+            $dir_path .= '/' . $dir_name;
+            TvcoreFile::mkdir($dir_path, $module_name);
+        }
+    }
+
     public static function copy(string $origin, string $destination, string $file_name): true
     {
         $origin = $origin . '/' . $file_name;

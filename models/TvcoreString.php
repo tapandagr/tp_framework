@@ -1,7 +1,6 @@
 <?php
 /**
  * Cornelius - Core PrestaShop module
- *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
@@ -15,13 +14,10 @@ class TvcoreString
     /**
      * It explodes string, but escapes separators that reside within parentheses or square brackets
      * As a fallback, in case the function does not produce an array, it explodes based on new line character.
-     *
      * Example 1: QE65LST7TCUXXU\nQE75LST7TCUXXU
      * Example 2: Y21 Y22 QLED (eccetto Q80A, Q80B), AU8000~AU9000 43"~85", BU8000~BU9000 43"~85", QD OLED 55"~65"
-     *
      * @param string $separator
      * @param string $string
-     *
      * @return array
      */
     public static function explode(string $separator, string $string)
@@ -77,6 +73,7 @@ class TvcoreString
 
     public static function getFloat(string $string, int $decimals = 6)
     {
+        //var_dump(str_split($string));
         $dotPos = strrpos($string, '.');
         $commaPos = strrpos($string, ',');
         $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos :
@@ -94,11 +91,8 @@ class TvcoreString
     /**
      * It converts camel to snake
      * Example: setCamelFromSnake => set_camel_to_snake
-     *
      * @credits https://gist.github.com/carousel/1aacbea013d230768b3dec1a14ce5751
-     *
      * @param $input
-     *
      * @return string
      */
     public static function setSnakeFromCamel($input)
@@ -109,7 +103,6 @@ class TvcoreString
     /**
      * It converts snake to camel
      * Example: set_camel_to_snake => setCamelFromSnake
-     *
      * @credits https://gist.github.com/carousel/1aacbea013d230768b3dec1a14ce5751
      * @param string $input
      * @return string
@@ -121,7 +114,6 @@ class TvcoreString
 
     /**
      * It removes a part of the string from the right side (if exists)
-     *
      * @credits https://stackoverflow.com/a/32739088
      * @param string $string
      * @param string $needle
@@ -178,12 +170,10 @@ class TvcoreString
     /**
      * It returns a float, converted from a measure unit to another one
      * Example: mm => cm, g => kg, ml => l
-     *
      * value: The amount given from the file
      * from_unit: The unit given from the file
      * to_unit: The unit used in the shop
      * type: 0 => Distance, 1 => Mass, 2 => Volume
-     *
      * @param array $params
      * @return float
      */
@@ -206,7 +196,6 @@ class TvcoreString
 
     /**
      * It converts distance units
-     *
      * @param float $multiplier
      * @param string $from_unit
      * @param string $to_unit
@@ -251,7 +240,6 @@ class TvcoreString
 
     /**
      * It converts mass units
-     *
      * @param float $multiplier
      * @param string $from_unit
      * @param string $to_unit
@@ -272,7 +260,6 @@ class TvcoreString
 
     /**
      * It converts volume units
-     *
      * @param float $multiplier
      * @param string $from_unit
      * @param string $to_unit

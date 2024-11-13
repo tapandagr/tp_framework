@@ -71,7 +71,7 @@ class Tvcore extends Module
             'modules/' . $this->name . '/views/css/front/main.css',
             ['media' => 'all', 'priority' => 150]
         );
-        
+
         $this->context->controller->registerStylesheet(
             'modules-tvcore-minimum',
             'modules/' . $this->name . '/views/css/front/minimum.css',
@@ -383,6 +383,7 @@ class Tvcore extends Module
         }
 
         $token = Tools::hash('tvcore/cron');
+        
         $this->context->smarty->assign([
             'add_index_cron' => $this->context->link->getModuleLink(
                 'tvcore',
@@ -391,6 +392,18 @@ class Tvcore extends Module
                     'token' => $token,
                     'module_name' => 'YOUR_MODULE_DIR',
                 ],
+            ),
+            'cron_links' => Hook::exec(
+                'actionTvcoreConfigurationGetCronLinks',
+                [
+                    'token' => $token,
+                ],
+                null,
+                true,
+                false,
+                false,
+                null,
+                true
             ),
         ]);
 
