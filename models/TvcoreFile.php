@@ -392,17 +392,21 @@ class TvcoreFile
         //return finfo_file($finfo, $file_path);
     }
 
-    public static function deleteDirectoryContents(string $dir, array $relative_whitelisted_dirs = []): void
+    public static function deleteDirectoryContents(
+        string $parent_directory,
+        array  $relative_whitelisted_dirs = [],
+        string $module_name = 'tvcore'
+    ): void
     {
-        $whitelisted_dirs = [$dir];
+        $whitelisted_dirs = [$parent_directory];
 
         foreach ($relative_whitelisted_dirs as $whitelisted_dir) {
-            $whitelisted_dirs[] = $dir . $whitelisted_dir;
+            $whitelisted_dirs[] = $parent_directory . $whitelisted_dir;
         }
 
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(
-                $dir,
+                $parent_directory,
                 RecursiveDirectoryIterator::SKIP_DOTS
             ),
             RecursiveIteratorIterator::CHILD_FIRST
@@ -421,6 +425,8 @@ class TvcoreFile
                 $todo($fileinfo->getRealPath());
             }
         }
+
+        copy(_PS_MODULE_DIR_ . $module_name . '/index.php', $parent_directory . '/index.php');
     }
 
     public static function getSubDirectories(string $dir): array
@@ -489,15 +495,24 @@ class TvcoreFile
     /**
      * @param $path
      * @param $contents
-     * @return void
+     * @return true
      */
-    public static function addFile($path, $contents): void
+    public static function addFile($path, $contents): true
     {
         file_put_contents($path, $contents);
         chmod($path, 0644);
+
+        return true;
     }
 
-    public static function copyRemoteFileToServer($origin, $destination, $file_name, $file_type = 0)
+    /**
+     * @param $origin
+     * @param $destination
+     * @param $file_name
+     * @param $file_type
+     * @return false|string
+     */
+    public static function copyRemoteFileToServer($origin, $destination, $file_name, $file_type = 0): false|string
     {
         $extension = self::$reverse_file_types[$file_type];
         if ($extension) {
@@ -506,7 +521,7 @@ class TvcoreFile
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             $data = curl_exec($ch);
             curl_close($ch);
-            $destination .= $file_name . '.' . $extension;
+            $destination .= '/' . $file_name . '.' . $extension;
             $file = fopen($destination, "w+");
             fputs($file, $data);
             fclose($file);
@@ -516,5 +531,15 @@ class TvcoreFile
         }
 
         return false;
+    }
+
+    public static function unzip($file, $destination): void
+    {
+        $zip = new ZipArchive;
+        $result = $zip->open($file);
+        if ($result === TRUE) {
+            $zip->extractTo($destination);
+            $zip->close();
+        }
     }
 }
