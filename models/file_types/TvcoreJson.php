@@ -2,13 +2,12 @@
 /**
  * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
- * @copyright 2018 - 2024 © tivuno.com
+ * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 class TvcoreJson
 {
     public static function getDataFromRemoteJson(string $link)
@@ -61,29 +60,11 @@ class TvcoreJson
 
     /**
      * @param array $params
-     * @param int $id_tv_import_file
-     * @param string $file_link
-     * @param int $node_index
-     * @param int $file_type
-     * @param int $exclude_row
-     * @param string $delimiter
-     * @param int $api
-     * @param int $api_column
-     * @return string
+     * @return void
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAdminSideNode(
-        array $params,
-        /*int    $id_tv_import_file,
-        string $file_link,
-        int    $node_index,
-        int    $file_type = 1,
-        int    $exclude_row = 1,
-        string $delimiter = ';',
-        int    $api = 0,
-        int    $api_column = 2,*/
-    )
+    public static function getAdminSideNode(array $params)
     {
         require_once _PS_MODULE_DIR_ . 'tvimport/models/TvimportFile.php';
 
@@ -99,33 +80,27 @@ class TvcoreJson
                 require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreCsv.php';
 
                 $row = TvcoreCsv::getRowData($file_link, $node_index, $exclude_row, $delimiter);
-                //$fields = json_decode($file->available_fields);
-
-                //$file_contents = file_contents($file->file_link);
-
-                //$id_index = $file->settings->creation->api->identifier;
-                //$result['id'] = trim($row[ltrim($id_index, '//__col__')], '"');
 
                 $i = 0;
                 $node = '';
                 $available_fields = json_decode($file->available_fields, true);
                 ksort($available_fields);
                 foreach ($row as $key => $value) {
-                    $node .= '<div ' . 'class="element lvl_0 ' . '" ' . 'data-path="//col' . $key . '">'
-                        . '<div class="expander">-</div>';
-
-                    $node .= '<div class="tag">' . htmlentities('<') . '<span class="tag_name">' . $available_fields[$key] . '</span>' . htmlentities('>') . '</div>' . '<div class="content">' . trim($row[$i],
-                            '"') . '</div>' . '<div class="tag">' . htmlentities('</') . '<span class="tag_name">' . $available_fields[$key] . '</span>' . htmlentities('>') . '</div>';
-                    $node .= '</div>';
+                    $node .= '<div class="element lvl_0" data-path="//col' . $key . '"><div class="expander">-</div>' .
+                        '<div class="tag">' .
+                        htmlentities('<') .
+                        '<span class="tag_name">' . $available_fields[$key] . '</span>' .
+                        htmlentities('>') .
+                        '</div><div class="content">' . trim($row[$i], '"') . '</div><div class="tag">' .
+                        htmlentities('</') . '<span class="tag_name">' . $available_fields[$key] . '</span>' .
+                        htmlentities('>') . '</div></div>';
                     ++$i;
                 }
                 $result['node'] = $node;
                 if ($api == 1) {
-                    //tvimport::debug($row);
                     // Icecat
                     $result['id_api'] = pSQL(trim($row[$api_column], '"'));
                 }
-
             } elseif ($file_type == 1) {
                 // XML
                 require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreXml.php';

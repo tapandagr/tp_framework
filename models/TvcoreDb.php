@@ -1,15 +1,13 @@
 <?php
 /**
- * Cornelius - Core PrestaShop module
- *
+ * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
- * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ * @copyright 2018 - 2025 © tivuno.com
+ * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 class TvcoreDb
 {
     public static function execSql(string $file)
@@ -27,10 +25,8 @@ class TvcoreDb
 
     /**
      * It updates records in bulk on a table
-     *
      * @param string $table
      * @param array $row_arrays
-     *
      * @return bool
      */
     public static function update(string $table, array $row_arrays)
@@ -100,10 +96,8 @@ class TvcoreDb
 
     /**
      * It gets the last position used in a table, given some condition
-     *
      * @param string $table
      * @param bool|string $where
-     *
      * @return float|int|string
      */
     public static function _getHigherPosition(string $table, bool|string $where = true)
@@ -134,13 +128,10 @@ class TvcoreDb
 
     /**
      * It moves the orphan children from the deleted parent to the dummy one
-     *
      * @param string $table
      * @param string $parent_column
      * @param int|null $id_parent
-     *
      * @return true
-     *
      * @throws PrestaShopDatabaseException
      */
     public static function moveOrphanChildren(string $table, string $parent_column, ?int $id_parent)
@@ -168,12 +159,9 @@ class TvcoreDb
 
     /**
      * It fixes positions when we delete or move a sibling
-     *
      * @param string $table
      * @param string|int $where
-     *
      * @return true
-     *
      * @throws PrestaShopDatabaseException
      */
     public static function fixPositions(string $table, string|int $where = 1)
@@ -204,7 +192,6 @@ class TvcoreDb
     /**
      * It returns a record id based on a condition.
      * In case it does not exist, it returns false.
-     *
      * @param string $id
      * @param string $table
      * @param string $where

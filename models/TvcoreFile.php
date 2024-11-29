@@ -1,15 +1,13 @@
 <?php
 /**
- * Cornelius - Core PrestaShop module
+ * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
- * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ * @copyright 2018 - 2025 © tivuno.com
+ * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreJson.php';
 
 class TvcoreFile
@@ -17,16 +15,16 @@ class TvcoreFile
     protected static array $mime_types = [
         'application/json' => 'json', // json
         'application/octet-stream' => 'xlsx', // xlsx (?)
-        //"application/pdf", // pdf
-        //"application/msword", // MS Word
+        // "application/pdf", // pdf
+        // "application/msword", // MS Word
         'application/vnd.ms-excel' => 'xls', // MS Excel
         'application/vnd.ms-office' => 'xls', // xls
-        //"application/vnd.ms-powerpoint", // MS Powerpoint
-        //"application/vnd.oasis.opendocument.presentation", // odp
+        // "application/vnd.ms-powerpoint", // MS Powerpoint
+        // "application/vnd.oasis.opendocument.presentation", // odp
         'application/vnd.oasis.opendocument.spreadsheet' => 'ods', // ods
-        //"application/vnd.oasis.opendocument.text", // odt
+        // "application/vnd.oasis.opendocument.text", // odt
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx', // xlsx
-        //"application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
+        // "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
         'application/xml' => 'xml', // xml
         'application/zip' => 'zip', // zip
         'text/csv' => 'csv', // csv
@@ -115,9 +113,8 @@ class TvcoreFile
     public static function getAllCsvRecords(
         string $file_link,
         string $values_separated = ';',
-        int    $ignore = 0
-    ): array
-    {
+        int $ignore = 0
+    ) {
         ini_set('memory_limit', '8192M');
         $file_contents = Tools::file_get_contents($file_link);
         $lines = explode(PHP_EOL, $file_contents);
@@ -155,12 +152,11 @@ class TvcoreFile
 
     public static function getCsvRecords(
         string $file_link,
-        bool   $exclude_first_row = true,
+        bool $exclude_first_row = true,
         string $values_separated = ';',
-        int    $ignore = 0,
-        int    $step = 0
-    ): array
-    {
+        int $ignore = 0,
+        int $step = 0
+    ) {
         ini_set('memory_limit', '8192M');
         $file_contents = Tools::file_get_contents($file_link);
         $lines = explode(PHP_EOL, $file_contents);
@@ -212,10 +208,9 @@ class TvcoreFile
     public static function getCsvSlice(
         string $csv_path,
         string $values_separator,
-        int    $slice_size = 5,
-        int    $ignore = 1
-    ): array
-    {
+        int $slice_size = 5,
+        int $ignore = 1
+    ) {
         $records = self::getAllCsvRecords($csv_path, $values_separator, $ignore);
 
         return array_slice($records, 0, $slice_size);
@@ -259,11 +254,10 @@ class TvcoreFile
         return false;
     }
 
-    public static function getDirectoryFiles(
-        string      $dir_path,
+    public static function __getDirectoryFiles(
+        string $dir_path,
         string|bool $json_cache = false
-    )
-    {
+    ) {
         $files = TvcoreJson::getFile($json_cache);
         if ($files && !_PS_MODE_DEV_) {
             return $files;
@@ -331,12 +325,14 @@ class TvcoreFile
         return false;
     }
 
-    public static function getDirFiles(string $dir_path, array $exclude = [])
-    {
+    public static function getDirectoryFiles(
+        string $dir_path,
+        array $exclude = ['index.php', '.htaccess', '.DS_Store']
+    ) {
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(
                 $dir_path,
-                RecursiveDirectoryIterator::SKIP_DOTS
+                FilesystemIterator::SKIP_DOTS
             ),
             RecursiveIteratorIterator::CHILD_FIRST
         );
@@ -344,14 +340,12 @@ class TvcoreFile
         $result = [];
 
         foreach ($files as $fileinfo) {
-            if (!in_array($fileinfo->getFilename(), $exclude)) {
-                $name = $fileinfo->getBasename('.' . $fileinfo->getExtension());
-                $result[] = [
-                    'name' => $name,
-                    'path' => $fileinfo->getRealPath(),
-                ];
+            $file_path = $fileinfo->getRealPath();
+            $file_name = $fileinfo->getFilename();
+            if (!in_array($file_name, $exclude) && !str_contains($file_path, '~lock')) {
+                $result[] = $file_path;
             }
-            /*if ($fileinfo->isDir() && in_array($fileinfo->getRealPath(), $whitelisted_dirs)) {
+            /* if ($fileinfo->isDir() && in_array($fileinfo->getRealPath(), $whitelisted_dirs)) {
                 continue; // The children have already been deleted
             } elseif ($fileinfo->getFilename() == 'index.php'
                 && in_array($fileinfo->getPath(), $whitelisted_dirs)
@@ -361,19 +355,16 @@ class TvcoreFile
                 // Neither whitelisted directory, nor index.php of whitelisted => Delete everything
                 $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
                 $todo($fileinfo->getRealPath());
-            }*/
+            } */
         }
-
-        //exit(json_encode($result));
-        //$aek();
 
         return $result;
     }
 
-    public static function deleteDirectory(string $dir): void
+    public static function deleteDirectory(string $directory_path)
     {
-        self::deleteDirectoryContents($dir);
-        // rmdir($dir);
+        self::deleteDirectoryContents($directory_path);
+        rmdir($directory_path);
     }
 
     public static function getFileType(string $link)
@@ -387,17 +378,13 @@ class TvcoreFile
         }
 
         return $file_type;
-        //$finfo = finfo_open(FILEINFO_MIME_TYPE);
-
-        //return finfo_file($finfo, $file_path);
     }
 
     public static function deleteDirectoryContents(
         string $parent_directory,
-        array  $relative_whitelisted_dirs = [],
-        string $module_name = 'tvcore'
-    ): void
-    {
+        array $relative_whitelisted_dirs = [],
+        array $whitelisted_files = [],
+    ) {
         $whitelisted_dirs = [$parent_directory];
 
         foreach ($relative_whitelisted_dirs as $whitelisted_dir) {
@@ -413,23 +400,26 @@ class TvcoreFile
         );
 
         foreach ($files as $fileinfo) {
-            if ($fileinfo->isDir() && in_array($fileinfo->getRealPath(), $whitelisted_dirs)) {
-                continue; // The children have already been deleted
-            } elseif ($fileinfo->getFilename() == 'index.php'
-                && in_array($fileinfo->getPath(), $whitelisted_dirs)
+            $file_name = $fileinfo->getFilename();
+            $file_path = $fileinfo->getRealPath();
+            if ($fileinfo->isDir()) {
+                if (in_array($file_path, $whitelisted_dirs)) {
+                    continue; // The children have already been deleted
+                } else {
+                    rmdir($file_path);
+                }
+            } elseif (!in_array($file_name, $whitelisted_files)
+                && !str_contains($file_path, '~lock')
+                && in_array($file_path, $whitelisted_dirs)
             ) {
-                continue; // We do need the index.php file from whitelisted directory
+                continue; // We do need files such as index.php or .htaccess
             } else {
-                // Neither whitelisted directory, nor index.php of whitelisted => Delete everything
-                $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
-                $todo($fileinfo->getRealPath());
+                unlink($file_path); // Blacklisted file
             }
         }
-
-        copy(_PS_MODULE_DIR_ . $module_name . '/index.php', $parent_directory . '/index.php');
     }
 
-    public static function getSubDirectories(string $dir): array
+    public static function getSubDirectories(string $dir)
     {
         $result = [];
 
@@ -460,12 +450,13 @@ class TvcoreFile
      * @param string $module_name
      * @return void
      */
-    public static function mkdir(string $dir_path, string $module_name): void
+    public static function mkdir(string $dir_path, string $module_name)
     {
         if (!is_dir($dir_path)) {
-            mkdir($dir_path, 0775, true);
+            mkdir($dir_path, 0755, true);
             self::copy(_PS_MODULE_DIR_ . $module_name, $dir_path, 'index.php');
         }
+        @chmod($dir_path, 0755);
     }
 
     /**
@@ -474,7 +465,7 @@ class TvcoreFile
      * @param string $module_name
      * @return void
      */
-    public static function mkdirBulk(string $dir_path, array $dir_names, string $module_name): void
+    public static function mkdirBulk(string $dir_path, array $dir_names, string $module_name)
     {
         foreach ($dir_names as $dir_name) {
             $dir_path .= '/' . $dir_name;
@@ -482,7 +473,7 @@ class TvcoreFile
         }
     }
 
-    public static function copy(string $origin, string $destination, string $file_name): true
+    public static function copy(string $origin, string $destination, string $file_name)
     {
         $origin = $origin . '/' . $file_name;
         $destination = $destination . '/' . $file_name;
@@ -497,7 +488,7 @@ class TvcoreFile
      * @param $contents
      * @return true
      */
-    public static function addFile($path, $contents): true
+    public static function addFile($path, $contents)
     {
         file_put_contents($path, $contents);
         chmod($path, 0644);
@@ -509,10 +500,10 @@ class TvcoreFile
      * @param $origin
      * @param $destination
      * @param $file_name
-     * @param $file_type
+     * @param int $file_type
      * @return false|string
      */
-    public static function copyRemoteFileToServer($origin, $destination, $file_name, $file_type = 0): false|string
+    public static function copyRemoteFileToServer($origin, $destination, $file_name, int $file_type = 0)
     {
         $extension = self::$reverse_file_types[$file_type];
         if ($extension) {
@@ -522,7 +513,7 @@ class TvcoreFile
             $data = curl_exec($ch);
             curl_close($ch);
             $destination .= '/' . $file_name . '.' . $extension;
-            $file = fopen($destination, "w+");
+            $file = fopen($destination, 'w+');
             fputs($file, $data);
             fclose($file);
             chmod($destination, 0644);
@@ -533,11 +524,11 @@ class TvcoreFile
         return false;
     }
 
-    public static function unzip($file, $destination): void
+    public static function unzip($file, $destination)
     {
-        $zip = new ZipArchive;
+        $zip = new ZipArchive();
         $result = $zip->open($file);
-        if ($result === TRUE) {
+        if ($result === true) {
             $zip->extractTo($destination);
             $zip->close();
         }

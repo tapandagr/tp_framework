@@ -1,18 +1,16 @@
 <?php
 /**
- * Cornelius - Core PrestaShop module
- *
+ * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
- * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ * @copyright 2018 - 2025 © tivuno.com
+ * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 class TvcoreArray
 {
-    public static function arraySplice(&$array, $offset = 0, $length = 1)
+    public static function arraySplice(&$array, $offset = 0, $length = 1): array
     {
         $return = array_slice($array, $offset, $length, true);
 
@@ -25,7 +23,6 @@ class TvcoreArray
 
     /**
      * It converts a nested array to flat, preserving the keys
-     *
      * @credits https://stackoverflow.com/a/16855432
      * @param array $data
      * @return array
@@ -52,7 +49,7 @@ class TvcoreArray
         return $results;
     }
 
-    public static function nested($array)
+    public static function nested($array): void
     {
         $x = count($array) - 1;
         $temp = [];
@@ -61,7 +58,7 @@ class TvcoreArray
         }
     }
 
-    public static function getFlat(array $array)
+    public static function getFlat(array $array): array
     {
         $ritit = new RecursiveIteratorIterator(new RecursiveArrayIterator($array));
         $results = [];
@@ -80,9 +77,7 @@ class TvcoreArray
                 }
                 // $ritit->getSubIterator($depth)->key();
             }
-            //Tvimport::debug($path);
             $results[] = [
-                //json_encode($path),
                 'nested' => join('.', $path),
                 'flat' => join('_', $path),
             ];
@@ -91,7 +86,7 @@ class TvcoreArray
         return $results;
     }
 
-    public static function addRow(array &$array, $new_record, int $position)
+    public static function addRow(array &$array, $new_record, int $position): void
     {
         $array = array_slice($array, 0, $position, true) +
             $new_record +

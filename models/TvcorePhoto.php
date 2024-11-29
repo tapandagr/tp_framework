@@ -1,14 +1,13 @@
 <?php
 /**
- * Cornelius - Core PrestaShop module
+ * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
- * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ * @copyright 2018 - 2025 © tivuno.com
+ * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 class TvcorePhoto
 {
     public static function getPhoto(string $link)

@@ -1,14 +1,13 @@
 <?php
 /**
- * Cornelius - Core PrestaShop module
+ * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
- * @copyright 2018 - 2024 © tivuno.com
- * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
+ * @copyright 2018 - 2025 © tivuno.com
+ * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 class Tvcore extends Module
 {
     private $languages;
@@ -16,14 +15,14 @@ class Tvcore extends Module
     public function __construct()
     {
         $this->name = 'tvcore';
-        $this->tab = 'front_office_features';
-        $this->version = '1.0.4';
+        $this->tab = 'administration';
+        $this->version = '1.0.5';
         $this->author = 'tivuno.com';
         $this->ps_versions_compliancy = [
             'min' => '8.0.0',
             'max' => _PS_VERSION_,
         ];
-        $this->displayName = $this->l('Cornelius - Core PrestaShop module');
+        $this->displayName = $this->l('Core PrestaShop module - Cornelius');
         $this->description = $this->l('It adds useful hooks, functions and libraries to PrestaShop');
         $this->bootstrap = true;
 
@@ -383,7 +382,7 @@ class Tvcore extends Module
         }
 
         $token = Tools::hash('tvcore/cron');
-        
+
         $this->context->smarty->assign([
             'add_index_cron' => $this->context->link->getModuleLink(
                 'tvcore',

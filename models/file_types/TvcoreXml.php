@@ -2,13 +2,12 @@
 /**
  * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
- * @copyright 2018 - 2024 © tivuno.com
+ * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 class TvcoreXml
 {
     protected string $prefix = 'col';
@@ -54,7 +53,7 @@ class TvcoreXml
                 }
                 $dom = new DOMDocument();
                 $node = $reader->expand($dom);
-                $xpath = new DOMXpath($dom);
+                $xpath = new DOMXPath($dom);
                 return [
                     'dom' => $dom,
                     'node' => $node,
@@ -154,7 +153,7 @@ class TvcoreXml
      */
     public static function getPrettyPrintedNode(
         string $link,
-        int    $node_index = 0,
+        int $node_index = 0,
         string $tag = 'product')
     {
         $obj = self::getNodeObject($link, $node_index, $tag);
@@ -174,11 +173,12 @@ class TvcoreXml
 
         $result = '<div class="element lvl_0" data-path="/product"><div class="expander">-</div>' .
             '<div class="tag">&lt;<span class="tag_name">product</span>&gt;</div><div class="content">' .
-            '<div class="element lvl_1' . $file_rows[0]['class'] . '" ' . 'data-path="' . $file_rows[0]['path'] .
-            '">' . $file_rows[0]['expander'] .
-            '<div class="tag">&lt;<span class="tag_name">' . $file_rows[0]['name'] . '</span>&gt;</div><div class="content">';
+            '<div class="element lvl_1' . $file_rows[0]['class'] . '" data-path="' . $file_rows[0]['path'] . '">' .
+            $file_rows[0]['expander'] .
+            '<div class="tag">&lt;<span class="tag_name">' . $file_rows[0]['name'] .
+            '</span>&gt;</div><div class="content">';
 
-        for ($i = 1; $i < sizeof($file_rows); $i++) {
+        for ($i = 1; $i < sizeof($file_rows); ++$i) {
             $prev = $file_rows[$i - 1];
 
             if ($prev['cdata'] == 1) {
@@ -233,7 +233,7 @@ class TvcoreXml
     public static function getRowData($file_link, $index)
     {
         require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreRecursiveDOMIterator.php';
-        $dom = new DOMDocument; // create new DOMDocument instance
+        $dom = new DOMDocument('1.0', 'utf-8');
         $dom->load($file_link);       // load DOMDocument with XML data
         $xpath = new DOMXPath($dom);
         $dit = new RecursiveIteratorIterator(
@@ -274,13 +274,13 @@ class TvcoreXml
 
         $result = '<div class="element lvl_0" data-path="/product"><div class="expander">-</div>' .
             '<div class="tag">&lt;<span class="tag_name">product</span>&gt;</div><div class="content">' .
-            '<div class="element lvl_1' . ' ' . implode(
+            '<div class="element lvl_1 ' . implode(
                 ' ',
                 $classes
-            ) . '" ' . 'data-path="' . $file_rows[0]['path'] . '">' . $expander .
+            ) . '" data-path="' . $file_rows[0]['path'] . '">' . $expander .
             '<div class="tag">&lt;<span class="tag_name">' . $file_rows[0]['name'] . '</span>&gt;</div><div class="content">';
 
-        for ($i = 1; $i < sizeof($file_rows); $i++) {
+        for ($i = 1; $i < sizeof($file_rows); ++$i) {
             $prev = $file_rows[$i - 1];
             $classes = [];
             $expander = '';
@@ -311,14 +311,11 @@ class TvcoreXml
                     'data-path="' . $file_rows[$i]['path'] . '">' . $expander .
                     '<div class="tag">&lt;<span class="tag_name">' . $file_rows[$i]['name'] . '</span>&gt;</div><div class="content">';
             } elseif ($file_rows[$i]['depth'] == $prev['depth'] + 1) {
-                //$classes = [];
                 // We save to the open array
                 $open[] = '</div><div class="tag">&lt;/<span class="tag_name">' . $prev['name'] . '</span>&gt;</div></div>';
 
-                $result .= '<div class="element lvl_' . $file_rows[$i]['depth'] . ' ' . implode(
-                        ' ',
-                        $classes
-                    ) . '" ' . 'data-path="' . $file_rows[$i]['path'] . '">' . $expander .
+                $result .= '<div class="element lvl_' . $file_rows[$i]['depth'] . ' ' .
+                    implode(' ', $classes) . '" data-path="' . $file_rows[$i]['path'] . '">' . $expander .
                     '<div class="tag">&lt;<span class="tag_name">' . $file_rows[$i]['name'] . '</span>&gt;</div><div class="content">';
             } else {
                 $result .= $value . '</div><div class="tag">&lt;/<span class="tag_name">' . $prev['name'] . '</span>&gt;</div></div>';
@@ -331,10 +328,8 @@ class TvcoreXml
                     unset($open[$last]);
                 }
 
-                $result .= '<div class="element lvl_' . $file_rows[$i]['depth'] . ' ' . implode(
-                        ' ',
-                        $classes
-                    ) . '" ' . 'data-path="' . $file_rows[$i]['path'] . '">' . $expander .
+                $result .= '<div class="element lvl_' . $file_rows[$i]['depth'] . ' ' .
+                    implode(' ', $classes) . '" data-path="' . $file_rows[$i]['path'] . '">' . $expander .
                     '<div class="tag">&lt;<span class="tag_name">' . $file_rows[$i]['name'] . '</span>&gt;</div><div class="content">';
             }
         }
@@ -370,10 +365,9 @@ class TvcoreXml
 
     public static function getNodesCount(string $link, string $tag, string $filter = '')
     {
-        //$count = TvimportCacheAdmin::getNodesCount($link, $tag, $filter);
         $count = 0;
         $dom = new DOMDocument();
-        $xpath = new DOMXpath($dom);
+        $xpath = new DOMXPath($dom);
         $reader = new XMLReader();
         $reader->open($link);
         while ($reader->read()) {

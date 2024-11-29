@@ -1,7 +1,6 @@
 <?php
 /**
  * Cornelius - Core PrestaShop module
- *
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
@@ -14,6 +13,7 @@ class TvcoreAddIndexModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
     {
+        echo Tools::hash('tvcore/cron');
         if (!Tools::isPHPCLI() && Tools::hash('tvcore/cron') != Tools::getValue('token')) {
             exit('Not authorized');
         }

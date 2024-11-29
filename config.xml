@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
     <name>tvcore</name>
-    <displayName><![CDATA[Cornelius - Core PrestaShop module]]></displayName>
-    <version><![CDATA[1.0.4]]></version>
+    <displayName><![CDATA[Core PrestaShop module - Cornelius]]></displayName>
+    <version><![CDATA[1.0.5]]></version>
     <description><![CDATA[It adds useful hooks, functions and libraries to PrestaShop]]></description>
     <author><![CDATA[tivuno.com]]></author>
-    <tab><![CDATA[front_office_features]]></tab>
+    <tab><![CDATA[administration]]></tab>
     <is_configurable>1</is_configurable>
     <need_instance>1</need_instance>
 </module>

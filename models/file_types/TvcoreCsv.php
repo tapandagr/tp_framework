@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Core PrestaShop module - Cornelius
+ * @author    tivuno.com <hi@tivuno.com>
+ * @copyright 2018 - 2025 © tivuno.com
+ * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class TvcoreCsv
 {
     public static function getRowData(
@@ -10,21 +18,21 @@ class TvcoreCsv
     ) {
         $file_contents = file_get_contents($file_link);
         $lines = explode(PHP_EOL, $file_contents);
-        if ($exclude_rows == 0) {
+        $node_index += $exclude_rows;
 
-        } else {
-            if (isset($lines[$node_index])) {
-                $row = explode($delimiter, $lines[$node_index]);
-                if (sizeof($row) == 1) {
-                    if ($delimiter == ';') {
-                        $delimiter = ',';
-                    } else {
-                        $delimiter = ';';
-                    }
+        if (isset($lines[$node_index])) {
+            $row = explode($delimiter, $lines[$node_index]);
+            if (sizeof($row) == 1) {
+                if ($delimiter == ';') {
+                    $delimiter = ',';
+                } else {
+                    $delimiter = ';';
                 }
-                return explode($delimiter, $lines[$node_index]);
             }
+            return explode($delimiter, $lines[$node_index]);
         }
+
+        return false;
     }
 
     public static function getRowsCount(string $file_path, int $exclude_rows = 0): int

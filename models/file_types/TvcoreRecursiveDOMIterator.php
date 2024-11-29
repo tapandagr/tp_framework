@@ -1,18 +1,22 @@
 <?php
-
+/**
+ * Core PrestaShop module - Cornelius
+ * @author    tivuno.com <hi@tivuno.com>
+ * @copyright 2018 - 2025 © tivuno.com
+ * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
+ */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class TvcoreRecursiveDOMIterator implements RecursiveIterator
 {
-    /**
-     * Current Position in DOMNodeList
-     * @var Integer
-     */
-    protected $_position;
+    protected int $_position;
 
     /**
      * The DOMNodeList with all children to iterate over
      * @var DOMNodeList
      */
-    protected $_nodeList;
+    protected DOMNodeList $_nodeList;
 
     /**
      * @param DOMNode $domNode
@@ -44,7 +48,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
 
     /**
      * Returns if an iterator can be created for the current entry.
-     * @return Boolean
+     * @return bool
      */
     public function hasChildren()
     {
@@ -53,7 +57,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
 
     /**
      * Returns the current position
-     * @return Integer
+     * @return int
      */
     public function key()
     {
@@ -66,7 +70,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
      */
     public function next()
     {
-        $this->_position++;
+        ++$this->_position;
     }
 
     /**
@@ -80,7 +84,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
 
     /**
      * Checks if current position is valid
-     * @return Boolean
+     * @return bool
      */
     public function valid()
     {
