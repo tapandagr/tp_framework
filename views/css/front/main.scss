@@ -1,6 +1,7 @@
-// @import '../../../libraries/bootstrap/scss/bootstrap.scss';
-@import 'scss/_variables.scss';
-@import 'scss/_loader';
+@import '../../../libraries/bootstrap/scss/bootstrap.scss';
+@import 'scss/variables';
+@import 'scss/loader';
+@import 'scss/prestashop';
 /* --- Theme styling below --- */
 .mr_1 {
     margin-right: $margin_1;

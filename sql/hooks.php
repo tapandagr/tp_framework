@@ -11,6 +11,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 return [
+    'displayAdminAfterBodyOpeningTag',
     'displayHeader',
     'displayAfterBodyOpeningTag',
 ];

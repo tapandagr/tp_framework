@@ -46,4 +46,14 @@ class TvcoreCsv
 
         return sizeof($lines) - $exclude_rows;
     }
+
+    public static function createFile(string $destination, array $csv_data): void
+    {
+        $fp = fopen($destination, 'w');
+        foreach ($csv_data as $line) {
+            fputcsv($fp, $line, ',');
+        }
+        fclose($fp);
+        @chmod($destination, 0644);
+    }
 }

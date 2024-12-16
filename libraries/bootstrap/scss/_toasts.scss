@@ -71,3 +71,11 @@
   padding: var(--#{$prefix}toast-padding-x);
   word-wrap: break-word;
 }
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: $white;
+  width: 2rem;
+  height: 45px;
+}

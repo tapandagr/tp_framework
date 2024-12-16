@@ -12,6 +12,10 @@ class Tvcore extends Module
 {
     private $languages;
 
+    protected static array $templates = [
+        'admin_header' => _PS_ADMIN_DIR_ . '/themes/default/template/header.tpl',
+    ];
+
     public function __construct()
     {
         $this->name = 'tvcore';
@@ -36,12 +40,70 @@ class Tvcore extends Module
         echo '<pre>' . $string . '</pre>';
     }
 
-    public function install()
+    protected static function installAdminHeaderTemplate(): bool
+    {
+        $handle = $result = @file(self::$templates['admin_header']);
+        $i = 0;
+        foreach ($handle as $line) {
+            if (str_contains($line, '{* begin  HEADER *}')) {
+                $result[$i] = "    {hook h='displayAdminAfterBodyOpeningTag'}" . PHP_EOL . $line;
+                break;
+            }
+            ++$i;
+        }
+        file_put_contents(self::$templates['admin_header'], implode('', $result));
+        @chmod(self::$templates['admin_header'], 0644);
+
+        return true;
+    }
+
+    protected static function installModifiedTemplates(): bool
+    {
+        return self::installAdminHeaderTemplate();
+    }
+
+    protected static function uninstallModifiedTemplates(): bool
+    {
+        return self::uninstallAdminHeaderTemplate();
+    }
+
+    protected static function uninstallAdminHeaderTemplate(): bool
+    {
+        $handle = $result = @file(self::$templates['admin_header']);
+        $i = 0;
+        foreach ($handle as $line) {
+            if (str_contains($line, 'displayAdminAfterBodyOpeningTag')) {
+                unset($result[$i]);
+                break;
+            }
+            ++$i;
+        }
+        file_put_contents(self::$templates['admin_header'], implode('', $result));
+        @chmod(self::$templates['admin_header'], 0644);
+
+        return true;
+    }
+
+
+    public function install(): bool
     {
         return parent::install() && self::registerHooks($this->name);
     }
 
-    public static function registerHooks(string $module_dir)
+    public function enable($force_all = false): bool
+    {
+        return parent::enable($force_all)
+            && self::registerHooks($this->name)
+            && self::installModifiedTemplates();
+    }
+
+    public function disable($force_all = false): bool
+    {
+        return parent::disable($force_all)
+            && self::uninstallModifiedTemplates();
+    }
+
+    public static function registerHooks(string $module_dir): bool
     {
         $module_obj = Module::getInstanceByName($module_dir);
         if (Validate::isLoadedObject($module_obj)) {
@@ -57,7 +119,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public function hookDisplayHeader()
+    public function hookDisplayHeader(): void
     {
         $this->context->controller->registerStylesheet(
             'modules-tvcore-fontawesome',
@@ -83,12 +145,17 @@ class Tvcore extends Module
         );
     }
 
-    public function hookDisplayAfterBodyOpeningTag()
+    public function hookDisplayAdminAfterBodyOpeningTag(): string
+    {
+        return $this->fetch('module:' . $this->name . '/views/templates/hooks/displayAdminAfterBodyOpeningTag.tpl');
+    }
+
+    public function hookDisplayAfterBodyOpeningTag(): string
     {
         return $this->fetch('module:' . $this->name . '/views/templates/hooks/displayAfterBodyOpeningTag.tpl');
     }
 
-    public static function installSettings(array $settings)
+    public static function installSettings(array $settings): bool
     {
         foreach ($settings as $key => $value) {
             if (isset($value['default_value'])) {
@@ -99,7 +166,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function uninstallSettings(array $settings)
+    public static function uninstallSettings(array $settings): bool
     {
         foreach ($settings as $key => $key) {
             Configuration::deleteByName($key);
@@ -108,7 +175,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public function getSettingsWithValues(array $settings)
+    public function getSettingsWithValues(array $settings): array
     {
         $values = [];
         foreach ($settings as $setting) {
@@ -131,7 +198,7 @@ class Tvcore extends Module
         return $values;
     }
 
-    public static function installTables(string $module_dir)
+    public static function installTables(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/tables.php';
         if (is_file($file)) {
@@ -151,7 +218,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function installTableOverrides(string $module_dir)
+    public static function installTableOverrides(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/table_overrides.php';
         if (is_file($file)) {
@@ -171,7 +238,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function installAdditionalTables(string $module_dir)
+    public static function installAdditionalTables(string $module_dir): bool
     {
         $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
         if (is_dir($additional_tables)) {
@@ -192,7 +259,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function uninstallTables(string $module_dir)
+    public static function uninstallTables(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/tables.php';
         if (is_file($file)) {
@@ -212,7 +279,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function uninstallTableOverrides(string $module_dir)
+    public static function uninstallTableOverrides(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/table_overrides.php';
         if (is_file($file)) {
@@ -232,7 +299,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function uninstallAdditionalTables(string $module_dir)
+    public static function uninstallAdditionalTables(string $module_dir): bool
     {
         $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
         if (is_dir($additional_tables)) {
@@ -257,7 +324,7 @@ class Tvcore extends Module
      * @param string $module_dir
      * @return true
      */
-    public static function importData(string $module_dir)
+    public static function importData(string $module_dir): bool
     {
         require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreString.php';
 
@@ -305,7 +372,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function installTabs(string $module_dir)
+    public static function installTabs(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/tabs.php';
         if (is_file($file)) {
@@ -341,7 +408,7 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function uninstallTabs(string $module_dir)
+    public static function uninstallTabs(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/tabs.php';
         if (is_file($file)) {
@@ -358,13 +425,13 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function debug(array $array)
+    public static function debug(array $array): void
     {
         echo '<pre>' . print_r($array, true) . '</pre>';
         exit(rand());
     }
 
-    public function getContent()
+    public function getContent(): string
     {
         $output = '';
 
@@ -409,7 +476,7 @@ class Tvcore extends Module
         return $output . $this->displayForm() . $this->display(__FILE__, 'views/templates/admin/configuration.tpl');
     }
 
-    public function displayForm()
+    public function displayForm(): string
     {
         $form = [
             'form' => [
