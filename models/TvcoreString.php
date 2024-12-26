@@ -5,9 +5,6 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
 class TvcoreString
 {
     /**
@@ -323,5 +320,29 @@ class TvcoreString
         $dash_str .= $password;
 
         return $dash_str;
+    }
+
+    public static function linkRewriteToCamelCase($link_rewrite): string
+    {
+        $result = '';
+        $explode = explode('-', $link_rewrite);
+        foreach ($explode as $value) {
+            $result .= ucfirst($value);
+        }
+
+        return $result;
+    }
+
+    public static function getUrlParameters(): array
+    {
+        $string = $_SERVER['QUERY_STRING'];
+        $result = [];
+        $explode = explode('&', $string);
+        foreach ($explode as $value) {
+            $value = explode('=', $value);
+            $result[$value[0]] = $value[1];
+        }
+
+        return $result;
     }
 }

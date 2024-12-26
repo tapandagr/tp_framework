@@ -5,11 +5,6 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-require_once _PS_MODULE_DIR_ . 'tvcore/models/file_types/TvcoreJson.php';
-
 class TvcoreFile
 {
     protected static array $mime_types = [
@@ -361,10 +356,14 @@ class TvcoreFile
         return $result;
     }
 
-    public static function deleteDirectory(string $directory_path)
+    public static function deleteDirectory(string $directory_path): bool
     {
-        self::deleteDirectoryContents($directory_path);
-        rmdir($directory_path);
+        if (is_dir($directory_path)) {
+            self::deleteDirectoryContents($directory_path);
+            rmdir($directory_path);
+        }
+
+        return true;
     }
 
     public static function getFileType(string $link)
@@ -463,14 +462,16 @@ class TvcoreFile
      * @param string $dir_path
      * @param array $dir_names
      * @param string $module_name
-     * @return void
+     * @return string
      */
-    public static function mkdirBulk(string $dir_path, array $dir_names, string $module_name)
+    public static function mkdirBulk(string $dir_path, array $dir_names, string $module_name): string
     {
         foreach ($dir_names as $dir_name) {
             $dir_path .= '/' . $dir_name;
             TvcoreFile::mkdir($dir_path, $module_name);
         }
+
+        return $dir_path;
     }
 
     public static function copy(string $origin, string $destination, string $file_name)
@@ -524,6 +525,38 @@ class TvcoreFile
         return false;
     }
 
+    public static function pullRemoteFile(
+        string $link,
+        string $tmp_destination,
+        string $final_destination,
+        string $file_name
+    ): false|array {
+        $origin = $link;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $origin);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        $tmp_destination .= '/' . time();
+        $file = fopen($tmp_destination, 'w+');
+        fputs($file, $data);
+        fclose($file);
+        chmod($tmp_destination, 0644);
+        $mime = self::getMimeType($tmp_destination);
+        if ($mime) {
+            $extension = self::$mime_types[$mime];
+            $final_destination .= '/' . $file_name . '.' . $extension;
+            rename($tmp_destination, $final_destination);
+            return [
+                'path' => $final_destination,
+                'extension' => $extension,
+            ];
+        }
+
+        unlink($tmp_destination);
+        return false;
+    }
+
     public static function unzip($file, $destination)
     {
         $zip = new ZipArchive();
@@ -531,6 +564,30 @@ class TvcoreFile
         if ($result === true) {
             $zip->extractTo($destination);
             $zip->close();
+        }
+    }
+
+    public static function relocate($source, $target): void
+    {
+        if (is_dir($source)) {
+            @mkdir($target);
+            $d = dir($source);
+            while (FALSE !== ($entry = $d->read())) {
+                if ($entry == '.' || $entry == '..') {
+                    continue;
+                }
+                $Entry = $source . '/' . $entry;
+                if (is_dir($Entry)) {
+                    self::relocate($Entry, $target . '/' . $entry);
+                    continue;
+                }
+                copy($Entry, $target . '/' . $entry);
+            }
+
+            $d->close();
+            self::deleteDirectory($source);
+        } else {
+            copy($source, $target);
         }
     }
 }

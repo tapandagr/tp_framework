@@ -5,9 +5,6 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
 class TvcoreXml
 {
     protected string $prefix = 'col';
@@ -42,7 +39,7 @@ class TvcoreXml
     private static function getNodeObject(string $link, int $node_index, string $tag)
     {
         $reader = new XMLReader();
-        $reader->open($link);
+        $reader->open($link, null, LIBXML_NOCDATA);
 
         $index = 1;
         while ($reader->read()) {
@@ -70,18 +67,21 @@ class TvcoreXml
 
         if ($node->childElementCount > 0) {
             $has_children = 1;
-        }
 
-        if ($node->childNodes[0]->nodeType == 4) {
-            $cdata = 1;
+            if ($node->childNodes[0]->nodeType == 4) {
+                $cdata = 1;
+            }
         }
 
         $size = 2 * strlen($node->nodeName) + 5 + strlen($node->nodeValue)
             + $cdata + 12;
 
         $class = $expander = '';
-        if ($size <= 60 && !$has_children) {
-            $class = ' short';
+        if ($size <= 45
+            && !$has_children
+            && $node->nodeName != 'barcode'
+        ) {
+            $class = ' short short-' . $size;
         } else {
             $expander = '<div class="expander">-</div>';
         }
@@ -97,6 +97,28 @@ class TvcoreXml
             'class' => $class,
             'expander' => $expander,
         ];
+    }
+
+    public static function toJson(string $xml_path, string $json_path)
+    {
+        $xml = simplexml_load_file(
+            $xml_path,
+            'SimpleXMLElement',
+            LIBXML_NOCDATA
+        );
+        $arr = (array) $xml;
+        $json_file = $json_path;
+        $json_string = str_replace(
+            [
+                '\n            ',
+            ],
+            [
+                '',
+            ],
+            json_encode($arr, JSON_UNESCAPED_UNICODE)
+        );
+
+        file_put_contents($json_file, $json_string);
     }
 
     public function setPrefix($prefix)
@@ -145,23 +167,22 @@ class TvcoreXml
     }
 
     /**
-     * @param string $file_link
-     * @param string $data_path
+     * @param string $link
+     * @param string $node_tag
      * @param int $node_index
-     * @return void
-     * @throws Exception
+     * @return string
      */
     public static function getPrettyPrintedNode(
         string $link,
+        string $node_tag = 'product',
         int $node_index = 0,
-        string $tag = 'product')
-    {
-        $obj = self::getNodeObject($link, $node_index, $tag);
+    ) {
+        $obj = self::getNodeObject($link, $node_index, $node_tag);
+        //var_dump($obj);
         require_once __DIR__ . '/TvcoreRecursiveDOMIterator.php';
         $dit = new RecursiveIteratorIterator(
             new TvcoreRecursiveDOMIterator($obj['node']),
             RecursiveIteratorIterator::SELF_FIRST);
-
         $i = 0;
         foreach ($dit as $node) {
             if ($node->nodeType === XML_ELEMENT_NODE) {
@@ -170,7 +191,7 @@ class TvcoreXml
                 ++$i;
             }
         }
-
+        //print('<pre>' . print_r($file_rows, true) . '</pre>');
         $result = '<div class="element lvl_0" data-path="/product"><div class="expander">-</div>' .
             '<div class="tag">&lt;<span class="tag_name">product</span>&gt;</div><div class="content">' .
             '<div class="element lvl_1' . $file_rows[0]['class'] . '" data-path="' . $file_rows[0]['path'] . '">' .
@@ -223,6 +244,8 @@ class TvcoreXml
             $value = $last_record['value'];
         }
 
+        //$value = '&#x3C;![CDATA[' . $last_record['value'] . ']]&#x3E;';
+
         $result .= $value . '</div><div class="tag">&lt;/<span class="tag_name">' . $last_record['name'] . '</span>&gt;</div></div>';
 
         $result .= '</div><div class="tag">&lt;<span class="tag_name">/product</span>&gt;</div></div>';
@@ -266,8 +289,10 @@ class TvcoreXml
         $classes = $open = [];
         $expander = '';
 
-        if ($file_rows[0]['size'] <= 60 && $file_rows[0]['has_children'] == 0) {
-            $classes[] = 'short';
+        if ($file_rows[0]['size'] <= 45
+            && $file_rows[0]['has_children'] == 0
+            && $file_rows[0]['name'] != 'barcode') {
+            $classes[] = 'short size-' . $file_rows[$i]['size'];
         } else {
             $expander .= '<div class="expander">-</div>';
         }
@@ -292,8 +317,10 @@ class TvcoreXml
                 }
             }
 
-            if ($file_rows[$i]['size'] <= 60 && $file_rows[$i]['has_children'] == 0) {
-                $classes[] = 'short';
+            if ($file_rows[$i]['size'] <= 45
+                && $file_rows[$i]['has_children'] == 0
+                && $file_rows[$i]['name'] != 'barcode') {
+                $classes[] = 'short size-' . $file_rows[$i]['size'];
             } else {
                 $expander .= '<div class="expander">-</div>';
             }
@@ -380,5 +407,31 @@ class TvcoreXml
         }
 
         return $count;
+    }
+
+    public static function createFilteredData(
+        string $feed_path,
+        string $node_path,
+        string $filter,
+        string $destination
+    ): void {
+        $reader = new XMLReader();
+        $dom = new DOMDocument();
+        $reader->open($feed_path);
+        $filtered_doc = new DOMDocument('1.0', 'utf-8');
+        $root = $filtered_doc->createElement('root');
+        while ($reader->read()) {
+            if ($reader->nodeType == \XMLReader::ELEMENT and $reader->name == $node_path) {
+                $node = $reader->expand($dom);
+                if ((new DOMXPath($dom))->query($filter, $node)->length > 0) {
+                    $tempNode = $filtered_doc->importNode($node, true);
+                    $root->appendChild($tempNode);
+                }
+            }
+        }
+        $reader->close();
+        $filtered_doc->appendChild($root);
+        $filtered_doc->save($destination);
+        // $data_filtered_xml_path = getcwd() . '/uploads/' . $profile . '/data_filtered.xml';
     }
 }

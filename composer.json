@@ -5,6 +5,7 @@
     "require": {
         "minwork/array": "^1.13",
         "spatie/array-to-xml": "^3.2",
-        "league/csv": "^9.0"
+        "league/csv": "^9.0",
+        "select2/select2": "^4.0"
     }
 }

@@ -5,9 +5,6 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
 class TvcoreRecursiveDOMIterator implements RecursiveIterator
 {
     protected int $_position;
@@ -30,18 +27,18 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
 
     /**
      * Returns the current DOMNode
-     * @return DOMNode
+     * @return DOMNameSpaceNode|DOMElement|DOMNode|null
      */
-    public function current()
+    public function current(): DOMNameSpaceNode|DOMElement|null|DOMNode
     {
         return $this->_nodeList->item($this->_position);
     }
 
     /**
      * Returns an iterator for the current iterator entry
-     * @return RecursiveDOMIterator
+     * @return RecursiveIterator|null
      */
-    public function getChildren()
+    public function getChildren(): ?RecursiveIterator
     {
         return new self($this->current());
     }
@@ -50,7 +47,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
      * Returns if an iterator can be created for the current entry.
      * @return bool
      */
-    public function hasChildren()
+    public function hasChildren(): bool
     {
         return $this->current()->hasChildNodes();
     }
@@ -59,7 +56,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
      * Returns the current position
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->_position;
     }
@@ -68,7 +65,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
      * Moves the current position to the next element.
      * @return void
      */
-    public function next()
+    public function next(): void
     {
         ++$this->_position;
     }
@@ -77,7 +74,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
      * Rewind the Iterator to the first element
      * @return void
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->_position = 0;
     }
@@ -86,7 +83,7 @@ class TvcoreRecursiveDOMIterator implements RecursiveIterator
      * Checks if current position is valid
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         return $this->_position < $this->_nodeList->length;
     }

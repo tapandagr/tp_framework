@@ -3,7 +3,7 @@
  * Core PrestaShop module - Cornelius
  * @author    tivuno.com <hi@tivuno.com>
  * @copyright 2018 - 2025 © tivuno.com
- * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
+ * @license   https://tivuno.com/el/blog/nea-tis-epicheirisis/apli-adeia
  */
 if (!defined('_PS_VERSION_')) {
     exit;
