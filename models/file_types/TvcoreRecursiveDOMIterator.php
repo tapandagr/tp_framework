@@ -5,6 +5,9 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class TvcoreRecursiveDOMIterator implements RecursiveIterator
 {
     protected int $_position;
