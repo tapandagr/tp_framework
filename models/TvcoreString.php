@@ -310,8 +310,9 @@ class TvcoreString
         }
 
         $all = str_split($all);
-        for ($i = 0; $i < $length - count($sets); ++$i)
+        for ($i = 0; $i < $length - count($sets); ++$i) {
             $password .= $all[array_rand($all)];
+        }
 
         $password = str_shuffle($password);
 
