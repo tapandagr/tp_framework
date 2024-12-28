@@ -131,7 +131,7 @@ class TvcoreString
      * @param bool $case_sensitive Performs case-sensitive matching, default to false
      * @return string
      */
-    public static function leftTrim($string, string $needle, bool $case_sensitive = false)
+    public static function leftTrim($string, string $needle, bool $case_sensitive = false): string
     {
         $function = $case_sensitive ? 'strpos' : 'stripos';
         if ($function($string, $needle) === 0) {
@@ -344,5 +344,10 @@ class TvcoreString
         }
 
         return $result;
+    }
+
+    public static function hash(string $string, string $salt): string
+    {
+        return hash_hmac('sha256', $string, $salt);
     }
 }

@@ -6,6 +6,11 @@
         "minwork/array": "^1.13",
         "spatie/array-to-xml": "^3.2",
         "league/csv": "^9.0",
-        "select2/select2": "^4.0"
+        "select2/select2": "^4.0",
+        "fortawesome/font-awesome": "^6.7",
+        "twbs/bootstrap": "^5.3",
+        "spatie/simple-excel": "^3.7",
+        "faisalman/simple-excel-php": "^0.3.15",
+        "shuchkin/simplexlsx": "^1.1"
     }
 }

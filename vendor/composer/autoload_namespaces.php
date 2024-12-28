@@ -6,4 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'SimpleExcel\\' => array($vendorDir . '/faisalman/simple-excel-php/src'),
 );

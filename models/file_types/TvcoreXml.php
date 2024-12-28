@@ -416,22 +416,23 @@ class TvcoreXml
         string $destination
     ): void {
         $reader = new XMLReader();
-        $dom = new DOMDocument();
         $reader->open($feed_path);
-        $filtered_doc = new DOMDocument('1.0', 'utf-8');
-        $root = $filtered_doc->createElement('root');
+        $targetDoc = new DOMDocument('1.0', 'utf-8');
+        $targetDoc->loadXML('<root/>');
+        $targetDoc->preserveWhiteSpace = false;
+        $targetDoc->formatOutput = true;
         while ($reader->read()) {
             if ($reader->nodeType == \XMLReader::ELEMENT and $reader->name == $node_path) {
-                $node = $reader->expand($dom);
-                if ((new DOMXPath($dom))->query($filter, $node)->length > 0) {
-                    $tempNode = $filtered_doc->importNode($node, true);
-                    $root->appendChild($tempNode);
+                $node = $targetDoc->importNode($reader->expand($targetDoc), true);
+                $xpath = new DOMXPath($targetDoc);
+                if ($xpath->query($filter, $node)->length > 0) {
+                    $targetDoc->documentElement->appendChild(
+                        $targetDoc->importNode($node, TRUE)
+                    );
                 }
             }
         }
-        $reader->close();
-        $filtered_doc->appendChild($root);
-        $filtered_doc->save($destination);
-        // $data_filtered_xml_path = getcwd() . '/uploads/' . $profile . '/data_filtered.xml';
+
+        $targetDoc->save($destination);
     }
 }

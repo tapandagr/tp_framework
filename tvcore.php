@@ -13,7 +13,7 @@ class Tvcore extends Module
     private $languages;
 
     protected static array $templates = [
-        'admin_header' => _PS_ADMIN_DIR_ . '/themes/default/template/header.tpl',
+        'admin_header' => '/themes/default/template/header.tpl',
     ];
 
     public function __construct()

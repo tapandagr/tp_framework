@@ -11,32 +11,33 @@ if (!defined('_PS_VERSION_')) {
 
 class TvcoreAddIndexModuleFrontController extends ModuleFrontController
 {
-    public function postProcess()
+    public function postProcess(): void
     {
-        echo Tools::hash('tvcore/cron');
+        header('Content-Type: application/json');
+        $result = [];
+        if (_PS_MODE_DEV_) {
+            $result['token'] = Tools::hash('tvcore/cron');
+        }
         if (!Tools::isPHPCLI() && Tools::hash('tvcore/cron') != Tools::getValue('token')) {
-            exit('Not authorized');
-        }
+            $result['message'] = $this->module->l('Not authorized to execute this command');
+        } else {
+            $module_name = Tools::getValue('module_name');
+            $module = Module::getInstanceByName($module_name);
+            if (Validate::isLoadedObject($module) && Module::isEnabled($module_name)) {
+                require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
+                $module_dir = _PS_MODULE_DIR_ . $module_name;
+                $directories = TvcoreFile::getSubDirectories($module_dir);
 
-        $module_name = Tools::getValue('module_name');
+                foreach ($directories as $dir) {
+                    TvcoreFile::copy($module_dir, $dir, 'index.php');
+                }
 
-        // echo '<br>' . Tools::hash('tvcore/cron');
-        // echo '<br>' . Tools::getValue('token');
-
-        $module = Module::getInstanceByName($module_name);
-
-        if (Validate::isLoadedObject($module) && Module::isEnabled($module_name)) {
-            require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
-            $module_dir = _PS_MODULE_DIR_ . $module_name;
-            $directories = TvcoreFile::getSubDirectories($module_dir);
-
-            foreach ($directories as $dir) {
-                TvcoreFile::copy($module_dir, $dir, 'index.php');
+                $result['message'] = $this->module->l('The index.php has been copied');
+            } else {
+                $result['message'] = $this->module->l('The module has not been found');
             }
-
-            exit('The index.php has been copied');
         }
 
-        exit('Module not found');
+        exit(json_encode($result, JSON_UNESCAPED_UNICODE));
     }
 }
