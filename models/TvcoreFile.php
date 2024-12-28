@@ -575,7 +575,7 @@ class TvcoreFile
         if (is_dir($source)) {
             @mkdir($target);
             $d = dir($source);
-            while (FALSE !== ($entry = $d->read())) {
+            while (false !== ($entry = $d->read())) {
                 if ($entry == '.' || $entry == '..') {
                     continue;
                 }

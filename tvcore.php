@@ -83,8 +83,7 @@ class Tvcore extends Module
 
         return true;
     }
-
-
+    
     public function install(): bool
     {
         return parent::install() && self::registerHooks($this->name);

@@ -181,7 +181,6 @@ class TvcoreXml
         int $node_index = 0,
     ) {
         $obj = self::getNodeObject($link, $node_index, $node_tag);
-        //var_dump($obj);
         require_once __DIR__ . '/TvcoreRecursiveDOMIterator.php';
         $dit = new RecursiveIteratorIterator(
             new TvcoreRecursiveDOMIterator($obj['node']),
@@ -194,7 +193,6 @@ class TvcoreXml
                 ++$i;
             }
         }
-        //print('<pre>' . print_r($file_rows, true) . '</pre>');
         $result = '<div class="element lvl_0" data-path="/product"><div class="expander">-</div>' .
             '<div class="tag">&lt;<span class="tag_name">product</span>&gt;</div><div class="content">' .
             '<div class="element lvl_1' . $file_rows[0]['class'] . '" data-path="' . $file_rows[0]['path'] . '">' .
@@ -246,8 +244,6 @@ class TvcoreXml
         } else {
             $value = $last_record['value'];
         }
-
-        //$value = '&#x3C;![CDATA[' . $last_record['value'] . ']]&#x3E;';
 
         $result .= $value . '</div><div class="tag">&lt;/<span class="tag_name">' . $last_record['name'] . '</span>&gt;</div></div>';
 
@@ -430,7 +426,7 @@ class TvcoreXml
                 $xpath = new DOMXPath($targetDoc);
                 if ($xpath->query($filter, $node)->length > 0) {
                     $targetDoc->documentElement->appendChild(
-                        $targetDoc->importNode($node, TRUE)
+                        $targetDoc->importNode($node, true)
                     );
                 }
             }
