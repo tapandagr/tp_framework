@@ -23,7 +23,7 @@ class TvcoreAddIndexModuleFrontController extends ModuleFrontController
         } else {
             $module_name = Tools::getValue('module_name');
             $module = Module::getInstanceByName($module_name);
-            if (Validate::isLoadedObject($module) && Module::isEnabled($module_name)) {
+            if (Validate::isLoadedObject($module) && Module::isEnabled($module_name) || Tools::getValue('force') == 1) {
                 require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
                 $module_dir = _PS_MODULE_DIR_ . $module_name;
                 $directories = TvcoreFile::getSubDirectories($module_dir);
