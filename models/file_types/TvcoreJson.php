@@ -22,7 +22,7 @@ class TvcoreJson
             // We get data, proceed
             $json_string = Tools::file_get_contents($link);
 
-            return json_decode($json_string);
+            return json_decode($json_string, true);
         }
 
         return false;
@@ -32,6 +32,7 @@ class TvcoreJson
     {
         if (is_file($file_path)) {
             $json_string = Tools::file_get_contents($file_path);
+
             return json_decode($json_string, true);
         }
 
@@ -116,5 +117,11 @@ class TvcoreJson
         }
 
         exit(json_encode($result, JSON_UNESCAPED_UNICODE));
+    }
+
+    //2025
+    public static function getDataFromLocalFile(string $path)
+    {
+        return json_decode(file_get_contents($path), true);
     }
 }

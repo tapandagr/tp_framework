@@ -309,48 +309,6 @@ class TvcoreFile
         return false;
     }
 
-    public static function __getDirectoryFiles(
-        string $dir_path,
-        string|bool $json_cache = false
-    ) {
-        $files = TvcoreJson::getFile($json_cache);
-        if ($files && !_PS_MODE_DEV_) {
-            return $files;
-        }
-
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(
-                $dir_path,
-                RecursiveDirectoryIterator::SKIP_DOTS
-            ),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        $result = [];
-
-        foreach ($files as $fileinfo) {
-            if (!$fileinfo->isDir()) {
-                // We need only the files
-                $file_path = $fileinfo->getRealPath();
-                $file_name = $fileinfo->getFilename();
-                if (!in_array($file_name, ['index.php', '.htaccess', '.DS_Store'])) {
-                    if (!str_contains($file_path, '~lock')) {
-                        $extension = self::getExtension($file_path);
-                        if (in_array($extension, ['json', 'ods', 'txt', 'xls', 'xlsx', 'xml'])) {
-                            $result[]['path'] = $file_path;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (is_string($json_cache)) {
-            TvcoreJson::setFile($json_cache, $result, 'path');
-        }
-
-        return $result;
-    }
-
     public static function getExtension(string $file_path): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -380,10 +338,13 @@ class TvcoreFile
         return false;
     }
 
+    // public static function __getDirectoryFiles
+
     public static function getDirectoryFiles(
         string $dir_path,
-        array $exclude = ['index.php', '.htaccess', '.DS_Store']
-    ) {
+        array $include_extensions = [],
+        array $exclude_files = ['index.php', '.htaccess', '.DS_Store'],
+    ): array {
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(
                 $dir_path,
@@ -394,26 +355,48 @@ class TvcoreFile
 
         $result = [];
 
-        foreach ($files as $fileinfo) {
-            $file_path = $fileinfo->getRealPath();
-            $file_name = $fileinfo->getFilename();
-            if (!in_array($file_name, $exclude) && !str_contains($file_path, '~lock')) {
-                $result[] = $file_path;
-            }
-            /* if ($fileinfo->isDir() && in_array($fileinfo->getRealPath(), $whitelisted_dirs)) {
-                continue; // The children have already been deleted
-            } elseif ($fileinfo->getFilename() == 'index.php'
-                && in_array($fileinfo->getPath(), $whitelisted_dirs)
-            ) {
-                continue; // We do need the index.php file from whitelisted directory
-            } else {
-                // Neither whitelisted directory, nor index.php of whitelisted => Delete everything
-                $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
-                $todo($fileinfo->getRealPath());
-            } */
+        if (empty($include_extensions)) {
+            self::getDirectoryFilesExtensionAll($result, $files, $exclude_files);
+        } else {
+            self::getDirectoryFilesExtensionSpecific($result, $files, $exclude_files, $include_extensions);
         }
 
         return $result;
+    }
+
+    public static function getDirectoryFilesExtensionAll(
+        array &$result,
+        RecursiveIteratorIterator $files,
+        array $exclude_files): void
+    {
+        foreach ($files as $fileinfo) {
+            $file_path = $fileinfo->getRealPath();
+            $file_name_with_extension = $fileinfo->getFilename();
+            if (!in_array($file_name_with_extension, $exclude_files) && !str_contains($file_path, '~lock')) {
+                $extension = self::getExtension($file_path);
+                $file_name_without_extension = $fileinfo->getBasename($extension);
+                $result[$file_name_without_extension] = $file_path;
+            }
+        }
+    }
+
+    public static function getDirectoryFilesExtensionSpecific(
+        array &$result,
+        RecursiveIteratorIterator $files,
+        array $exclude_files,
+        array $include_extensions): void
+    {
+        foreach ($files as $fileinfo) {
+            $file_path = $fileinfo->getRealPath();
+            $file_name_with_extension = $fileinfo->getFilename();
+            if (!in_array($file_name_with_extension, $exclude_files) && !str_contains($file_path, '~lock')) {
+                $extension = self::getExtension($file_path);
+                $file_name_without_extension = $fileinfo->getBasename('.' . $extension);
+                if (in_array($extension, $include_extensions)) {
+                    $result[$file_name_without_extension] = $file_path;
+                }
+            }
+        }
     }
 
     public static function deleteDirectory(string $directory_path): bool
@@ -607,6 +590,7 @@ class TvcoreFile
             $extension = self::$mime_types[$mime];
             $final_destination .= '/' . $file_name . '.' . $extension;
             rename($tmp_destination, $final_destination);
+
             return [
                 'path' => $final_destination,
                 'extension' => $extension,
@@ -614,6 +598,7 @@ class TvcoreFile
         }
 
         unlink($tmp_destination);
+
         return false;
     }
 

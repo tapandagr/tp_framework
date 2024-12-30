@@ -208,16 +208,16 @@ class Tvcore extends Module
                 }
             }
 
-            self::installTableOverrides($module_dir);
+            self::installTablesOverride($module_dir);
 
             // Some tables which belong to a module are useful only when another one is installed
-            self::installAdditionalTables($module_dir);
+            self::installTablesAdditional($module_dir);
         }
 
         return true;
     }
 
-    public static function installTableOverrides(string $module_dir): bool
+    public static function installTablesOverride(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/table_overrides.php';
         if (is_file($file)) {
@@ -237,25 +237,36 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function installAdditionalTables(string $module_dir): bool
+    public static function installTablesAdditional(string $module_dir): bool
     {
-        $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
-        if (is_dir($additional_tables)) {
-            require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
-            $additional = TvcoreFile::getDirFiles($additional_tables, ['index.php']);
-            foreach ($additional as $module) {
-                if (Module::isEnabled($module['name'])) {
-                    $module_tables = include_once $additional_tables . '/' . $module['name'] . '.php';
-                    foreach ($module_tables as $table_key => $table_key) {
-                        if (!Db::getInstance()->execute($module_tables[$table_key])) {
-                            return false;
-                        }
-                    }
+        $modules_tables_additional = self::getTablesAdditional($module_dir);
+        if (sizeof($modules_tables_additional)) {
+            foreach ($modules_tables_additional as $module_table) {
+                $query = str_replace(['_DB_PREFIX_', '_MYSQL_ENGINE_'], [_DB_PREFIX_, _MYSQL_ENGINE_], $module_table);
+                if (!Db::getInstance()->execute($query)) {
+                    return false;
                 }
             }
         }
 
         return true;
+    }
+
+    protected static function getTablesAdditional(string $module_dir): array
+    {
+        $result = [];
+        $additional_tables_directory = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
+        if (is_dir($additional_tables_directory)) {
+            require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
+            $additional_tables_files = TvcoreFile::getDirectoryFiles($additional_tables_directory, ['json']);
+            foreach ($additional_tables_files as $module_key => $tables_path) {
+                if (Module::isEnabled($module_key)) {
+                    $result = array_merge($result, TvcoreJson::getDataFromLocalFile($tables_path));
+                }
+            }
+        }
+
+        return $result;
     }
 
     public static function uninstallTables(string $module_dir): bool
@@ -269,16 +280,16 @@ class Tvcore extends Module
                 }
             }
 
-            self::uninstallTableOverrides($module_dir);
+            self::uninstallTablesOverride($module_dir);
 
             // Some tables which belong to a module are useful only when another one is installed
-            self::uninstallAdditionalTables($module_dir);
+            self::uninstallTablesAdditional($module_dir);
         }
 
         return true;
     }
 
-    public static function uninstallTableOverrides(string $module_dir): bool
+    public static function uninstallTablesOverride(string $module_dir): bool
     {
         $file = _PS_MODULE_DIR_ . $module_dir . '/sql/table_overrides.php';
         if (is_file($file)) {
@@ -298,20 +309,13 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function uninstallAdditionalTables(string $module_dir): bool
+    public static function uninstallTablesAdditional(string $module_dir): bool
     {
-        $additional_tables = _PS_MODULE_DIR_ . $module_dir . '/sql/additional';
-        if (is_dir($additional_tables)) {
-            require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreFile.php';
-            $additional = TvcoreFile::getDirFiles($additional_tables, ['index.php']);
-            foreach ($additional as $module) {
-                if (Module::isEnabled($module['name'])) {
-                    $module_tables = include_once $additional_tables . '/' . $module['name'] . '.php';
-                    foreach ($module_tables as $table_key => $table_key) {
-                        if (!Db::getInstance()->execute('DROP TABLE IF EXISTS  `' . _DB_PREFIX_ . $table_key . '`')) {
-                            return false;
-                        }
-                    }
+        $modules_tables_additional = self::getTablesAdditional($module_dir);
+        if (sizeof($modules_tables_additional)) {
+            foreach ($modules_tables_additional as $table_key => $table_key) {
+                if (!Db::getInstance()->execute('DROP TABLE IF EXISTS  `' . _DB_PREFIX_ . $table_key . '`')) {
+                    return false;
                 }
             }
         }
@@ -327,13 +331,13 @@ class Tvcore extends Module
     {
         require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreString.php';
 
-        $file = _PS_MODULE_DIR_ . $module_dir . '/sql/data.php';
+        $file = _PS_MODULE_DIR_ . $module_dir . '/sql/data.json';
         if (is_file($file)) {
             $languages = Language::getLanguages(false);
-            $tables = include_once $file;
+            $tables = TvcoreJson::getDataFromLocalFile($file);
             foreach ($tables as $table) {
                 $model_path = _PS_MODULE_DIR_ . $module_dir . '/models/' . $table['class'] . '.php';
-                include_once $model_path;
+                require_once $model_path;
                 $class = new $table['class']();
                 $function = $table['function'];
                 $column = $table['column'];
@@ -459,7 +463,7 @@ class Tvcore extends Module
                 ],
             ),
             'cron_links' => Hook::exec(
-                'actionTvcoreConfigurationGetCronLinks',
+                'displayConfigurationTvcoreGetCronLinks',
                 [
                     'token' => $token,
                 ],
