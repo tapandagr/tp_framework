@@ -6,10 +6,11 @@
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
+// PrestaShop validator - Finish
 class Language extends LanguageCore
 {
     public static function getSecondaryLanguages(bool $active = false, bool $id_shop = false, bool $ids_only = false)
@@ -34,8 +35,10 @@ class Language extends LanguageCore
                 }
             }
             TvcoreJson::setFile($cached_file, $result);
+
             return $result;
         }
+
         return TvcoreJson::getFile($cached_file);
     }
 }

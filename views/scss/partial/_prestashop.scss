@@ -1,6 +1,43 @@
 .bootstrap {
-    .fade {
-        opacity: initial;
-        display: table !important;
+  &#content {
+    padding: 105px 15px 0 225px;
+  }
+
+  .row {
+    margin: 0;
+  }
+
+  .panel {
+    .panel-footer {
+      display: block;
+      position: relative;
+      overflow: inherit;
+      height: 5rem;
+      padding: 1rem;
+
+      .btn {
+        font-size: 0;
+        display: inline-flex;
+
+        * {
+          font-size: initial;
+        }
+
+        i {
+          display: inline-block;
+          line-height:30px;
+        }
+
+        span {
+          line-height: 30px;
+          margin-left: 0.5rem;
+        }
+      }
     }
+  }
+
+  .fade {
+    opacity: initial;
+    display: table !important;
+  }
 }

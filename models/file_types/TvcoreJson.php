@@ -5,9 +5,11 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+// PrestaShop validator - Finish
 class TvcoreJson
 {
     public static function getDataFromRemoteJson(string $link)
@@ -119,7 +121,6 @@ class TvcoreJson
         exit(json_encode($result, JSON_UNESCAPED_UNICODE));
     }
 
-    //2025
     public static function getDataFromLocalFile(string $path)
     {
         return json_decode(file_get_contents($path), true);

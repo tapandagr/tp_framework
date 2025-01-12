@@ -6,9 +6,11 @@
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+// PrestaShop validator - Finish
 // Additional tables if cool_module is enabled
 $sql['table1'] = 'create table if not exists `' . _DB_PREFIX_ . 'table1` (
     `id_table1` int(11) unsigned auto_increment,

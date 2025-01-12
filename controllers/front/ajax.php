@@ -5,10 +5,11 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
+// PrestaShop validator - Finish
 class TvcoreAjaxModuleFrontController extends ModuleFrontController
 {
     public function postProcess()

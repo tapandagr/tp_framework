@@ -5,10 +5,11 @@
  * @copyright 2018 - 2024 © tivuno.com
  * @license   https://tivuno.com/blog/bp/business-news/2-basic-license
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
+// PrestaShop validator - Finish
 class TvcoreAddIndexModuleFrontController extends ModuleFrontController
 {
     public function postProcess(): void

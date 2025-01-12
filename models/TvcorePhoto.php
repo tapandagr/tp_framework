@@ -5,9 +5,11 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+// PrestaShop validator - Finish
 class TvcorePhoto
 {
     public static function getPhoto(string $link)
@@ -51,6 +53,7 @@ class TvcorePhoto
         if ($file_headers and $file_headers[0] == 'HTTP/1.1 200 OK') {
             return true;
         }
+
         return false;
     }
 
@@ -96,6 +99,7 @@ class TvcorePhoto
             $url_parts = explode('/', $image_link);
             $file_name = str_replace('%20', '_', end($url_parts));
         }
+
         return $file_name;
     }
 
@@ -114,6 +118,7 @@ class TvcorePhoto
         if (isset($file_info['mime']) && strpos($file_info['mime'], 'image/') !== 0) {
             return false;
         }
+
         return true;
     }
 

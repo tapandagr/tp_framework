@@ -13,8 +13,8 @@
     <span class="loader"></span>
     <div class="loader_title title">{l s='This is a random title...' mod='tvcore'}</div>
 </div>
-<div class='toast toast_template fade hide' role='alert' aria-live='assertive' aria-atomic='true'>
-    <div class='toast-body float-start'>sdgsgsds</div>
+<div class='toast toast_template fade hidden' role='alert' aria-live='assertive' aria-atomic='true'>
+    <div class='toast-body float-start'>Toast body</div>
     <button type='button' class='toast-close float-end' data-bs-dismiss='toast' aria-label='Close'>
         <i class='fa-regular fa-circle-xmark'></i>
     </button>

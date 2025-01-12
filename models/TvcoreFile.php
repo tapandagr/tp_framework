@@ -5,9 +5,11 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/blog/nea-tis-epicheirisis/apli-adeia
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+// PrestaShop validator - Finish
 class TvcoreFile
 {
     protected static array $mime_types = [
@@ -28,6 +30,7 @@ class TvcoreFile
         'text/csv' => 'csv', // csv
         'text/plain' => 'txt', // csv, json (?)
         'text/xml' => 'xml',
+        'text/x-php' => 'php',
         // To be reviewed
         'txt' => 'text/plain',
         'htm' => 'text/html',
@@ -81,7 +84,6 @@ class TvcoreFile
         'xlsx' => 'application/vnd.ms-excel',
         'pptx' => 'application/vnd.ms-powerpoint',
 
-
         // open office
         'odt' => 'application/vnd.oasis.opendocument.text',
         'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
@@ -103,6 +105,14 @@ class TvcoreFile
         4 => 'json',
     ];
 
+    public static function getXmlFromArray($data): SimpleXMLElement
+    {
+        $xml = new SimpleXMLElement('<node/>');
+        self::arrayToXml($data, $xml);
+
+        return $xml;
+    }
+
     public static function arrayToXml($array, &$xml): void
     {
         foreach ($array as $key => $value) {
@@ -117,15 +127,6 @@ class TvcoreFile
         }
     }
 
-    public static function getXmlFromArray($data): SimpleXMLElement
-    {
-        $xml = new SimpleXMLElement('<node/>');
-        self::arrayToXml($data, $xml);
-
-        return $xml;
-    }
-
-    // deprecated
     public static function getJsonFromRemoteFile(string $link)
     {
         $curl = curl_init($link);
@@ -156,53 +157,6 @@ class TvcoreFile
             // We return some random sh!t that does not exist, aiming to break the process
             exit(rand());
         }
-    }
-
-    /**
-     * 2024
-     * @param string $file_link
-     * @param string $values_separated
-     * @param int $ignore
-     * @return array
-     */
-    public static function getAllCsvRecords(
-        string $file_link,
-        string $values_separated = ';',
-        int $ignore = 0
-    ) {
-        ini_set('memory_limit', '8192M');
-        $file_contents = Tools::file_get_contents($file_link);
-        $lines = explode(PHP_EOL, $file_contents);
-        $result = [];
-
-        $i = $ignore;
-
-        $last_index = sizeof($lines) - 1;
-        // If last row is empty, get rid of it
-        if ($lines[$last_index] == '') {
-            unset($lines[$last_index]);
-        }
-
-        while (isset($lines[$i])) {
-            $values = explode($values_separated, $lines[$i]);
-            if (sizeof($values) == 1) {
-                if ($values_separated == ';') {
-                    $values_separated = ',';
-                } else {
-                    $values_separated = ';';
-                }
-                $values = explode($values_separated, $lines[$i]);
-            }
-
-            $result[$i] = [];
-            foreach ($values as $k => $v) {
-                $result[$i]['col' . $k] = trim($v, '"');
-            }
-
-            ++$i;
-        }
-
-        return $result;
     }
 
     public static function getCsvRecords(
@@ -271,6 +225,53 @@ class TvcoreFile
         return array_slice($records, 0, $slice_size);
     }
 
+    /**
+     * 2024
+     * @param string $file_link
+     * @param string $values_separated
+     * @param int $ignore
+     * @return array
+     */
+    public static function getAllCsvRecords(
+        string $file_link,
+        string $values_separated = ';',
+        int $ignore = 0
+    ) {
+        ini_set('memory_limit', '8192M');
+        $file_contents = Tools::file_get_contents($file_link);
+        $lines = explode(PHP_EOL, $file_contents);
+        $result = [];
+
+        $i = $ignore;
+
+        $last_index = sizeof($lines) - 1;
+        // If last row is empty, get rid of it
+        if ($lines[$last_index] == '') {
+            unset($lines[$last_index]);
+        }
+
+        while (isset($lines[$i])) {
+            $values = explode($values_separated, $lines[$i]);
+            if (sizeof($values) == 1) {
+                if ($values_separated == ';') {
+                    $values_separated = ',';
+                } else {
+                    $values_separated = ';';
+                }
+                $values = explode($values_separated, $lines[$i]);
+            }
+
+            $result[$i] = [];
+            foreach ($values as $k => $v) {
+                $result[$i]['col' . $k] = trim($v, '"');
+            }
+
+            ++$i;
+        }
+
+        return $result;
+    }
+
     public static function getCsvTotal(string $link, $exclude_first_row): int
     {
         ini_set('memory_limit', '8192M');
@@ -309,106 +310,6 @@ class TvcoreFile
         return false;
     }
 
-    public static function getExtension(string $file_path): string
-    {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $file_path);
-
-        return self::getExtensionByMimeType($mime_type);
-    }
-
-    public static function getExtensionByMimeType(string $mime_type)
-    {
-        if (isset(self::$mime_types[$mime_type])) {
-            return self::$mime_types[$mime_type];
-        }
-
-        return false;
-    }
-
-    public static function getMimeType(string $file_path): string
-    {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $file_path);
-
-        if (isset(self::$mime_types[$mime_type])) {
-            return $mime_type;
-        }
-
-        return false;
-    }
-
-    // public static function __getDirectoryFiles
-
-    public static function getDirectoryFiles(
-        string $dir_path,
-        array $include_extensions = [],
-        array $exclude_files = ['index.php', '.htaccess', '.DS_Store'],
-    ): array {
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(
-                $dir_path,
-                FilesystemIterator::SKIP_DOTS
-            ),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        $result = [];
-
-        if (empty($include_extensions)) {
-            self::getDirectoryFilesExtensionAll($result, $files, $exclude_files);
-        } else {
-            self::getDirectoryFilesExtensionSpecific($result, $files, $exclude_files, $include_extensions);
-        }
-
-        return $result;
-    }
-
-    public static function getDirectoryFilesExtensionAll(
-        array &$result,
-        RecursiveIteratorIterator $files,
-        array $exclude_files): void
-    {
-        foreach ($files as $fileinfo) {
-            $file_path = $fileinfo->getRealPath();
-            $file_name_with_extension = $fileinfo->getFilename();
-            if (!in_array($file_name_with_extension, $exclude_files) && !str_contains($file_path, '~lock')) {
-                $extension = self::getExtension($file_path);
-                $file_name_without_extension = $fileinfo->getBasename($extension);
-                $result[$file_name_without_extension] = $file_path;
-            }
-        }
-    }
-
-    public static function getDirectoryFilesExtensionSpecific(
-        array &$result,
-        RecursiveIteratorIterator $files,
-        array $exclude_files,
-        array $include_extensions): void
-    {
-        foreach ($files as $fileinfo) {
-            $file_path = $fileinfo->getRealPath();
-            $file_name_with_extension = $fileinfo->getFilename();
-            if (!in_array($file_name_with_extension, $exclude_files) && !str_contains($file_path, '~lock')) {
-                $extension = self::getExtension($file_path);
-                $file_name_without_extension = $fileinfo->getBasename('.' . $extension);
-                if (in_array($extension, $include_extensions)) {
-                    $result[$file_name_without_extension] = $file_path;
-                }
-            }
-        }
-    }
-
-    public static function deleteDirectory(string $directory_path): bool
-    {
-        if (is_dir($directory_path)) {
-            self::deleteDirectoryContents($directory_path);
-            rmdir($directory_path);
-        }
-
-        return true;
-    }
-
     public static function getFileType(string $link)
     {
         $headers = get_headers($link, 1);
@@ -420,45 +321,6 @@ class TvcoreFile
         }
 
         return $file_type;
-    }
-
-    public static function deleteDirectoryContents(
-        string $parent_directory,
-        array $relative_whitelisted_dirs = [],
-        array $whitelisted_files = [],
-    ) {
-        $whitelisted_dirs = [$parent_directory];
-
-        foreach ($relative_whitelisted_dirs as $whitelisted_dir) {
-            $whitelisted_dirs[] = $parent_directory . $whitelisted_dir;
-        }
-
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(
-                $parent_directory,
-                RecursiveDirectoryIterator::SKIP_DOTS
-            ),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($files as $fileinfo) {
-            $file_name = $fileinfo->getFilename();
-            $file_path = $fileinfo->getRealPath();
-            if ($fileinfo->isDir()) {
-                if (in_array($file_path, $whitelisted_dirs)) {
-                    continue; // The children have already been deleted
-                } else {
-                    rmdir($file_path);
-                }
-            } elseif (!in_array($file_name, $whitelisted_files)
-                && !str_contains($file_path, '~lock')
-                && in_array($file_path, $whitelisted_dirs)
-            ) {
-                continue; // We do need files such as index.php or .htaccess
-            } else {
-                unlink($file_path); // Blacklisted file
-            }
-        }
     }
 
     public static function getSubDirectories(string $dir)
@@ -489,20 +351,6 @@ class TvcoreFile
 
     /**
      * @param string $dir_path
-     * @param string $module_name
-     * @return void
-     */
-    public static function mkdir(string $dir_path, string $module_name)
-    {
-        if (!is_dir($dir_path)) {
-            mkdir($dir_path, 0755, true);
-            self::copy(_PS_MODULE_DIR_ . $module_name, $dir_path, 'index.php');
-        }
-        @chmod($dir_path, 0755);
-    }
-
-    /**
-     * @param string $dir_path
      * @param array $dir_names
      * @param string $module_name
      * @return string
@@ -515,6 +363,20 @@ class TvcoreFile
         }
 
         return $dir_path;
+    }
+
+    /**
+     * @param string $dir_path
+     * @param string $module_name
+     * @return void
+     */
+    public static function mkdir(string $dir_path, string $module_name)
+    {
+        if (!is_dir($dir_path)) {
+            mkdir($dir_path, 0755, true);
+            self::copy(_PS_MODULE_DIR_ . $module_name, $dir_path, 'index.php');
+        }
+        @chmod($dir_path, 0755);
     }
 
     public static function copy(string $origin, string $destination, string $file_name)
@@ -602,6 +464,18 @@ class TvcoreFile
         return false;
     }
 
+    public static function getMimeType(string $file_path): string
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $file_path);
+
+        if (isset(self::$mime_types[$mime_type])) {
+            return $mime_type;
+        }
+
+        return false;
+    }
+
     public static function unzip($file, $destination)
     {
         $zip = new ZipArchive();
@@ -633,6 +507,235 @@ class TvcoreFile
             self::deleteDirectory($source);
         } else {
             copy($source, $target);
+        }
+    }
+
+    public static function deleteDirectory(string $directory_path): bool
+    {
+        if (is_dir($directory_path)) {
+            self::deleteDirectoryContents($directory_path);
+            rmdir($directory_path);
+        }
+
+        return true;
+    }
+
+    public static function deleteDirectoryContents(
+        string $parent_directory,
+        array $relative_whitelisted_dirs = [],
+        array $whitelisted_files = [],
+    ) {
+        $whitelisted_dirs = [$parent_directory];
+
+        foreach ($relative_whitelisted_dirs as $whitelisted_dir) {
+            $whitelisted_dirs[] = $parent_directory . $whitelisted_dir;
+        }
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $parent_directory,
+                RecursiveDirectoryIterator::SKIP_DOTS
+            ),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $fileinfo) {
+            $file_name = $fileinfo->getFilename();
+            $file_path = $fileinfo->getRealPath();
+            if ($fileinfo->isDir()) {
+                if (in_array($file_path, $whitelisted_dirs)) {
+                    continue; // The children have already been deleted
+                } else {
+                    rmdir($file_path);
+                }
+            } elseif (!in_array($file_name, $whitelisted_files)
+                && !str_contains($file_path, '~lock')
+                && in_array($file_path, $whitelisted_dirs)
+            ) {
+                continue; // We do need files such as index.php or .htaccess
+            } else {
+                unlink($file_path); // Blacklisted file
+            }
+        }
+    }
+
+    public static function getTemplateParentDir($module_name): array
+    {
+        return [
+            'module_admin' => _PS_MODULE_DIR_ . $module_name . '/views/templates/admin',
+            'admin' => _PS_ROOT_DIR_ . '/' . _PS_ADMIN_DIR_ONLY_ . '/themes/default/template/controllers',
+        ];
+    }
+
+    public static function getDirectoryFiles(
+        string $dir_path,
+        array $include_extensions = [],
+        array $exclude_files = ['index.php', '.htaccess', '.DS_Store'],
+    ): array {
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $dir_path,
+                FilesystemIterator::SKIP_DOTS
+            ),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        $result = [];
+
+        if (empty($include_extensions)) {
+            self::getDirectoryFilesExtensionAll($result, $files, $exclude_files);
+        } else {
+            self::getDirectoryFilesExtensionSpecific($result, $files, $exclude_files, $include_extensions);
+        }
+
+        return $result;
+    }
+
+    public static function getDirectoryFilesExtensionAll(
+        array &$result,
+        RecursiveIteratorIterator $files,
+        array $exclude_files): void
+    {
+        foreach ($files as $fileinfo) {
+            $file_path = $fileinfo->getRealPath();
+            $file_name_with_extension = $fileinfo->getFilename();
+            if (!in_array($file_name_with_extension, $exclude_files) && !str_contains($file_path, '~lock')) {
+                $extension = self::getExtension($file_path);
+                $file_name_without_extension = $fileinfo->getBasename($extension);
+                $result[$file_name_without_extension] = $file_path;
+            }
+        }
+    }
+
+    public static function getExtension(string $file_path): string
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $file_path);
+
+        return self::getExtensionByMimeType($mime_type);
+    }
+
+    public static function getExtensionByMimeType(string $mime_type)
+    {
+        if (isset(self::$mime_types[$mime_type])) {
+            return self::$mime_types[$mime_type];
+        }
+
+        return false;
+    }
+
+    public static function getDirectoryFilesExtensionSpecific(
+        array &$result,
+        RecursiveIteratorIterator $files,
+        array $exclude_files,
+        array $include_extensions): void
+    {
+        foreach ($files as $fileinfo) {
+            $file_path = $fileinfo->getRealPath();
+            $file_name_with_extension = $fileinfo->getFilename();
+            if (!in_array($file_name_with_extension, $exclude_files) && !str_contains($file_path, '~lock')) {
+                $extension = self::getExtension($file_path);
+                $file_name_without_extension = $fileinfo->getBasename('.' . $extension);
+                if (in_array($extension, $include_extensions)) {
+                    $result[$file_name_without_extension] = $file_path;
+                }
+            }
+        }
+    }
+
+    public static function installPrestaShopValidation(string $module_dir): void
+    {
+        $php_files = self::getDirectoryFiles(_PS_MODULE_DIR_ . $module_dir, ['php']);
+        foreach ($php_files as $php_file) {
+            $result = [];
+            $lines = @file_get_contents($php_file);
+            $explode = explode(PHP_EOL, $lines);
+
+            $line_key = 0;
+            while (isset($explode[$line_key]) && !str_contains($explode[$line_key], 'PrestaShop validator - Start')) {
+                $result[] = $explode[$line_key];
+                ++$line_key;
+            }
+
+            if (isset($explode[$line_key])) {
+                $result[] = $explode[$line_key];
+                ++$line_key;
+
+                $result = array_merge(
+                    $result,
+                    [
+                        "if (!defined('_PS_VERSION_')) {",
+                        "\texit;",
+                        '}',
+                    ]
+                );
+
+                while (isset($explode[$line_key]) && !str_contains($explode[$line_key], 'PrestaShop validator - Finish')) {
+                    ++$line_key;
+                }
+
+                if (isset($explode[$line_key])) {
+                    $result[] = $explode[$line_key];
+                    ++$line_key;
+                }
+
+                $result = array_merge($result, array_slice($explode, $line_key));
+                file_put_contents($php_file, implode(PHP_EOL, $result));
+            }
+        }
+    }
+
+    public static function uninstallPrestaShopValidation(string $module_dir): void
+    {
+        $php_files = self::getDirectoryFiles(_PS_MODULE_DIR_ . $module_dir, ['php']);
+        foreach ($php_files as $php_file) {
+            $result = [];
+            $lines = @file_get_contents($php_file);
+            $explode = explode(PHP_EOL, $lines);
+            $line_key = 0;
+            while (isset($explode[$line_key]) && !str_contains($explode[$line_key], 'PrestaShop validator - Start')) {
+                $result[] = $explode[$line_key];
+                ++$line_key;
+            }
+
+            if (isset($explode[$line_key])) {
+                $result[] = $explode[$line_key];
+                ++$line_key;
+
+                while (isset($explode[$line_key]) && !str_contains($explode[$line_key], 'PrestaShop validator - Finish')) {
+                    ++$line_key;
+                }
+
+                $result = array_merge($result, array_slice($explode, $line_key));
+                file_put_contents($php_file, implode(PHP_EOL, $result));
+            }
+        }
+    }
+
+    public static function updateModuleSettings(Module $module): void
+    {
+        $values = [];
+        foreach ($module->getSettings(false) as $setting_key => $setting) {
+            if (isset($setting['language']) && $setting['language'] === true) {
+                foreach (Language::getLanguages(false, false, true) as $id_lang) {
+                    $key = $setting_key . '_' . $id_lang;
+                    if (null !== Tools::getValue($key)) {
+                        $value = Tools::getValue($key);
+                        if (Validate::{$setting['validation']}($value)) {
+                            $values[$setting_key][$id_lang] = $value;
+                        }
+                    }
+                }
+            } elseif (null !== Tools::getValue($setting_key)) {
+                $value = Tools::getValue($setting_key);
+                if (Validate::{$setting['validation']}($value)) {
+                    $values[$setting_key] = $value;
+                }
+            }
+        }
+
+        foreach ($values as $key => $key) {
+            Configuration::updateValue($key, $values[$key]);
         }
     }
 }

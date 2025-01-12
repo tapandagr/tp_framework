@@ -5,16 +5,23 @@
  * @copyright 2018 - 2025 © tivuno.com
  * @license   https://tivuno.com/el/blog/nea-tis-epicheirisis/apli-adeia
  */
+// PrestaShop validator - Start
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+// PrestaShop validator - Finish
+if (!defined('_PS_ADMIN_DIR_ONLY_')) {
+    // if _PS_ADMIN_DIR_ is not defined, define.
+    define('_PS_ADMIN_DIR_ONLY_', 'ptolemeo'); // Configuration::get('PS_ADMIN_DIR_ONLY'));
+}
+require_once __DIR__ . '/models/TvcoreFile.php';
+require_once __DIR__ . '/models/file_types/TvcoreJson.php';
 class Tvcore extends Module
 {
-    private $languages;
-
     protected static array $templates = [
         'admin_header' => '/themes/default/template/header.tpl',
     ];
+    private $languages;
 
     public function __construct()
     {
@@ -40,77 +47,14 @@ class Tvcore extends Module
         echo '<pre>' . $string . '</pre>';
     }
 
-    protected static function installAdminHeaderTemplate(): bool
-    {
-        $handle = $result = @file(self::$templates['admin_header']);
-        $i = 0;
-        foreach ($handle as $line) {
-            if (str_contains($line, '{* begin  HEADER *}')) {
-                $result[$i] = "    {hook h='displayAdminAfterBodyOpeningTag'}" . PHP_EOL . $line;
-                break;
-            }
-            ++$i;
-        }
-        file_put_contents(self::$templates['admin_header'], implode('', $result));
-        @chmod(self::$templates['admin_header'], 0644);
-
-        return true;
-    }
-
-    protected static function installModifiedTemplates(): bool
-    {
-        return self::installAdminHeaderTemplate();
-    }
-
-    protected static function uninstallModifiedTemplates(): bool
-    {
-        return self::uninstallAdminHeaderTemplate();
-    }
-
-    protected static function uninstallAdminHeaderTemplate(): bool
-    {
-        $handle = $result = @file(self::$templates['admin_header']);
-        $i = 0;
-        foreach ($handle as $line) {
-            if (str_contains($line, 'displayAdminAfterBodyOpeningTag')) {
-                unset($result[$i]);
-                break;
-            }
-            ++$i;
-        }
-        file_put_contents(self::$templates['admin_header'], implode('', $result));
-        @chmod(self::$templates['admin_header'], 0644);
-
-        return true;
-    }
-
-    public function install(): bool
-    {
-        return parent::install() && self::registerHooks($this->name);
-    }
-
-    public function enable($force_all = false): bool
-    {
-        return parent::enable($force_all)
-            && self::registerHooks($this->name)
-            && self::installModifiedTemplates();
-    }
-
-    public function disable($force_all = false): bool
-    {
-        return parent::disable($force_all)
-            && self::uninstallModifiedTemplates();
-    }
-
-    public static function registerHooks(string $module_dir): bool
+    public static function unregisterHooks(string $module_dir): bool
     {
         $module_obj = Module::getInstanceByName($module_dir);
         if (Validate::isLoadedObject($module_obj)) {
-            $file = _PS_MODULE_DIR_ . $module_dir . '/sql/hooks.php';
-            if (is_file($file)) {
-                $hooks = include_once $file;
+            $hooks = require_once _PS_MODULE_DIR_ . $module_dir . '/sql/hooks.php';
+            if (is_array($hooks)) {
                 foreach ($hooks as $hook) {
-                    $module_obj->registerHook($hook);
+                    $module_obj->unregisterHook($hook);
                 }
             }
         }
@@ -118,44 +62,29 @@ class Tvcore extends Module
         return true;
     }
 
-    public function hookDisplayHeader(): void
+    public static function installNewAdminTemplates($module_name): bool
     {
-        $this->context->controller->registerStylesheet(
-            'modules-tvcore-fontawesome',
-            'modules/' . $this->name . '/libraries/fontawesome/css/all.min.css',
-            ['media' => 'all', 'priority' => 150]
-        );
+        $parent_dir = TvcoreFile::getTemplateParentDir($module_name);
+        $new_admin_templates = require_once _PS_MODULE_DIR_ . $module_name . '/sql/new_admin_templates.php';
+        if (is_array($new_admin_templates) && sizeof($new_admin_templates)) {
+            foreach ($new_admin_templates as $dir_path => $templates) {
+                TvcoreFile::mkdir($parent_dir['admin'] . $dir_path, $module_name);
+                foreach ($templates as $template) {
+                    TvcoreFile::copy(
+                        $parent_dir['module_admin'] . $dir_path,
+                        $parent_dir['admin'] . $dir_path,
+                        $template
+                    );
+                }
+            }
+        }
 
-        $this->context->controller->registerStylesheet(
-            'modules-tvcore-main',
-            'modules/' . $this->name . '/views/css/front/main.css',
-            ['media' => 'all', 'priority' => 150]
-        );
-
-        $this->context->controller->registerStylesheet(
-            'modules-tvcore-minimum',
-            'modules/' . $this->name . '/views/css/front/minimum.css',
-            ['media' => 'all', 'priority' => 150]
-        );
-        $this->context->controller->registerJavascript(
-            'modules-tvcore-bootstrap',
-            'modules/' . $this->name . '/views/js/front/bootstrap.js',
-            ['position' => 'bottom', 'priority' => 150]
-        );
+        return true;
     }
 
-    public function hookDisplayAdminAfterBodyOpeningTag(): string
+    public static function installSettings(string $module_dir): bool
     {
-        return $this->fetch('module:' . $this->name . '/views/templates/hooks/displayAdminAfterBodyOpeningTag.tpl');
-    }
-
-    public function hookDisplayAfterBodyOpeningTag(): string
-    {
-        return $this->fetch('module:' . $this->name . '/views/templates/hooks/displayAfterBodyOpeningTag.tpl');
-    }
-
-    public static function installSettings(array $settings): bool
-    {
+        $settings = require_once _PS_MODULE_DIR_ . $module_dir . '/sql/settings.php';
         foreach ($settings as $key => $value) {
             if (isset($value['default_value'])) {
                 Configuration::updateValue($key, $value['default_value']);
@@ -165,36 +94,28 @@ class Tvcore extends Module
         return true;
     }
 
-    public static function uninstallSettings(array $settings): bool
+    public static function uninstallNewAdminTemplates($module_name): bool
     {
-        foreach ($settings as $key => $key) {
-            Configuration::deleteByName($key);
+        $parent_dir = TvcoreFile::getTemplateParentDir($module_name);
+        $new_admin_templates = require_once _PS_MODULE_DIR_ . $module_name . '/sql/new_admin_templates.php';
+        if (is_array($new_admin_templates) && sizeof($new_admin_templates)) {
+            foreach ($new_admin_templates as $dir_path => $dir_path) {
+                Tools::deleteDirectory($parent_dir['admin'] . $dir_path);
+            }
         }
 
         return true;
     }
 
-    public function getSettingsWithValues(array $settings): array
+    public static function uninstallSettings(string $module_dir): bool
     {
-        $values = [];
-        foreach ($settings as $setting) {
-            $validation_method = $setting['validation'];
-            if (isset($setting['language'])) {
-                foreach (Language::getLanguages(false, false, true) as $language_id) {
-                    $tmp_value = Configuration::get($setting['key'], $language_id);
-                    if (Validate::$validation_method($tmp_value)) {
-                        $values[$setting['key']][$language_id] = $tmp_value;
-                    }
-                }
-            } else {
-                $tmp_value = Configuration::get($setting['key']);
-                if (Validate::$validation_method($tmp_value)) {
-                    $values[$setting['key']] = $tmp_value;
-                }
-            }
+        $settings = require_once _PS_MODULE_DIR_ . $module_dir . '/sql/settings.php';
+
+        foreach ($settings as $key => $key) {
+            Configuration::deleteByName($key);
         }
 
-        return $values;
+        return true;
     }
 
     public static function installTables(string $module_dir): bool
@@ -331,10 +252,10 @@ class Tvcore extends Module
     {
         require_once _PS_MODULE_DIR_ . 'tvcore/models/TvcoreString.php';
 
-        $file = _PS_MODULE_DIR_ . $module_dir . '/sql/data.json';
+        $file = _PS_MODULE_DIR_ . $module_dir . '/sql/data.php';
         if (is_file($file)) {
             $languages = Language::getLanguages(false);
-            $tables = TvcoreJson::getDataFromLocalFile($file);
+            $tables = require_once $file;
             foreach ($tables as $table) {
                 $model_path = _PS_MODULE_DIR_ . $module_dir . '/models/' . $table['class'] . '.php';
                 require_once $model_path;
@@ -432,6 +353,137 @@ class Tvcore extends Module
     {
         echo '<pre>' . print_r($array, true) . '</pre>';
         exit(rand());
+    }
+
+    public function install(): bool
+    {
+        return parent::install() && self::registerHooks($this->name);
+    }
+
+    public static function registerHooks(string $module_dir): bool
+    {
+        $module_obj = Module::getInstanceByName($module_dir);
+        if (Validate::isLoadedObject($module_obj)) {
+            $hooks = require_once _PS_MODULE_DIR_ . $module_dir . '/sql/hooks.php';
+            if (is_array($hooks)) {
+                foreach ($hooks as $hook) {
+                    $module_obj->registerHook($hook);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public function enable($force_all = false): bool
+    {
+        return parent::enable($force_all)
+            && self::registerHooks($this->name)
+            && self::installModifiedTemplates();
+    }
+
+    protected static function installModifiedTemplates(): bool
+    {
+        return self::installAdminHeaderTemplate();
+    }
+
+    protected static function installAdminHeaderTemplate(): bool
+    {
+        $handle = $result = @file(self::$templates['admin_header']);
+        $i = 0;
+        foreach ($handle as $line) {
+            if (str_contains($line, '{* begin  HEADER *}')) {
+                $result[$i] = "    {hook h='displayAdminAfterBodyOpeningTag'}" . PHP_EOL . $line;
+                break;
+            }
+            ++$i;
+        }
+        file_put_contents(self::$templates['admin_header'], implode('', $result));
+        @chmod(self::$templates['admin_header'], 0644);
+
+        return true;
+    }
+
+    public function disable($force_all = false): bool
+    {
+        return parent::disable($force_all)
+            && self::uninstallModifiedTemplates();
+    }
+
+    protected static function uninstallModifiedTemplates(): bool
+    {
+        return self::uninstallAdminHeaderTemplate();
+    }
+
+    protected static function uninstallAdminHeaderTemplate(): bool
+    {
+        $handle = $result = @file(self::$templates['admin_header']);
+        $i = 0;
+        foreach ($handle as $line) {
+            if (str_contains($line, 'displayAdminAfterBodyOpeningTag')) {
+                unset($result[$i]);
+                break;
+            }
+            ++$i;
+        }
+        file_put_contents(self::$templates['admin_header'], implode('', $result));
+        @chmod(self::$templates['admin_header'], 0644);
+
+        return true;
+    }
+
+    public function hookDisplayHeader(): void
+    {
+        $this->context->controller->registerStylesheet(
+            'modules-tvcore-fontawesome',
+            'modules/' . $this->name . '/libraries/fontawesome/css/all.min.css',
+            ['media' => 'all', 'priority' => 150]
+        );
+
+        $this->context->controller->registerStylesheet(
+            'modules-tvcore-main',
+            'modules/' . $this->name . '/views/css/front/main.css',
+            ['media' => 'all', 'priority' => 150]
+        );
+
+        $this->context->controller->registerStylesheet(
+            'modules-tvcore-minimum',
+            'modules/' . $this->name . '/views/css/front/minimum.css',
+            ['media' => 'all', 'priority' => 150]
+        );
+    }
+
+    public function hookDisplayAdminAfterBodyOpeningTag(): string
+    {
+        return $this->fetch('module:' . $this->name . '/views/templates/hooks/displayAdminAfterBodyOpeningTag.tpl');
+    }
+
+    public function hookDisplayAfterBodyOpeningTag(): string
+    {
+        return $this->fetch('module:' . $this->name . '/views/templates/hooks/displayAfterBodyOpeningTag.tpl');
+    }
+
+    public function getSettingsWithValues(array $settings): array
+    {
+        $values = [];
+        foreach ($settings as $setting) {
+            $validation_method = $setting['validation'];
+            if (isset($setting['language'])) {
+                foreach (Language::getLanguages(false, false, true) as $language_id) {
+                    $tmp_value = Configuration::get($setting['key'], $language_id);
+                    if (Validate::$validation_method($tmp_value)) {
+                        $values[$setting['key']][$language_id] = $tmp_value;
+                    }
+                }
+            } else {
+                $tmp_value = Configuration::get($setting['key']);
+                if (Validate::$validation_method($tmp_value)) {
+                    $values[$setting['key']] = $tmp_value;
+                }
+            }
+        }
+
+        return $values;
     }
 
     public function getContent(): string
