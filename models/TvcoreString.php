@@ -333,10 +333,10 @@ class TvcoreString
         return $dash_str;
     }
 
-    public static function linkRewriteToCamelCase($link_rewrite): string
+    public static function setCamelCase(string $string): string
     {
         $result = '';
-        $explode = explode('-', $link_rewrite);
+        $explode = explode('-', $string);
         foreach ($explode as $value) {
             $result .= ucfirst($value);
         }
