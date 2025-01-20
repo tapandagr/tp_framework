@@ -355,6 +355,23 @@ class Tvcore extends Module
         exit(rand());
     }
 
+    public static function getMimeTypes(): array
+    {
+        return [
+            'application/json' => 'json', // json
+            'application/octet-stream' => 'xlsx', // xlsx (?)
+            'application/vnd.ms-excel' => 'xls', // MS Excel
+            'application/vnd.ms-office' => 'xls', // xls
+            'application/vnd.oasis.opendocument.spreadsheet' => 'ods', // ods
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx', // xlsx
+            'application/xml' => 'xml', // xml
+            'application/zip' => 'zip', // zip
+            'text/csv' => 'csv', // csv
+            'text/plain' => 'txt', // csv, json (?)
+            'text/xml' => 'xml',
+        ];
+    }
+
     public function install(): bool
     {
         return parent::install() && self::registerHooks($this->name);
@@ -567,5 +584,11 @@ class Tvcore extends Module
         $helper->fields_value['tvimport_prod_link'] = Tools::getValue('tvimport_prod_link', Configuration::get('tvimport_prod_link'));
 
         return $helper->generateForm([$form]);
+    }
+
+    public function getAdminControllerHeader(string $name, bool $open = false): string
+    {
+        return '<div class="form_title ' . ($open ? 'open' : '') . '"><span class="form_icon"><i class="fas fa-chevron-up"></i><i class="fas fa-chevron-down"></i></span>
+<span class="form_name">' . $this->l($name) . '</span></div>';
     }
 }

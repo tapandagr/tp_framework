@@ -1,43 +1,89 @@
 .bootstrap {
-  &#content {
-    padding: 105px 15px 0 225px;
-  }
+    &#content {
+        padding: 6.625rem .5rem 0 13.625rem;
 
-  .row {
-    margin: 0;
-  }
+        .panel {
+            padding: 0;
 
-  .panel {
-    .panel-footer {
-      display: block;
-      position: relative;
-      overflow: inherit;
-      height: 5rem;
-      padding: 1rem;
+            &:not(.open) {
+                border-bottom: 0;
+            }
 
-      .btn {
-        font-size: 0;
-        display: inline-flex;
+            .panel-heading {
+                line-height: 30px;
+                margin: 0;
+                cursor: pointer;
+            }
 
-        * {
-          font-size: initial;
+            .panel-content {
+                padding: 1rem;
+            }
+
+            .panel-footer {
+                margin: 0;
+            }
         }
-
-        i {
-          display: inline-block;
-          line-height:30px;
-        }
-
-        span {
-          line-height: 30px;
-          margin-left: 0.5rem;
-        }
-      }
     }
-  }
 
-  .fade {
-    opacity: initial;
-    display: table !important;
-  }
+    .row {
+        margin: 0;
+    }
+
+    .panel {
+        .panel-heading {
+            line-height: 30px;
+
+            .fa-chevron-down {
+                display: inline-block;
+            }
+
+            .fa-chevron-up {
+                display: none;
+            }
+        }
+
+        &.open {
+            .panel-heading {
+                .fa-chevron-down {
+                    display: none;
+                }
+
+                .fa-chevron-up {
+                    display: inline-block;
+                }
+            }
+        }
+
+        .panel-footer {
+            display: block;
+            position: relative;
+            overflow: inherit;
+            height: 5rem;
+            padding: 1rem;
+
+            .btn {
+                font-size: 0;
+                display: inline-flex;
+
+                * {
+                    font-size: initial;
+                }
+
+                i {
+                    display: inline-block;
+                    line-height: 30px;
+                }
+
+                span {
+                    line-height: 30px;
+                    margin-left: 0.5rem;
+                }
+            }
+        }
+    }
+
+    .fade {
+        opacity: initial;
+        display: table !important;
+    }
 }

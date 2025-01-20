@@ -372,6 +372,7 @@ class TvcoreFile
      */
     public static function mkdir(string $dir_path, string $module_name)
     {
+        echo $dir_path;
         if (!is_dir($dir_path)) {
             mkdir($dir_path, 0755, true);
             self::copy(_PS_MODULE_DIR_ . $module_name, $dir_path, 'index.php');

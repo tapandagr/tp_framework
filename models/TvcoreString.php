@@ -361,4 +361,13 @@ class TvcoreString
     {
         return hash_hmac('sha256', $string, $salt);
     }
+
+    public static function getErrorsString(int $spaces = 0): string
+    {
+        $space = str_repeat('    ', $spaces);
+
+        return $space . "ini_set('display_errors', 1);" . PHP_EOL .
+            $space . "ini_set('display_startup_errors', 1);" . PHP_EOL .
+            $space . "error_reporting(E_ALL);" . PHP_EOL;
+    }
 }
